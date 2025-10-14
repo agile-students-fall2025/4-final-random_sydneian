@@ -3,11 +3,14 @@
 Our vision is to make spontaneous hangouts exciting rather than stressful, by encouraging discovery of new places and creating lasting memories along the way.
 
 ## Core Team
-- [Catalin Botezat](https://github.com/CatalinMoldova)
-- [Deema Hazim](https://github.com/deema-hazim)
-- [Nada Beltagui](https://github.com/nadsb26)
-- [Nursultan Sagyntay](https://github.com/kazakhpunk)
-- [Zavier Shaikh](https://github.com/zs-5)
+
+| Name & GitHub | Role |
+|:--------------|:-----|
+| [Catalin Botezat](https://github.com/CatalinMoldova) | |
+| [Deema Hazim](https://github.com/deema-hazim) | Scrum Master |
+| [Nada Beltagui](https://github.com/nadsb26) | Product Owner |
+| [Nursultan Sagyntay](https://github.com/kazakhpunk) | |
+| [Zavier Shaikh](https://github.com/zs-5) | |
 
 ## Project Description
 
