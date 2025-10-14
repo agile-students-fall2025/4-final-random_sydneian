@@ -25,6 +25,12 @@ Rendezvous is built to make social planning smoother, quicker, and more fun by h
 
 The idea for **rendezvous** came from our own experiences as university students constantly trying to plan group outings. We noticed that group chats were full of “we should go here!” messages, but when the time came, no one could remember where or decide on a plan. This frustration inspired us to design a system that organizes shared ideas into a practical, fun tool for decision-making.  
 
+## How to Contribute
+
+## How to Build and Test
+
+Not there yet.
+
 ### Project Links
 
 This repository will be used for team projects.
