@@ -9,9 +9,6 @@ Our vision is to make spontaneous hangouts exciting rather than stressful, by en
 - [Nursultan Sagyntay](https://github.com/kazakhpunk)
 - [Zavier Shaikh](https://github.com/zs-5)
 
-  Product Owner: Nada Beltagui
-  Scrum Master: Deema Hazim
-
 ## Project Description
 
 **rendezvous** is a social planning app designed for university students and young adults who love going out with friends but struggle with the *“Where should we go?”* dilemma.  
