@@ -27,7 +27,7 @@ The Bucket List screen shows all items for a selected group. Users can toggle be
 ### Add Item
 ![Add Item](ux-design/add-item.png)
 
-The Add Item screen provides two methods for adding bucket list items: "Paste Link" for importing from social media or web sources, and "Add Manually" for custom entries. The screen displays Recent Additions as reference examples showing places that have been added (Rooftop Trivia, Pizza Disco, Silent Party).
+The Add Item screen provides two methods for adding bucket list items: "Paste Link" for importing from social media or web sources, and "Add Manually" for custom entries. The screen displays Recent Additions as reference examples showing places that have been added.
 
 ### Add Through Link
 ![Add Through Link](ux-design/add-through-link.png)
