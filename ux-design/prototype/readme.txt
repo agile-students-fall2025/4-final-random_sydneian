@@ -1,1 +1,1 @@
-The exported files of the completed prototype should reside in this directory.
+The [interactive prototype](https://www.figma.com/proto/BpP76AJSPGrvqKm4NxUNV8/Wireframe---Prototype?node-id=3-2&p=f&t=l0gLg5nXlvDjBoPv-1&scaling=scale-down&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=3%3A2) demonstrates the core user flows of the Rendezvous application.
