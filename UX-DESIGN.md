@@ -1,5 +1,23 @@
 # User Experience Design
 
+
+## [Prototype](https://www.figma.com/proto/BpP76AJSPGrvqKm4NxUNV8/Wireframe---Prototype?node-id=3-2&p=f&t=l0gLg5nXlvDjBoPv-1&scaling=scale-down&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=3%3A2)
+
+The [interactive prototype](https://www.figma.com/proto/BpP76AJSPGrvqKm4NxUNV8/Wireframe---Prototype?node-id=3-2&p=f&t=l0gLg5nXlvDjBoPv-1&scaling=scale-down&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=3%3A2) demonstrates the core user flows of the Rendezvous application:
+
+**Authentication Flow:** Users can navigate between the registration and login screens to create an account or sign in to an existing one.
+
+**Group Management:** From the Dashboard, users can create new groups, join existing groups, or select from their current groups to view the associated bucket list.
+
+**Bucket List Management:** Within a group, users can view all bucket list items, toggle between "To Do" and "Done" tabs, and add new items either by pasting social media links or manually entering details.
+
+**Decision Making:** Users can access the Decision Wheel to randomly select a bucket list item or use filters to narrow down options based on category and location preferences.
+
+**Memory Capture:** After completing activities, users can document their experiences in the Memory Book by adding photos and viewing past memories.
+
+The prototype allows stakeholders to experience the app's navigation flow and understand how users will interact with key features before development begins.
+
+
 ## App Map
 
 ![App Map](ux-design/app-map.png)
@@ -76,21 +94,3 @@ The Decision Filters screen allows users to narrow down bucket list options by c
 ![Memory Book](ux-design/memory-book.png)
 
 The Memory Book displays completed experiences with photos. It shows the activity name and date at the top, with a grid of photo placeholders below where users can view memories from completed bucket list items. A search bar at the top allows users to find specific memories.
-
-## Prototype
-
-[Prototype](prototype link)
-
-The interactive prototype demonstrates the core user flows of the Rendezvous application:
-
-**Authentication Flow:** Users can navigate between the registration and login screens to create an account or sign in to an existing one.
-
-**Group Management:** From the Dashboard, users can create new groups, join existing groups, or select from their current groups to view the associated bucket list.
-
-**Bucket List Management:** Within a group, users can view all bucket list items, toggle between "To Do" and "Done" tabs, and add new items either by pasting social media links or manually entering details.
-
-**Decision Making:** Users can access the Decision Wheel to randomly select a bucket list item or use filters to narrow down options based on category and location preferences.
-
-**Memory Capture:** After completing activities, users can document their experiences in the Memory Book by adding photos and viewing past memories.
-
-The prototype allows stakeholders to experience the app's navigation flow and understand how users will interact with key features before development begins.
