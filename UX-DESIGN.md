@@ -32,7 +32,7 @@ The app map shows the hierarchical structure of the application. Users start at 
 ![Register error](<ux-design/register-error.png>)
 ![Log In error](<ux-design/login-error.png>)
 
-The authentication screens provide entry points for both new and returning users. Both screens display the Rendezvous branding with the tagline "Plan together, decide faster." The Register screen includes input fields for username, email/phone number, and password with a "Sign up" button and a link to log in. The Log In screen features simplified fields for username and password with a "Log in" button and a link to sign up for new users. Both screens also feature an example error state.
+The authentication screens provide entry points for both new and returning users. Both display the Rendezvous branding with the tagline "Plan together, decide faster." The Register screen includes input fields for username, email, and password with a "Sign up" button and a link to log in, and shows an inline error message if the password is too weak. The Log In screen includes fields for username and password with a "Log in" button and a link to sign up, displaying an error message if the credentials are incorrect.
 
 ### Email Verification
 ![Email OTP screen](ux-design/email-verification.png)
