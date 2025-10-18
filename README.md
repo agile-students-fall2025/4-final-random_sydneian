@@ -1,5 +1,5 @@
 ## Product Vision Statement
-**rendezvous** empowers groups of friends to effortlessly plan social outings by transforming indecisive group chats into an organized, collaborative experience.  
+**Rendezvous** empowers groups of friends to effortlessly plan social outings by transforming indecisive group chats into an organized, collaborative experience.  
 Our vision is to make spontaneous hangouts exciting rather than stressful, by encouraging discovery of new places and creating lasting memories along the way.
 
 ## Core Team
@@ -14,7 +14,7 @@ Our vision is to make spontaneous hangouts exciting rather than stressful, by en
 
 ## Project Description
 
-**rendezvous** is a social planning app designed for university students and young adults who love going out with friends but struggle with the *“Where should we go?”* dilemma.  
+**Rendezvous** is a social planning app designed for university students and young adults who love going out with friends but struggle with the *“Where should we go?”* dilemma.  
 Instead of relying on endless group chats and scattered social media saves, Rendezvous offers a shared, centralized bucket list where friends can add cafes, restaurants, and activities they find online. When a user finds a new spot they like, they can add it directly into the app. The app then uses AI extraction tools to automatically pull key info such as name, cost, type of activity, etc.
 
 When it’s time to hang out, users can:
