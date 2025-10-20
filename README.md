@@ -30,6 +30,8 @@ The idea for **rendezvous** came from our own experiences as university students
 
 ## How to Contribute
 
+More information on how to contribute can be found here[CONTRIBUTING.md]!
+
 ## How to Build and Test
 
 Not there yet.
