@@ -30,7 +30,7 @@ The idea for **rendezvous** came from our own experiences as university students
 
 ## How to Contribute
 
-More information on how to contribute can be found here[CONTRIBUTING.md]!
+More information on how to contribute can be found here[[CONTRIBUTING.md](https://github.com/agile-students-fall2025/4-final-random_sydneian/blob/master/CONTRIBUTING.md)]!
 
 ## How to Build and Test
 
