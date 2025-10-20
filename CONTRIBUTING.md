@@ -15,10 +15,21 @@ Please create an issue before working on anything, especially significant change
 This project follows the [feature branch workflow](https://knowledge.kitchen/content/courses/agile-development-and-devops/conventions/#follow-a-feature-branch-workflow). This means you mustn't make changes directly in the master branch, but in a separate branch, and create a PR to merge them, which needs to be reviewed by another maintainer.
 
 Overview:
-1. Clone this repository.
-1. Create a new branch.
+1. [Fork this repository](https://github.com/agile-students-fall2025/4-final-random_sydneian/fork).
+1. Clone the repo (and cd into it).
+	```bash
+	$ git clone https://github.com/<your-username>/4-final-random_sydneian.git
+	$ cd 4-final-random_sydneian
+	```
+1. Create and switch to a new branch.
+	```bash
+	$ git checkout -b <branch-name>
+	```
 1. Make your modifications (make sure to commit often, and write descriptive, single line commit messages)
 1. Push your work.
+	```bash
+	$ git push -u origin <branch-name>
+	```
 1. Create a pull request.
 1. A maintainer will review the PR, raising any issues. 
 1. Once any potential issues are resolved, the PR is merged!
