@@ -47,8 +47,8 @@ This section is mostly for team members (maintainers).
 - We will communicate over our team's Discord channels, and check them at least every other day.
 - If anyone needs help with something, they can ask for help/feedback in our team Discord or on their draft PRs.
 - In case of conflicts or disagreements about certain features/directions/work, the option which the majority of team members (at least 50%) prefer will be followed. In case no consensus can be reached, the Product Owner will decide.
-- If someone doesn't respond within 3 days, we will try to reach out to them as best we can (including potentially over other channels). If there is still no response after a week, the professor or graders are alerted.
-- If someone fails to complete their work in time for a sprint, we will allow that to be pushed over to the next sprint once (if this option is possible). In case the work still isn't complete, the professor or graders are alerted.
+- If someone doesn't respond within 3 days, we will try to reach out to them as best we can (including potentially over other channels). If there is still no response after a week, the professor/graders are notified.
+- If someone fails to complete their work in time for a sprint, they are allowed an extra week, after which the professor/graders are notified.
 
 ### Sprint cadence
 
