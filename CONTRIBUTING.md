@@ -99,19 +99,14 @@ This section is mostly for team members (maintainers).
 
 ### Coding standards
 
-TBD at the beginning of the next sprint (as there was no coding yet).
-
-<!--
 - Editor: VS Code
 - Linting: Eslint
-- Formatting: Prettier (and/or Stylistic?)
-- Pre commit hook to ensure single line commit messages, and no commits to master.
+- Formatting: Prettier
 - POSIX compatible shell (Windows needs WSL).
-- Code must be peer-reviewed and pass tests before merging into the main branch of code.
-- Always push working code, if you break the pipeline/build then fix it.
+- Pre commit hook to ensure single line commit messages.
+- Code must be working, free of bugs, and peer-reviewed before merging into the master branch (if your change breaks something, please fix it)
 - Make granular and small commits, per feature or per bug fix.
-- Provide descriptive commit messages.
+- Provide descriptive commit messages (that are single line and follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) standard).
 - Write self documenting code. Use descriptive variable and function names. Avoid unnecessary name shortening.
 - Don't leave dead/commented out code behind. If you see such code, delete it.
-- Write automated tests to cover critical integration points and functionality (once you learn how to do that).
--->
+<!-- - Write automated tests to cover critical integration points and functionality (once you learn how to do that). -->
