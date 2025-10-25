@@ -8,26 +8,58 @@ We welcome all positive contributions! Whether it's fixing typos or adding featu
 
 Please create an issue before working on anything, especially significant changes or new features, as it allows the team to discuss and give feedback, before you spend time working on something that might not fit the project. Also, please test your code and ensure it follows our conventions.
 
-## Git Workflow
+## Contributing Workflow
 
-This project follows the [feature branch workflow](https://knowledge.kitchen/content/courses/agile-development-and-devops/conventions/#follow-a-feature-branch-workflow). This means you mustn't make changes directly in the master branch, but in a separate branch, and create a PR to merge them, which needs to be reviewed by another maintainer.
+### Getting the code
 
-Overview:
-
-1. Clone the repo (and cd into it).
+1. Clone the repo (and navigate into it).
    ```bash
-   $ git clone https://github.com/<your-username>/4-final-random_sydneian.git
+   $ git clone https://github.com/agile-students-fall2025/4-final-random_sydneian.git
    $ cd 4-final-random_sydneian
    ```
-1. Activate git hooks.
+1. Activate the git hooks.
    ```bash
    $ git config core.hooksPath .githooks
    ```
-1. Create and switch to a new branch.
+
+### Setting up local development environment
+
+1. Create and switch to a new branch (this project follows the [feature branch workflow](https://knowledge.kitchen/content/courses/agile-development-and-devops/conventions/#follow-a-feature-branch-workflow)).
    ```bash
    $ git checkout -b <branch-name>
    ```
+1. Ensure your editor's extensions for ESLint and Prettier are installed and working.
+1. Go into the desired directory (eg. front-end).
+   ```bash
+   $ cd front-end
+   ```
+1. Install the dependencies.
+   ```bash
+   $ npm install
+   ```
 1. Make your modifications (commit often, and ensure commit messages are single line and follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) standard).
+
+### Building and testing the project
+
+1. Ensure your code is formatted and has no linting errors.
+   ```bash
+   $ npm run fix-format-lint
+   ```
+1. Serve the project.
+   ```bash
+   $ npm run dev
+   ```
+1. If you wish to build out the project, you can use:
+   ```bash
+   $ npm run build
+   ```
+
+### Submitting your changes
+
+1. Double check your code is formatted and has no linting errors.
+   ```bash
+   $ npm run fix-format-lint
+   ```
 1. Push your work.
    ```bash
    $ git push -u origin <branch-name>
@@ -82,9 +114,4 @@ TBD at the beginning of the next sprint (as there was no coding yet).
 - Write self documenting code. Use descriptive variable and function names. Avoid unnecessary name shortening.
 - Don't leave dead/commented out code behind. If you see such code, delete it.
 - Write automated tests to cover critical integration points and functionality (once you learn how to do that).
--->
-
-<!--
-## Setting up local development environment
-## Building and testing the project
 -->
