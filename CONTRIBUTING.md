@@ -39,7 +39,7 @@ Please create an issue before working on anything, especially significant change
    ```
 1. Make your modifications (commit often, and ensure commit messages are single line and follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) standard).
 
-### Building and testing the project
+### Running the project
 
 1. Ensure your code is formatted and has no linting errors.
    ```bash
