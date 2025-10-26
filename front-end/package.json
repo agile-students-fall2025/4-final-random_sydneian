@@ -12,6 +12,7 @@
 		"fix-format-lint": "prettier . --write && eslint . --fix"
 	},
 	"dependencies": {
+		"lucide-react": "^0.548.0",
 		"modern-normalize": "^3.0.1",
 		"react": "^19.1.1",
 		"react-dom": "^19.1.1",
@@ -32,6 +33,7 @@
 		"vite": "^7.1.7"
 	},
 	"prettier": {
-		"useTabs": true
+		"useTabs": true,
+		"printWidth": 120
 	}
 }

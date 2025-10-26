@@ -1,0 +1,50 @@
+.Button {
+	display: flex;
+	width: 100%;
+	padding: 16px;
+	justify-content: space-between;
+	align-items: center;
+
+	text-decoration: none; /* Remove underline from links */
+	color: #fff;
+	background: #000; /* Set bg color to same for link and button */
+	border-radius: 8px;
+	border: 2px solid #000;
+
+	/* Temporarily use some of Figma's default font styles, until we decide on our own styles */
+	font-family: Inter, sans-serif;
+	font-weight: 700;
+	line-height: 150%; /* 24px */
+
+	.icon-text {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 32px;
+
+		img {
+			border-radius: 64px;
+		}
+	}
+
+	.arrow {
+		fill: #fff;
+	}
+
+	&.secondary {
+		color: #000;
+		background: #fff; /* Set bg color to same for link and button */
+		.arrow {
+			fill: #000;
+		}
+	}
+
+	/* Centralise text/image if only that element is present */
+	&:not(:has(img, .arrow)),
+	&:not(:has(span, .arrow)) {
+		padding: 12px 16px;
+		.icon-text {
+			width: 100%;
+		}
+	}
+}
