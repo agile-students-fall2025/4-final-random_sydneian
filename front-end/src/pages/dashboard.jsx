@@ -47,7 +47,7 @@ export default function DashboardPage() {
             padding-left: 3.5px;
             padding-right: 3.5px;
             border: 2px solid #000;
-            border-radius: 6px;
+            border-radius: 4px;
           }
   
           .section-title {
