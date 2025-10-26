@@ -65,7 +65,7 @@ Please create an issue before working on anything, especially significant change
    $ git push -u origin <branch-name>
    ```
 1. Create a pull request.
-1. A maintainer will review the PR, raising any issues.
+1. A maintainer will review the PR, raising any issues (comments will follow the [Conventional Comments](https://conventionalcomments.org/) standard).
 1. Once any potential issues are resolved, the PR is merged!
 
 ## Team Norms
@@ -90,10 +90,9 @@ This section is mostly for team members (maintainers).
 
 - Schedule
 
-  - Monday, at 10:45 AM (virtual)
-  - Tuesday, at 12:00 PM (in person)
-  - Thursday, at 11:00 AM (virtual)
-  <!-- We should probably move one of the sessions around. Maybe Monday to Sunday? -->
+  - Tuesday, at 12 PM (in person)
+  - Thursday, at 11 AM (virtual)
+  - Sunday, at 8 PM (virtual)
 
 - Each session is around 15 mins long.
 
@@ -107,6 +106,7 @@ This section is mostly for team members (maintainers).
 - Code must be working, free of bugs, and peer-reviewed before merging into the master branch (if your change breaks something, please fix it)
 - Make granular and small commits, per feature or per bug fix.
 - Provide descriptive commit messages (that are single line and follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) standard).
+- When commenting on PRs, follow the [Conventional Comments](https://conventionalcomments.org/) standard.
 - Write self documenting code. Use descriptive variable and function names. Avoid unnecessary name shortening.
 - Don't leave dead/commented out code behind. If you see such code, delete it.
 <!-- - Write automated tests to cover critical integration points and functionality (once you learn how to do that). -->
