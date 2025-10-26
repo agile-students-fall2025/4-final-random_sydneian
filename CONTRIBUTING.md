@@ -10,7 +10,7 @@ Please create an issue before working on anything, especially significant change
 
 ## Contributing Workflow
 
-### Getting the code
+### Get the source code
 
 1. Clone the repo (and navigate into it).
    ```bash
@@ -22,13 +22,12 @@ Please create an issue before working on anything, especially significant change
    $ git config core.hooksPath .githooks
    ```
 
-### Setting up local development environment
+### Set up your local development environment
 
 1. Create and switch to a new branch (this project follows the [feature branch workflow](https://knowledge.kitchen/content/courses/agile-development-and-devops/conventions/#follow-a-feature-branch-workflow)).
    ```bash
    $ git checkout -b <branch-name>
    ```
-1. Ensure your editor's extensions for ESLint and Prettier are installed and working.
 1. Go into the desired directory (eg. front-end).
    ```bash
    $ cd front-end
@@ -37,9 +36,10 @@ Please create an issue before working on anything, especially significant change
    ```bash
    $ npm install
    ```
+1. Ensure your editor's extensions for ESLint and Prettier are installed and working.
 1. Make your modifications (commit often, and ensure commit messages are single line and follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) standard).
 
-### Running the project
+### Run the project
 
 1. Ensure your code is formatted and has no linting errors.
    ```bash
@@ -54,9 +54,9 @@ Please create an issue before working on anything, especially significant change
    $ npm run build
    ```
 
-### Submitting your changes
+### Submit your changes
 
-1. Double check your code is formatted and has no linting errors.
+1. Double check your code works well (and doesn't have bugs), then ensure it's formatted and linted with:
    ```bash
    $ npm run fix-format-lint
    ```
@@ -65,7 +65,7 @@ Please create an issue before working on anything, especially significant change
    $ git push -u origin <branch-name>
    ```
 1. Create a pull request.
-1. A maintainer will review the PR, raising any issues.
+1. A maintainer will review the PR, raising any issues (comments will follow the [Conventional Comments](https://conventionalcomments.org/) standard).
 1. Once any potential issues are resolved, the PR is merged!
 
 ## Team Norms
@@ -90,23 +90,21 @@ This section is mostly for team members (maintainers).
 
 - Schedule
 
-  - Monday, at 10:45 AM (virtual)
-  - Tuesday, at 12:00 PM (in person)
-  - Thursday, at 11:00 AM (virtual)
-  <!-- We should probably move one of the sessions around. Maybe Monday to Sunday? -->
+  - Tuesday, at 11:45 AM (in person)
+  - Thursday, at 11 AM (virtual)
+  - Sunday, at 8 PM (virtual)
 
 - Each session is around 15 mins long.
 
 ### Coding standards
 
-- Editor: VS Code
-- Linting: Eslint
-- Formatting: Prettier
+- Editor: VS Code, with ESLint and Prettier
 - POSIX compatible shell (Windows needs WSL).
 - Pre commit hook to ensure single line commit messages.
-- Code must be working, free of bugs, and peer-reviewed before merging into the master branch (if your change breaks something, please fix it)
-- Make granular and small commits, per feature or per bug fix.
-- Provide descriptive commit messages (that are single line and follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) standard).
+- Code must be working, free of bugs, and peer-reviewed before merging into the master branch (if your change breaks something, please fix it).
 - Write self documenting code. Use descriptive variable and function names. Avoid unnecessary name shortening.
 - Don't leave dead/commented out code behind. If you see such code, delete it.
+- Make granular and small commits, per feature or per bug fix.
+- Provide descriptive commit messages (that are single line and follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) standard).
+- When commenting on PRs, follow the [Conventional Comments](https://conventionalcomments.org/) standard.
 <!-- - Write automated tests to cover critical integration points and functionality (once you learn how to do that). -->
