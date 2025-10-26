@@ -17,7 +17,15 @@ function App() {
 							<>
 								{/* Testing all variations of Button */}
 								{/* <div style={{ display: "flex", width: "300px" }}> */}
-								<div style={{ padding: "16px" }}>
+								<div
+									style={{
+										padding: "16px",
+										width: "393px",
+										border: "2px solid black",
+										borderRadius: "16px",
+										margin: "auto",
+									}}
+								>
 									{/* Links: Primary */}
 									<Button img={img} text="Text" arrowType="forward" buttonType="primary" href="/test" />
 									<Button text="Text" arrowType="forward" buttonType="primary" href="/test" />
@@ -37,10 +45,10 @@ function App() {
 									<Button text="Text" buttonType="secondary" href="/test" />
 									<br />
 									{/* Buttons: Primary */}
-									<Button img={img} text="Text" arrowType="forward" buttonType="primary" />
-									<Button text="Text" arrowType="forward" buttonType="primary" />
-									<Button img={img} arrowType="forward" buttonType="primary" />
-									<Button img={img} text="Text" buttonType="primary" />
+									<Button img={img} text="Text" arrowType="forward" />
+									<Button text="Text" arrowType="forward" />
+									<Button img={img} arrowType="forward" />
+									<Button img={img} text="Text" />
 									<Button arrowType="forward" />
 									<Button img={img} />
 									<Button text="Text" />
