@@ -6,7 +6,7 @@ function SharedInternals({ img, text, arrowType }) {
 		<>
 			<div className="icon-text">
 				{img && <img src={img} width="48" height="48" />}
-				{text}
+				{text && <span>{text}</span>}
 			</div>
 
 			{arrowType === "forward" && (
