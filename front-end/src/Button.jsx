@@ -25,14 +25,14 @@ function SharedInternals({ img, text, arrowType }) {
 }
 
 /**
- * Flexible button component that supports multiple configurations.
+ * Customisable button component that supports multiple configurations, and returns a Link or button element where appropriate (if href present).
  *
  * @param {Object} props - The props for this component.
  * @param {string} [props.img] The image to display.
  * @param {string} [props.text] - The text to display.
  * @param {"forward" | "outward"} [props.arrowType] - The type of arrow to display (either "forward" or "outward").
  * @param {"primary" | "secondary"} [props.buttonType] - The type of button style (either "primary" or "secondary").
- * @param {string} [props.href] - The URL to navigate to.
+ * @param {string} [props.href] - The URL to navigate to. This will cause a Link element to be returned.
  * @param {function} [props.onClick] - The click event handler. This will not be used if `href` is defined.
  * @param {...any} [props.rest] - Any additional props will be passed to the button or Link element.
  *
