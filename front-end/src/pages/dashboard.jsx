@@ -20,23 +20,34 @@ export default function DashboardPage() {
           }
   
           .dashboard-header {
+            position: relative;
             display: flex;
-            justify-content: space-between;
             align-items: center;
             margin-bottom: 32px;
             padding-bottom: 16px;
             border-bottom: 3px solid #000;
-          }
-  
+            }
+
           .dashboard-title {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
             font-size: 24px;
             font-weight: 700;
             margin: 0;
-          }
+            }
+
   
           .menu-icon {
+            position: relative;
+            left: 96%;
+            transform: translateX(-50%);
             cursor: pointer;
-            padding: 8px;
+            padding-top: 2px;
+            padding-left: 3.5px;
+            padding-right: 3.5px;
+            border: 2px solid #000;
+            border-radius: 6px;
           }
   
           .section-title {
@@ -61,7 +72,7 @@ export default function DashboardPage() {
           <div className="dashboard-header">
             <h1 className="dashboard-title">Dashboard</h1>
             <div className="menu-icon">
-              <MoreVertical size={24} />
+              <MoreVertical size={20} />
             </div>
           </div>
   
