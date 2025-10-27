@@ -1,62 +1,60 @@
 import Button from "../components/Button";
 import InviteModal from "../components/inviteModal";
-import { useNavigate } from 'react-router-dom';
-import { useState } from "react"
-import { ChevronLeft } from "lucide-react"
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { ChevronLeft } from "lucide-react";
 
-export default function JoinGroupPage () {
-    const [selectedGroup, setSelectedGroup] = useState(null);
-    const [searchQuery, setSearchQuery] = useState('');
+export default function JoinGroupPage() {
+	const [selectedGroup, setSelectedGroup] = useState(null);
+	const [searchQuery, setSearchQuery] = useState("");
 
-    const navigate = useNavigate();
+	const navigate = useNavigate();
 
-    const onNavigate = (path) => {
-        navigate(path);
-    }
-  
-    const invites = [
-      { name: 'Syndeian2', by: 'Sarah', description: 'Wanna join our awesome group?' },
-      { name: 'The Teapot Society', by: 'Jimmy', description: 'Wanna join our awesome group?' },
-      { name: 'Agile Friends', by: 'Mike', description: 'Wanna join our awesome group?' },
-    ];
+	const onNavigate = (path) => {
+		navigate(path);
+	};
 
-    const publics = [
-        { name: 'NYC Pizza', by: 'PizzaTom', description: 'Wanna join our awesome group?' },
-      ];
+	const invites = [
+		{ name: "Syndeian2", by: "Sarah", description: "Wanna join our awesome group?" },
+		{ name: "The Teapot Society", by: "Jimmy", description: "Wanna join our awesome group?" },
+		{ name: "Agile Friends", by: "Mike", description: "Wanna join our awesome group?" },
+	];
 
-    // Filter function
-    const filterGroups = (groups) => {
-      if (!searchQuery.trim()) return groups;
-      
-      const query = searchQuery.toLowerCase();
-      return groups.filter(group => 
-        group.name.toLowerCase().includes(query) ||
-        group.by.toLowerCase().includes(query) ||
-        group.description.toLowerCase().includes(query)
-      );
-    };
+	const publics = [{ name: "NYC Pizza", by: "PizzaTom", description: "Wanna join our awesome group?" }];
 
-    const filteredInvites = filterGroups(invites);
-    const filteredPublics = filterGroups(publics);
-  
-    const handleAccept = () => {
-        if (selectedGroup) {
-          console.log('Accepted invite to:', selectedGroup.name);
-        }
-        setSelectedGroup(null);
-      };
-      
-      const handleReject = () => {
-        if (selectedGroup) {
-          console.log('Rejected invite to:', selectedGroup.name);
-        }
-        setSelectedGroup(null);
-      };
-      
-  
-    return (
-      <>
-        <style>{`
+	// Filter function
+	const filterGroups = (groups) => {
+		if (!searchQuery.trim()) return groups;
+
+		const query = searchQuery.toLowerCase();
+		return groups.filter(
+			(group) =>
+				group.name.toLowerCase().includes(query) ||
+				group.by.toLowerCase().includes(query) ||
+				group.description.toLowerCase().includes(query),
+		);
+	};
+
+	const filteredInvites = filterGroups(invites);
+	const filteredPublics = filterGroups(publics);
+
+	const handleAccept = () => {
+		if (selectedGroup) {
+			console.log("Accepted invite to:", selectedGroup.name);
+		}
+		setSelectedGroup(null);
+	};
+
+	const handleReject = () => {
+		if (selectedGroup) {
+			console.log("Rejected invite to:", selectedGroup.name);
+		}
+		setSelectedGroup(null);
+	};
+
+	return (
+		<>
+			<style>{`
           .join-container {
             max-width: 400px;
             margin: 0 auto;
@@ -179,69 +177,68 @@ export default function JoinGroupPage () {
             padding: 16px;
           }
         `}</style>
-  
-        <div className="join-container">
-          <div className="join-header">
-            <button className="join-back-button" onClick={() => onNavigate('/dashboard')}>
-              <ChevronLeft size={24} />
-            </button>
-            <h1 className="join-title">Join Existing Group</h1>
-          </div>
-  
-          <input
-            type="text"
-            className="search-input"
-            placeholder="Search..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-  
-          <h2 className="invites-title">Invites</h2>
-          <div className="invites-section">
-            {filteredInvites.length > 0 ? (
-              filteredInvites.map((invite, index) => (
-                <Button 
-                  key={index}
-                  img="https://placehold.co/128" 
-                  buttonType="secondary" 
-                  text={invite.name} 
-                  arrowType="forward" 
-                  onClick={() => setSelectedGroup(invite)}
-                />
-              ))
-            ) : (
-              <div className="no-results">No invites found</div>
-            )}
-          </div>
-  
-            
-          <h2 className="public-title">Public</h2>
-          <div className="invites-section">
-            {filteredPublics.length > 0 ? (
-              filteredPublics.map((publicEach, index) => (
-                <Button 
-                  key={index}
-                  img="https://placehold.co/128" 
-                  buttonType="secondary" 
-                  text={publicEach.name} 
-                  arrowType="forward" 
-                  onClick={() => setSelectedGroup(publicEach)}
-                />
-              ))
-            ) : (
-              <div className="no-results">No public groups found</div>
-            )}
-          </div>
-        </div>
-  
-        {selectedGroup && (
-          <InviteModal
-            group={selectedGroup}
-            onClose={() => setSelectedGroup(null)}
-            onAccept={handleAccept}
-            onReject={handleReject}
-          />
-        )}
-      </>
-    );
-  };
+
+			<div className="join-container">
+				<div className="join-header">
+					<button className="join-back-button" onClick={() => onNavigate("/dashboard")}>
+						<ChevronLeft size={24} />
+					</button>
+					<h1 className="join-title">Join Existing Group</h1>
+				</div>
+
+				<input
+					type="text"
+					className="search-input"
+					placeholder="Search..."
+					value={searchQuery}
+					onChange={(e) => setSearchQuery(e.target.value)}
+				/>
+
+				<h2 className="invites-title">Invites</h2>
+				<div className="invites-section">
+					{filteredInvites.length > 0 ? (
+						filteredInvites.map((invite, index) => (
+							<Button
+								key={index}
+								img="https://placehold.co/128"
+								buttonType="secondary"
+								text={invite.name}
+								arrowType="forward"
+								onClick={() => setSelectedGroup(invite)}
+							/>
+						))
+					) : (
+						<div className="no-results">No invites found</div>
+					)}
+				</div>
+
+				<h2 className="public-title">Public</h2>
+				<div className="invites-section">
+					{filteredPublics.length > 0 ? (
+						filteredPublics.map((publicEach, index) => (
+							<Button
+								key={index}
+								img="https://placehold.co/128"
+								buttonType="secondary"
+								text={publicEach.name}
+								arrowType="forward"
+								onClick={() => setSelectedGroup(publicEach)}
+							/>
+						))
+					) : (
+						<div className="no-results">No public groups found</div>
+					)}
+				</div>
+			</div>
+
+			{selectedGroup && (
+				<InviteModal
+					group={selectedGroup}
+					onClose={() => setSelectedGroup(null)}
+					onAccept={handleAccept}
+					onReject={handleReject}
+				/>
+			)}
+		</>
+	);
+}
