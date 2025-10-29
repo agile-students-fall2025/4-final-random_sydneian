@@ -27,6 +27,18 @@ export default function JoinGroupPage() {
 				group.description.toLowerCase().includes(query),
 		);
 	};
+	// Filter function
+	const filterGroups = (groups) => {
+		if (!searchQuery.trim()) return groups;
+
+		const query = searchQuery.toLowerCase();
+		return groups.filter(
+			(group) =>
+				group.name.toLowerCase().includes(query) ||
+				group.by.toLowerCase().includes(query) ||
+				group.description.toLowerCase().includes(query),
+		);
+	};
 
 	const filteredInvites = filterGroups(invites);
 
