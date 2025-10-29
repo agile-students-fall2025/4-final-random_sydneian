@@ -88,3 +88,24 @@ export const getCompletedActivities = () => {
   ];
 };
 
+// Mock data for recent additions
+export const getRecentAdditions = () => {
+  return [
+    {
+      id: 1,
+      title: "Rooftop Trivia",
+      addedBy: "Nur"
+    },
+    {
+      id: 2,
+      title: "Pizza Disco",
+      addedBy: "Catalin"
+    },
+    {
+      id: 3,
+      title: "Silent Party",
+      addedBy: "Nada"
+    }
+  ];
+};
+
