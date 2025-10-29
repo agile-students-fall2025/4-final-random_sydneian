@@ -1,0 +1,95 @@
+.join-container {
+	max-width: 400px;
+	margin: 0 auto;
+	padding: 24px;
+	font-family:
+		system-ui,
+		-apple-system,
+		sans-serif;
+}
+
+.search-input {
+	width: 100%;
+	padding: 16px;
+	border: 2px solid #000;
+	border-radius: 8px;
+	font-size: 16px;
+	margin-bottom: 16px;
+	font-family:
+		system-ui,
+		-apple-system,
+		sans-serif;
+	box-sizing: border-box;
+}
+
+.search-input::placeholder {
+	color: #999;
+}
+
+.invites-section {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	margin-bottom: 16px;
+}
+
+.invites-title {
+	font-size: 18px;
+	font-weight: 700;
+}
+
+.invite-item {
+	display: flex;
+	align-items: center;
+	padding: 16px;
+	border: 2px solid #000;
+	border-radius: 8px;
+	margin-bottom: 12px;
+	cursor: pointer;
+	background: #fff;
+}
+
+.invite-pic {
+	width: 48px;
+	height: 48px;
+	border-radius: 50%;
+	background: #e5e5e5;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-right: 16px;
+	font-size: 12px;
+	color: #666;
+}
+
+.invite-name {
+	flex: 1;
+	font-size: 16px;
+	font-weight: 600;
+}
+
+.invite-arrow {
+	color: #000;
+}
+
+.group-button {
+	width: 100%;
+	padding: 16px;
+	border: 2px solid #000;
+	border-radius: 8px;
+	background: #fff;
+	font-size: 16px;
+	font-weight: 600;
+	cursor: pointer;
+	font-family:
+		system-ui,
+		-apple-system,
+		sans-serif;
+}
+
+.no-results {
+	color: #666;
+	font-size: 14px;
+	text-align: center;
+	padding: 16px;
+}

@@ -1,17 +1,17 @@
-import { ChevronLeft } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import Button from '../components/Button';
+import { ChevronLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import Button from "../components/Button";
 
 export default function CreateGroupPage() {
-    const navigate = useNavigate();
+	const navigate = useNavigate();
 
-    const onNavigate = (path) => {
-        navigate(path);
-    }
+	const onNavigate = (path) => {
+		navigate(path);
+	};
 
-    return (
-      <>
-        <style>{`
+	return (
+		<>
+			<style>{`
           .create-container {
             max-width: 400px;
             margin: 0 auto;
@@ -89,38 +89,25 @@ export default function CreateGroupPage() {
           }
   
         `}</style>
-  
-        <div className="create-container">
-          <div className="create-header">
-            <button className="back-button" onClick={() => onNavigate('/dashboard')}>
-              <ChevronLeft size={24} />
-            </button>
-            <h1 className="create-title">Create New Group</h1>
-          </div>
-  
-          <div className="profile-upload">
-            + Add Profile Picture
-          </div>
-  
-          <input
-            type="text"
-            className="form-input"
-            placeholder="Group name"
-          />
-  
-          <textarea
-            className="form-textarea"
-            placeholder="Group description"
-          />
-  
-          <input
-            type="text"
-            className="form-input"
-            placeholder="Invite friends"
-          />
-  
-        <Button text="Create Group" buttonType="primary" onClick={() => onNavigate('/dashboard')} />
-        </div>
-      </>
-    );
-  };
+
+			<div className="create-container">
+				<div className="create-header">
+					<button className="back-button" onClick={() => onNavigate("/dashboard")}>
+						<ChevronLeft size={24} />
+					</button>
+					<h1 className="create-title">Create New Group</h1>
+				</div>
+
+				<div className="profile-upload">+ Add Profile Picture</div>
+
+				<input type="text" className="form-input" placeholder="Group name" />
+
+				<textarea className="form-textarea" placeholder="Group description" />
+
+				<input type="text" className="form-input" placeholder="Invite friends" />
+
+				<Button text="Create Group" buttonType="primary" onClick={() => onNavigate("/dashboard")} />
+			</div>
+		</>
+	);
+}

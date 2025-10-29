@@ -1,17 +1,17 @@
 import Button from "../components/Button";
-import { MoreVertical } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { MoreVertical } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function DashboardPage() {
-    const navigate = useNavigate();
+	const navigate = useNavigate();
 
-    const onNavigate = (path) => {
-        navigate(path);
-    }
+	const onNavigate = (path) => {
+		navigate(path);
+	};
 
-    return (
-      <>
-        <style>{`
+	return (
+		<>
+			<style>{`
           .dashboard-container {
             max-width: 400px;
             margin: 0 auto;
@@ -67,40 +67,32 @@ export default function DashboardPage() {
           }
   
         `}</style>
-  
-        <div className="dashboard-container">
-          <div className="dashboard-header">
-            <h1 className="dashboard-title">Dashboard</h1>
-            <div className="menu-icon">
-              <MoreVertical size={20} />
-            </div>
-          </div>
-  
-          <div className="quick-actions">
-            <h2 className="section-title">Quick Actions</h2>
-            <div className="button-spacing">
-              <Button 
-                text="Create New Group" 
-                buttonType="primary" 
-                onClick={() => onNavigate('/group/create')}
-              />
-                <Button 
-                text="Join Existing Group" 
-                buttonType="secondary"
-                onClick={() => onNavigate('/group/join')}
-                />
-            </div>
-          </div>
-  
-          <div className="my-groups">
-            <h2 className="section-title">My Groups</h2>
-            <div className="button-spacing">
-                <Button img="https://placehold.co/48" buttonType="secondary" text ="Syndeian" arrowType="forward"/>
-                <Button img="https://placehold.co/48" buttonType="secondary" text ="Third North" arrowType="forward"/>
-                <Button img="https://placehold.co/48" buttonType="secondary" text ="NYU" arrowType="forward"/>
-            </div>
-          </div>
-		</div>
+
+			<div className="dashboard-container">
+				<div className="dashboard-header">
+					<h1 className="dashboard-title">Dashboard</h1>
+					<div className="menu-icon">
+						<MoreVertical size={20} />
+					</div>
+				</div>
+
+				<div className="quick-actions">
+					<h2 className="section-title">Quick Actions</h2>
+					<div className="button-spacing">
+						<Button text="Create New Group" buttonType="primary" onClick={() => onNavigate("/group/create")} />
+						<Button text="Join Existing Group" buttonType="secondary" onClick={() => onNavigate("/group/join")} />
+					</div>
+				</div>
+
+				<div className="my-groups">
+					<h2 className="section-title">My Groups</h2>
+					<div className="button-spacing">
+						<Button img="https://placehold.co/48" buttonType="secondary" text="Syndeian" arrowType="forward" />
+						<Button img="https://placehold.co/48" buttonType="secondary" text="Third North" arrowType="forward" />
+						<Button img="https://placehold.co/48" buttonType="secondary" text="NYU" arrowType="forward" />
+					</div>
+				</div>
+			</div>
 		</>
 	);
 }

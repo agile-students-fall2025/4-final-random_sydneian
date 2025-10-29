@@ -4,7 +4,6 @@ import Dashboard from "./pages/dashboard";
 import CreateGroup from "./pages/createGroup";
 import JoinGroup from "./pages/joinGroup";
 
-
 function App() {
 	return (
 		<Routes>
