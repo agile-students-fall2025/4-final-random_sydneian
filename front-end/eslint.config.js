@@ -9,11 +9,7 @@ export default defineConfig([
 	globalIgnores(["dist"]),
 	{
 		files: ["**/*.{js,jsx}"],
-		extends: [
-			js.configs.recommended,
-			reactHooks.configs["recommended-latest"],
-			reactRefresh.configs.vite,
-		],
+		extends: [js.configs.recommended, reactHooks.configs["recommended-latest"], reactRefresh.configs.vite],
 		languageOptions: {
 			globals: globals.browser,
 			parserOptions: {
@@ -31,10 +27,7 @@ export default defineConfig([
 			"no-unassigned-vars": "error",
 			"no-unmodified-loop-condition": "error",
 			"no-unreachable-loop": "error",
-			"no-use-before-define": [
-				"error",
-				{ functions: false, allowNamedExports: true },
-			],
+			"no-use-before-define": ["error", { functions: false, allowNamedExports: true }],
 			"require-atomic-updates": "error",
 			"no-var": "error",
 			eqeqeq: "error",
