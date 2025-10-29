@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { getMockActivities, getCompletedActivities } from '../data/mockData';
 import ActivityCard from './ActivityCard';
 import AddPlace from './AddPlace';
+import './BucketList.css';
 
 function BucketList() {
   const [activeTab, setActiveTab] = useState('todo');
@@ -29,54 +30,46 @@ function BucketList() {
   }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="bucket-list-container">
       {/* Header */}
-      <div className="w-full bg-white border-b border-black">
-        <div className="flex items-center justify-between px-4 py-3">
+      <div className="bucket-list-header">
+        <div className="bucket-list-header-content">
           <button 
-            className="w-6 h-6 flex items-center justify-center cursor-pointer"
+            className="back-button"
             aria-label="Back"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
             </svg>
           </button>
-          <h1 className="text-xl font-bold">Sydneian</h1>
-          <div className="w-6"></div>
+          <h1 className="bucket-list-title">Sydneian</h1>
+          <div className="header-spacer"></div>
         </div>
         
         {/* Search Bar */}
-        <div className="px-4 pb-4">
+        <div className="search-container">
           <input
             type="text"
             placeholder="Search..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full px-3 py-2 border border-black rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-black"
+            className="search-input"
           />
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="px-4 pb-4">
-        <div className="flex rounded-md overflow-hidden">
+      <div className="tabs-container">
+        <div className="tabs-wrapper">
           <button
             onClick={() => setActiveTab('todo')}
-            className={`flex-1 py-2.5 px-4 text-sm font-medium rounded-l-md ${
-              activeTab === 'todo'
-                ? 'bg-black text-white'
-                : 'bg-white text-black border border-black'
-            }`}
+            className={`tab-button ${activeTab === 'todo' ? 'todo-active' : 'todo-inactive'}`}
           >
             To Do
           </button>
           <button
             onClick={() => setActiveTab('done')}
-            className={`flex-1 py-2.5 px-4 text-sm font-medium rounded-r-md border-l border-black ${
-              activeTab === 'done'
-                ? 'bg-black text-white'
-                : 'bg-white text-black border border-black'
-            }`}
+            className={`tab-button ${activeTab === 'done' ? 'done-active' : 'done-inactive'}`}
           >
             Done
           </button>
@@ -84,15 +77,15 @@ function BucketList() {
       </div>
 
       {/* Content Area */}
-      <div className="flex-1 overflow-y-auto px-4 pb-24">
-        <div className="space-y-4 py-2">
+      <div className="content-area">
+        <div className="content-list">
           {activeTab === 'todo' ? (
             filteredActivities.length > 0 ? (
               filteredActivities.map(activity => (
                 <ActivityCard key={activity.id} activity={activity} isCompleted={false} />
               ))
             ) : (
-              <div className="text-center text-gray-500 py-8">
+              <div className="empty-state">
                 No activities found
               </div>
             )
@@ -102,7 +95,7 @@ function BucketList() {
                 <ActivityCard key={activity.id} activity={activity} isCompleted={true} />
               ))
             ) : (
-              <div className="text-center text-gray-500 py-8">
+              <div className="empty-state">
                 No completed activities found
               </div>
             )
@@ -113,28 +106,28 @@ function BucketList() {
       {/* Floating Action Button */}
       <button 
         onClick={() => setShowAddPlace(true)}
-        className="fixed bottom-20 right-4 w-14 h-14 bg-black rounded-full flex items-center justify-center shadow-lg hover:bg-gray-800 transition-colors z-10"
+        className="fab-button"
         aria-label="Add new item"
       >
-        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
         </svg>
       </button>
 
       {/* Bottom Navigation */}
-      <div className="w-full bg-white border-t border-black fixed bottom-0 left-0 right-0">
-        <div className="flex justify-around items-center py-2">
-          <button className="flex flex-col items-center space-y-1">
-            <div className="w-5 h-5 bg-black rounded-sm"></div>
-            <span className="text-xs font-medium">List</span>
+      <div className="bottom-nav">
+        <div className="bottom-nav-content">
+          <button className="nav-button">
+            <div className="nav-icon"></div>
+            <span className="nav-label">List</span>
           </button>
-          <button className="flex flex-col items-center space-y-1">
-            <div className="w-5 h-5 border-2 border-black rounded-sm"></div>
-            <span className="text-xs font-medium">Decide</span>
+          <button className="nav-button">
+            <div className="nav-icon-outlined"></div>
+            <span className="nav-label">Decide</span>
           </button>
-          <button className="flex flex-col items-center space-y-1">
-            <div className="w-5 h-5 border-2 border-black rounded-sm"></div>
-            <span className="text-xs font-medium">Memories</span>
+          <button className="nav-button">
+            <div className="nav-icon-outlined"></div>
+            <span className="nav-label">Memories</span>
           </button>
         </div>
       </div>

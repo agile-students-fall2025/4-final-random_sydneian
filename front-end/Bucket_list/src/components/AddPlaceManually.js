@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './AddPlaceManually.css';
 
 function AddPlaceManually({ onBack }) {
   const [formData, setFormData] = useState({
@@ -17,125 +18,125 @@ function AddPlaceManually({ onBack }) {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="add-manual-container">
       {/* Header */}
-      <div className="w-full bg-white border-b border-black">
-        <div className="flex items-center justify-between px-4 py-3">
+      <div className="add-manual-header">
+        <div className="add-manual-header-content">
           <button 
             onClick={onBack}
-            className="w-6 h-6 flex items-center justify-center cursor-pointer"
+            className="add-manual-back-button"
             aria-label="Back"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
             </svg>
           </button>
-          <h1 className="text-xl font-bold">Add Manually</h1>
-          <div className="w-6"></div>
+          <h1 className="add-manual-title">Add Manually</h1>
+          <div className="add-manual-spacer"></div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-y-auto px-4 py-6 pb-24">
+      <div className="add-manual-content">
         {/* Place Name */}
-        <div className="mb-4">
+        <div className="form-field">
           <input
             type="text"
             name="placeName"
             placeholder="Place name"
             value={formData.placeName}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-black rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-black"
+            className="form-input"
           />
         </div>
 
         {/* Location */}
-        <div className="mb-4">
+        <div className="form-field">
           <input
             type="text"
             name="location"
             placeholder="Location"
             value={formData.location}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-black rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-black"
+            className="form-input"
           />
         </div>
 
         {/* Select Category */}
-        <div className="mb-4">
-          <div className="relative">
+        <div className="form-field">
+          <div className="select-wrapper">
             <input
               type="text"
               name="category"
               placeholder="Select category"
               value={formData.category}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-black rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-black pr-10"
+              className="select-input"
             />
-            <svg className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="select-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
             </svg>
           </div>
         </div>
 
         {/* Description */}
-        <div className="mb-4">
-          <label className="block text-sm font-bold mb-2">Description</label>
+        <div className="form-field">
+          <label className="form-label">Description</label>
           <textarea
             name="description"
             placeholder="Some notes..."
             value={formData.description}
             onChange={handleChange}
             rows="4"
-            className="w-full px-3 py-2 border border-black rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-black resize-none"
+            className="form-textarea"
           />
         </div>
 
         {/* Tags */}
-        <div className="mb-4">
-          <label className="block text-sm font-bold mb-2">Tags</label>
+        <div className="form-field">
+          <label className="form-label">Tags</label>
           <input
             type="text"
             name="tags"
             placeholder="#tags"
             value={formData.tags}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-black rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-black"
+            className="form-input"
           />
         </div>
 
         {/* Add Photos */}
-        <div className="mb-6">
-          <div className="w-full h-32 border-2 border-dashed border-black rounded-lg flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors">
-            <div className="flex items-center space-x-2 text-gray-600">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="form-field">
+          <div className="photo-upload">
+            <div className="photo-upload-content">
+              <svg className="photo-upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
-              <span className="text-sm font-medium">Add Photos</span>
+              <span className="photo-upload-text">Add Photos</span>
             </div>
           </div>
         </div>
 
         {/* Action Button */}
-        <button className="w-full bg-black text-white py-4 px-6 rounded-lg font-bold hover:bg-gray-800 transition-colors">
+        <button className="btn-submit">
           Add to your Bucket List!
         </button>
       </div>
 
       {/* Bottom Navigation */}
-      <div className="w-full bg-white border-t border-black fixed bottom-0 left-0 right-0">
-        <div className="flex justify-around items-center py-2">
-          <button className="flex flex-col items-center space-y-1">
-            <div className="w-5 h-5 bg-black rounded-sm"></div>
-            <span className="text-xs font-medium">List</span>
+      <div className="bottom-nav">
+        <div className="bottom-nav-content">
+          <button className="nav-button">
+            <div className="nav-icon"></div>
+            <span className="nav-label">List</span>
           </button>
-          <button className="flex flex-col items-center space-y-1">
-            <div className="w-5 h-5 border-2 border-black rounded-sm"></div>
-            <span className="text-xs font-medium">Decide</span>
+          <button className="nav-button">
+            <div className="nav-icon-outlined"></div>
+            <span className="nav-label">Decide</span>
           </button>
-          <button className="flex flex-col items-center space-y-1">
-            <div className="w-5 h-5 border-2 border-black rounded-sm"></div>
-            <span className="text-xs font-medium">Memories</span>
+          <button className="nav-button">
+            <div className="nav-icon-outlined"></div>
+            <span className="nav-label">Memories</span>
           </button>
         </div>
       </div>

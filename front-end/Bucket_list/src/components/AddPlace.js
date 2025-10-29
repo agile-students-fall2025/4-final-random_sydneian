@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { getRecentAdditions } from '../data/mockData';
 import AddPlaceThroughLink from './AddPlaceThroughLink';
 import AddPlaceManually from './AddPlaceManually';
+import './AddPlace.css';
 
 function AddPlace({ onBack }) {
   const [currentView, setCurrentView] = useState('main'); // 'main', 'link', 'manual'
@@ -25,35 +26,35 @@ function AddPlace({ onBack }) {
   }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="add-place-container">
       {/* Header */}
-      <div className="w-full bg-white border-b border-black">
-        <div className="flex items-center justify-between px-4 py-3">
+      <div className="add-place-header">
+        <div className="add-place-header-content">
           <button 
             onClick={handleBack}
-            className="w-6 h-6 flex items-center justify-center cursor-pointer"
+            className="add-place-back-button"
             aria-label="Back"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
             </svg>
           </button>
-          <h1 className="text-xl font-bold">Add Place</h1>
-          <div className="w-6"></div>
+          <h1 className="add-place-title">Add Place</h1>
+          <div className="add-place-spacer"></div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-y-auto px-4 py-6 pb-24">
+      <div className="add-place-content">
         {/* Question */}
-        <p className="text-base mb-6 text-black">How would you like to add?</p>
+        <p className="add-place-question">How would you like to add?</p>
 
         {/* Add Options */}
-        <div className="space-y-4 mb-8">
+        <div className="add-options">
           {/* Paste Link Button */}
           <button 
             onClick={() => setCurrentView('link')}
-            className="w-full bg-black text-white py-4 px-6 rounded-lg font-medium hover:bg-gray-800 transition-colors"
+            className="btn-paste-link"
           >
             Paste Link
           </button>
@@ -61,19 +62,19 @@ function AddPlace({ onBack }) {
           {/* Add Manually Button */}
           <button 
             onClick={() => setCurrentView('manual')}
-            className="w-full bg-white text-black border border-black py-4 px-6 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+            className="btn-add-manually"
           >
             Add Manually
           </button>
         </div>
 
         {/* Recent Additions Section */}
-        <div>
-          <h2 className="text-lg font-bold mb-4 text-black">Recent Additions</h2>
-          <ul className="space-y-2">
+        <div className="recent-additions">
+          <h2 className="recent-additions-title">Recent Additions</h2>
+          <ul className="recent-additions-list">
             {recentAdditions.map((item) => (
-              <li key={item.id} className="text-sm text-black flex items-start">
-                <span className="mr-2">•</span>
+              <li key={item.id} className="recent-additions-item">
+                <span className="recent-additions-item-bullet">•</span>
                 <span>{item.title} ({item.addedBy})</span>
               </li>
             ))}
@@ -82,19 +83,19 @@ function AddPlace({ onBack }) {
       </div>
 
       {/* Bottom Navigation */}
-      <div className="w-full bg-white border-t border-black fixed bottom-0 left-0 right-0">
-        <div className="flex justify-around items-center py-2">
-          <button className="flex flex-col items-center space-y-1">
-            <div className="w-5 h-5 bg-black rounded-sm"></div>
-            <span className="text-xs font-medium">List</span>
+      <div className="bottom-nav">
+        <div className="bottom-nav-content">
+          <button className="nav-button">
+            <div className="nav-icon"></div>
+            <span className="nav-label">List</span>
           </button>
-          <button className="flex flex-col items-center space-y-1">
-            <div className="w-5 h-5 border-2 border-black rounded-sm"></div>
-            <span className="text-xs font-medium">Decide</span>
+          <button className="nav-button">
+            <div className="nav-icon-outlined"></div>
+            <span className="nav-label">Decide</span>
           </button>
-          <button className="flex flex-col items-center space-y-1">
-            <div className="w-5 h-5 border-2 border-black rounded-sm"></div>
-            <span className="text-xs font-medium">Memories</span>
+          <button className="nav-button">
+            <div className="nav-icon-outlined"></div>
+            <span className="nav-label">Memories</span>
           </button>
         </div>
       </div>
