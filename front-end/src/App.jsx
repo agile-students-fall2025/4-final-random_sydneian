@@ -3,6 +3,7 @@ import "./App.css";
 import Dashboard from "./pages/dashboard";
 import CreateGroup from "./pages/createGroup";
 import JoinGroup from "./pages/joinGroup";
+import Decide from "./pages/Decide";
 
 function App() {
 	return (
@@ -10,6 +11,7 @@ function App() {
 			<Route path="/dashboard" element={<Dashboard />} />
 			<Route path="/group/create" element={<CreateGroup />} />
 			<Route path="/group/join" element={<JoinGroup />} />
+			<Route path="/decide" element={<Decide />} />
 		</Routes>
 	);
 }
