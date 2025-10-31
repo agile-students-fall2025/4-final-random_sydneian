@@ -8,6 +8,8 @@ import Register from "./pages/Register";
 import EmailVerification from "./pages/EmailVerification";
 import Login from "./pages/Login";
 import ProfileSettings from "./pages/ProfileSettings";
+import DecidePlace from "./pages/DecidePlace";
+import Button from "./components/Button";
 import BucketList from "./pages/bucketList";
 import AddPlace from "./pages/addPlace";
 import AddPlaceManually from "./pages/addPlaceManually";
@@ -28,6 +30,7 @@ function App() {
 			<Route path="/verify-email" element={<EmailVerification />} />
 			<Route path="/login" element={<Login />} />
 			<Route path="/profile-settings" element={<ProfileSettings />} />
+			<Route path="/decide" element={<DecidePlace />} />
 		</Routes>
 	);
 }
