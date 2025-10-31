@@ -40,6 +40,7 @@
     border-radius: 0.5rem;
 }
 
+<<<<<<< HEAD
 .primary-btn {
     background-color: var(--color-primary);
     color: white;
@@ -68,6 +69,8 @@
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
+=======
+>>>>>>> 6fd1fe0 (edited to use button component in my pages)
 .bottom-text {
     margin-top: 1rem;
     font-size: 0.875rem;
