@@ -1,0 +1,63 @@
+.verify-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background: white;
+}
+
+.verify-box {
+    text-align: center;
+    border: 1px solid black;
+    border-radius: 0.5rem;
+    padding: 2rem;
+    width: 300px;
+}
+
+.verify-box h2 {
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+.verify-box p {
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+.otp-inputs {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.otp-inputs input {
+    width: 2rem;
+    height: 2rem;
+    text-align: center;
+    font-size: 1.25rem;
+    border: 1px solid black;
+    border-radius: 0.25rem;
+}
+
+.verify-btn {
+    background: black;
+    color: white;
+    padding: 0.75rem;
+    width: 100%;
+    border: none;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.resend-text {
+    margin-top: 1rem;
+    font-size: 0.8rem;
+}
+
+.resend-link {
+    font-weight: bold;
+    text-decoration: underline;
+    cursor: pointer;
+}

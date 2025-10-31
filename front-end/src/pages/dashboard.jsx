@@ -71,7 +71,10 @@ export default function DashboardPage() {
 			<div className="dashboard-container">
 				<div className="dashboard-header">
 					<h1 className="dashboard-title">Dashboard</h1>
-					<div className="menu-icon">
+					<div className="menu-icon"
+            onClick={() => onNavigate("/profile-settings")} 
+            role = "button"
+            tabIndex = {0}>
 						<MoreVertical size={20} />
 					</div>
 				</div>
