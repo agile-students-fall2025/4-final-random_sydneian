@@ -1,0 +1,158 @@
+.add-place-container {
+  min-height: 100vh;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  max-width: 400px;
+  margin: 0 auto;
+  font-family: system-ui, -apple-system, sans-serif;
+  position: relative;
+  padding-bottom: 80px;
+}
+
+.add-place-header {
+  width: 100%;
+  background-color: white;
+  border-bottom: 2px solid #000;
+}
+
+.add-place-header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+}
+
+.back-button {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: #000;
+  border: 2px solid #000;
+  border-radius: 4px;
+  padding: 0;
+  color: #fff;
+}
+
+.back-button svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+}
+
+.add-place-title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.header-spacer {
+  width: 24px;
+}
+
+.add-place-content {
+  flex: 1;
+  padding: 24px 16px;
+}
+
+.question-text {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 24px;
+  color: #000;
+}
+
+.button-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 48px;
+}
+
+.recent-additions-section {
+  margin-top: 32px;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: #000;
+}
+
+.recent-additions-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.recent-addition-item {
+  font-size: 16px;
+  color: #000;
+  margin-bottom: 8px;
+  padding-left: 16px;
+  position: relative;
+}
+
+.recent-addition-item::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: #000;
+}
+
+.bottom-nav {
+  width: 100%;
+  max-width: 400px;
+  background-color: white;
+  border-top: 2px solid #000;
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.bottom-nav-content {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 12px 0;
+}
+
+.nav-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.nav-icon {
+  width: 20px;
+  height: 20px;
+  background-color: #000;
+  border-radius: 2px;
+}
+
+.nav-icon-outlined {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #000;
+  border-radius: 2px;
+  background-color: transparent;
+}
+
+.nav-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #000;
+}

@@ -1,12 +1,3 @@
-.error-text {
-	color: #d00000;
-	font-size: 14px;
-	font-weight: 500;
-	margin-top: -8px;
-	margin-bottom: 12px;
-	text-align: left;
-}
-
 .popup-overlay {
 	position: fixed;
 	top: 0;
@@ -25,70 +16,125 @@
 	width: 90%;
 	background: #fff;
 	padding: 24px;
-	border-radius: 12px;
+	border-radius: 8px;
 	font-family: system-ui, -apple-system, sans-serif;
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 	box-sizing: border-box;
 }
 
-.popup-content h2 {
-	font-size: 18px;
-	font-weight: 700;
-	margin-bottom: 16px;
-	text-align: center;
+.select-place-container {
+	position: relative;
+	margin-bottom: 24px;
 }
 
-/* Inputs */
-.popup-content input {
+.select-place-input {
 	width: 100%;
 	padding: 16px;
+	padding-right: 48px;
 	border: 2px solid #000;
 	border-radius: 8px;
 	font-size: 16px;
-	margin-bottom: 16px;
 	box-sizing: border-box;
+	font-family: system-ui, -apple-system, sans-serif;
+	cursor: pointer;
 }
 
-/* Photo preview area */
-.photo-preview-container {
+.select-place-input::placeholder {
+	color: #000;
+}
+
+.select-place-input:focus {
+	outline: none;
+}
+
+.select-place-chevron {
+	position: absolute;
+	right: 16px;
+	top: 50%;
+	transform: translateY(-50%);
+	pointer-events: none;
+	color: #000;
+}
+
+.add-photos-container {
 	border: 2px dashed #000;
 	border-radius: 8px;
-	padding: 16px;
-	background: #fafafa;
-	margin-bottom: 16px;
-	text-align: center;
+	padding: 48px 16px;
+	margin-bottom: 24px;
+	min-height: 200px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
-.photo-grid {
+.add-photos-placeholder {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	gap: 8px;
+}
+
+.add-photos-plus {
+	font-size: 48px;
+	color: #999;
+	line-height: 1;
+}
+
+.add-photos-text {
+	font-size: 16px;
+	color: #999;
+}
+
+.photos-grid {
 	display: grid;
 	grid-template-columns: repeat(2, 1fr);
-	gap: 8px;
-	margin-top: 12px;
+	gap: 12px;
+	width: 100%;
 }
 
 .photo-item {
 	position: relative;
+	aspect-ratio: 1;
 }
 
 .photo-item img {
 	width: 100%;
-	height: 100px;
+	height: 100%;
 	object-fit: cover;
 	border-radius: 8px;
+	border: 2px solid #000;
 }
 
 .remove-btn {
 	position: absolute;
-	top: 6px;
-	right: 6px;
+	top: 8px;
+	right: 8px;
 	background: #000;
 	color: #fff;
 	border: none;
 	border-radius: 50%;
-	width: 20px;
-	height: 20px;
-	font-size: 12px;
+	width: 24px;
+	height: 24px;
+	font-size: 14px;
 	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: 700;
+}
+
+.add-more-photos {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	gap: 8px;
+	border: 2px dashed #000;
+	border-radius: 8px;
+	aspect-ratio: 1;
+	min-height: 100px;
 }
 
 /* Buttons */

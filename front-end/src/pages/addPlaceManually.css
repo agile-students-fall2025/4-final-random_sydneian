@@ -1,0 +1,206 @@
+.add-place-manually-container {
+  min-height: 100vh;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  max-width: 400px;
+  margin: 0 auto;
+  font-family: system-ui, -apple-system, sans-serif;
+  position: relative;
+  padding-bottom: 80px;
+}
+
+.add-place-manually-header {
+  width: 100%;
+  background-color: white;
+  border-bottom: 2px solid #000;
+}
+
+.add-place-manually-header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+}
+
+.back-button {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: #000;
+  border: 2px solid #000;
+  border-radius: 4px;
+  padding: 0;
+  color: #fff;
+}
+
+.back-button svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+}
+
+.add-place-manually-title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.header-spacer {
+  width: 24px;
+}
+
+.add-place-manually-content {
+  flex: 1;
+  padding: 24px 16px;
+  overflow-y: auto;
+}
+
+.form-input {
+  width: 100%;
+  padding: 16px;
+  border: 2px solid #000;
+  border-radius: 8px;
+  font-size: 16px;
+  margin-bottom: 16px;
+  box-sizing: border-box;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.form-input::placeholder {
+  color: #999;
+}
+
+.form-input:focus {
+  outline: none;
+}
+
+.select-container {
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.select-input {
+  padding-right: 48px;
+}
+
+.select-chevron {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: #000;
+}
+
+.form-section {
+  margin-bottom: 24px;
+}
+
+.section-heading {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: #000;
+}
+
+.form-textarea {
+  width: 100%;
+  padding: 16px;
+  border: 2px solid #000;
+  border-radius: 8px;
+  font-size: 16px;
+  font-family: system-ui, -apple-system, sans-serif;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.form-textarea::placeholder {
+  color: #999;
+}
+
+.form-textarea:focus {
+  outline: none;
+}
+
+.add-photos-area {
+  border: 2px dashed #000;
+  border-radius: 8px;
+  padding: 48px 16px;
+  text-align: center;
+  cursor: pointer;
+  background-color: #fff;
+}
+
+.add-photos-plus {
+  font-size: 48px;
+  color: #999;
+  display: inline-block;
+  margin-right: 8px;
+}
+
+.add-photos-text {
+  font-size: 16px;
+  color: #999;
+}
+
+.submit-button-container {
+  margin-top: 32px;
+  margin-bottom: 16px;
+}
+
+.bottom-nav {
+  width: 100%;
+  max-width: 400px;
+  background-color: white;
+  border-top: 2px solid #000;
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.bottom-nav-content {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 12px 0;
+}
+
+.nav-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.nav-icon {
+  width: 20px;
+  height: 20px;
+  background-color: #000;
+  border-radius: 2px;
+}
+
+.nav-icon-outlined {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #000;
+  border-radius: 2px;
+  background-color: transparent;
+}
+
+.nav-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #000;
+}
