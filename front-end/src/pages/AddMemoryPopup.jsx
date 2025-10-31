@@ -1,11 +1,11 @@
 import React, { useState } from "react";
+import { ChevronDown } from "lucide-react";
+import Button from "../components/Button";
 import "./AddMemoryPopup.css";
-import "../components/Button.css";
 
 export default function AddMemoryPopup({ onClose, onAdd }) {
-  const [title, setTitle] = useState("");
+  const [selectedPlace, setSelectedPlace] = useState("");
   const [photos, setPhotos] = useState([]);
-  const [error, setError] = useState(""); 
 
   const handleAddPhoto = () => {
     const randomId = Math.floor(Math.random() * 1000);
@@ -18,20 +18,21 @@ export default function AddMemoryPopup({ onClose, onAdd }) {
   };
 
   const handleSubmit = () => {
-    if (!title.trim()) {
-      setError("Please enter a title before adding a memory.");
+    if (!selectedPlace.trim()) {
       return;
     }
 
     if (photos.length === 0) {
-      setError("Please add at least one photo.");
       return;
     }
 
-    setError("");
-    const newMemory = { title, photos };
+    const newMemory = { 
+      place: selectedPlace, 
+      photos,
+      title: selectedPlace // For compatibility with existing code
+    };
     onAdd(newMemory);
-    setTitle("");
+    setSelectedPlace("");
     setPhotos([]);
     onClose();
   };
@@ -39,28 +40,28 @@ export default function AddMemoryPopup({ onClose, onAdd }) {
   return (
     <div className="popup-overlay">
       <div className="popup-content">
-        <h2>Add New Memory</h2>
+        {/* Select place dropdown */}
+        <div className="select-place-container">
+          <input
+            type="text"
+            placeholder="Select place"
+            value={selectedPlace}
+            onChange={(e) => setSelectedPlace(e.target.value)}
+            className="select-place-input"
+            readOnly
+          />
+          <ChevronDown className="select-place-chevron" size={20} />
+        </div>
 
-        <label htmlFor="memoryTitle">Outing Title:</label>
-        <input
-          id="memoryTitle"
-          type="text"
-          placeholder="e.g., Beach Day with Friends"
-          value={title}
-          onChange={(e) => {
-            setTitle(e.target.value);
-            setError("");
-          }}
-        />
-
-        {/*red error message below input */}
-        {error && <p className="error-text">{error}</p>}
-
-        <div className="photo-preview-container">
+        {/* Add Photos Area */}
+        <div className="add-photos-container">
           {photos.length === 0 ? (
-            <p className="no-photos-text">No photos added yet.</p>
+            <div className="add-photos-placeholder" onClick={handleAddPhoto}>
+              <span className="add-photos-plus">+</span>
+              <span className="add-photos-text">Add Photos</span>
+            </div>
           ) : (
-            <div className="photo-grid">
+            <div className="photos-grid">
               {photos.map((photo, index) => (
                 <div key={index} className="photo-item">
                   <img src={photo} alt={`Preview ${index}`} />
@@ -72,20 +73,26 @@ export default function AddMemoryPopup({ onClose, onAdd }) {
                   </button>
                 </div>
               ))}
+              <div className="add-more-photos" onClick={handleAddPhoto}>
+                <span className="add-photos-plus">+</span>
+                <span className="add-photos-text">Add Photos</span>
+              </div>
             </div>
           )}
         </div>
 
+        {/* Buttons */}
         <div className="popup-buttons">
-          <button className="Button secondary" onClick={onClose}>
-            Cancel
-          </button>
-          <button className="Button secondary" onClick={handleAddPhoto}>
-            + Add Photo
-          </button>
-          <button className="Button" onClick={handleSubmit}>
-            Add to Memory Book
-          </button>
+          <Button
+            text="ADD MEMORY"
+            buttonType="primary"
+            onClick={handleSubmit}
+          />
+          <Button
+            text="CANCEL"
+            buttonType="secondary"
+            onClick={onClose}
+          />
         </div>
       </div>
     </div>

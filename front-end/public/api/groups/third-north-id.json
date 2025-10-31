@@ -1,0 +1,25 @@
+{
+	"_id": "third-north-id",
+	"name": "Third North",
+	"desc": "A cool place",
+	"icon": "https://picsum.photos/48",
+	"members": ["catalin-id", "deema-id", "nada-id", "nursultan-id", "zavier-id"],
+	"invited-members": ["shadow-id"],
+	"places": [
+		{
+			"name": "Rooftop Trivia",
+			"images": ["https://picsum.photos/200/100"],
+			"category": "Restaurant",
+			"location": [0, 0],
+			"city": "Manhattan",
+			"country": "NY",
+			"//note": "city and country are just for the demo, as in actual operation we could get them from the location",
+			"tags": ["#sunset", "#views"],
+			"likes": 9,
+			"createdBy": "nursultan-id",
+			"createdAt": "2025-10-26T16:37:48.366Z",
+			"done": false
+		}
+	],
+	"createdAt": "2025-08-26T16:37:48.366Z"
+}
