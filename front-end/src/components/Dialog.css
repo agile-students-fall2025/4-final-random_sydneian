@@ -1,0 +1,57 @@
+.invite-dialog {
+	padding: 0;
+	border: none;
+	border-radius: 12px;
+}
+
+.invite-dialog::backdrop {
+	background: rgba(0, 0, 0, 0.5);
+}
+
+.dialog-content {
+	background: #fff;
+	border: 2px solid #000;
+	border-radius: 12px;
+	padding: 32px;
+	max-width: 400px;
+	width: 90%;
+	position: relative;
+}
+
+.dialog-layout {
+	display: flex;
+	flex-direction: row;
+	margin-bottom: 32px;
+}
+
+.dialog-photo img {
+	border-radius: 128px;
+	margin-right: 24pt;
+}
+
+.dialog-group-name {
+	font-size: 24px;
+	font-weight: 700;
+	margin-bottom: 8px;
+}
+
+.dialog-by {
+	font-size: 16px;
+	color: #666;
+	margin-bottom: 24px;
+}
+
+.dialog-description {
+	font-size: 16px;
+	color: #333;
+	margin-bottom: 0;
+}
+
+.dialog-buttons {
+	display: flex;
+	gap: 16px;
+}
+
+.dialog-button-half {
+	flex: 1;
+}
