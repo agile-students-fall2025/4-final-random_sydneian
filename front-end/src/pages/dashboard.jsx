@@ -87,7 +87,7 @@ export default function DashboardPage() {
 				<div className="my-groups">
 					<h2 className="section-title">My Groups</h2>
 					<div className="button-spacing">
-						<Button img="https://placehold.co/48" buttonType="secondary" text="Syndeian" arrowType="forward" />
+						<Button img="https://placehold.co/48" buttonType="secondary" text="Syndeian" arrowType="forward" onClick={() => onNavigate("/bucket-list")} />
 						<Button img="https://placehold.co/48" buttonType="secondary" text="Third North" arrowType="forward" />
 						<Button img="https://placehold.co/48" buttonType="secondary" text="NYU" arrowType="forward" />
 					</div>
