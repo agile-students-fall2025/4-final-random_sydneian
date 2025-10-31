@@ -19,6 +19,7 @@ export default function AddMemoryPopup({ onClose, onAdd }) {
 
   const handleSubmit = () => {
     if (!selectedPlace.trim()) {
+      // Could add an error message here if desired
       return;
     }
 
@@ -65,12 +66,13 @@ export default function AddMemoryPopup({ onClose, onAdd }) {
               {photos.map((photo, index) => (
                 <div key={index} className="photo-item">
                   <img src={photo} alt={`Preview ${index}`} />
-                  <button
-                    className="remove-btn"
+                  
+                  {/* Replace raw button with <Button /> */}
+                  <Button
+                    text="✕"
+                    buttonType="secondary"
                     onClick={() => handleRemovePhoto(index)}
-                  >
-                    ✕
-                  </button>
+                  />
                 </div>
               ))}
               <div className="add-more-photos" onClick={handleAddPhoto}>
@@ -81,7 +83,7 @@ export default function AddMemoryPopup({ onClose, onAdd }) {
           )}
         </div>
 
-        {/* Buttons */}
+        {/* Popup action buttons */}
         <div className="popup-buttons">
           <Button
             text="ADD MEMORY"
