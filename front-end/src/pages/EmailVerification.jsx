@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./EmailVerification.css";
+import Button from "../components/Button";
 
 function EmailVerification() {
 const [otp, setOtp] = useState(["", "", "", "", "", ""]);
@@ -47,9 +48,11 @@ return (
         ))}
         </div>
 
-        <button onClick={handleVerify} className="verify-btn">
-        Verify
-        </button>
+        <Button
+            text="Verify"
+            buttonType="primary"
+            onClick={handleVerify}
+        />
 
         <p className="resend-text">
         Didn’t receive it? Check spam, otherwise{" "}

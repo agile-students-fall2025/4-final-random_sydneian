@@ -38,16 +38,6 @@
     border-radius: 0.5rem;
 }
 
-.login-btn {
-    background: black;
-    color: white;
-    border: none;
-    border-radius: 0.5rem;
-    padding: 0.75rem;
-    font-weight: 600;
-    cursor: pointer;
-}
-
 .login-bottom-text {
     margin-top: 1rem;
 }
