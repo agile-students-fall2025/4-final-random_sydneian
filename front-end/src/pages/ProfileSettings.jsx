@@ -6,6 +6,8 @@ const [notif1, setNotif1] = useState(true);
 const [notif2, setNotif2] = useState(true);
 const [notif3, setNotif3] = useState(false);
 
+const [theme, setTheme] = useState("light");
+
 return (
     <div className="profile-container">
     <h2 className="profile-header">Profile & Settings</h2>
