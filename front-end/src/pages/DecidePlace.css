@@ -1,8 +1,22 @@
-.placeSelectedPopup {
+/* #root {
+	display: flex;
+	flex-direction: column;
+	gap: auto;
+} */
+
+.decision-container {
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.decision-wheel {
+}
+
+.decided-place-popup {
 	border: none;
 	border-radius: 16px;
-	/* margin-inline: 100px; */
-	/* max-width: 330px; */
 
 	> * {
 		margin-block: 16px;
@@ -15,7 +29,7 @@
 		height: auto;
 	}
 
-	.placeName {
+	.decided-place-name {
 		font-size: 36px;
 		font-weight: bold;
 	}

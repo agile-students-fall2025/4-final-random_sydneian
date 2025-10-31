@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import Button from "../components/Button";
-import "./Decide.css";
+import "./DecidePlace.css";
+import Header from "../components/Header";
 
 const placeChosenPhrases = ["The wheel has spoken, the universe has chosen..."]; // I might need a better name for this. It's the message that displays in the pop up after you spin the wheel
 
+// From p5js
 function mapRange(n, start1, stop1, start2, stop2, withinBounds) {
 	const newval = ((n - start1) / (stop1 - start1)) * (stop2 - start2) + start2;
 	if (!withinBounds) {
@@ -37,7 +39,7 @@ class Wheel {
 
 	update() {
 		this.angle += this.speed;
-		if (0 < this.speed && this.speed < 0.001) {
+		if (0 < this.speed && this.speed < 0.0001) {
 			this.speed = 0;
 
 			// Normalize angle to be within 0 - 2 PI, adjusting for clockwise rotation. Also, offset by -90 deg, as 0 deg is horizontal instead of vertical (E vs N)
@@ -114,7 +116,7 @@ class Wheel {
 	}
 }
 
-export default function Decide(props) {
+export default function DecidePlace() {
 	const canvasRef = useRef();
 	const dialogRef = useRef();
 	const drawables = useRef([]);
@@ -166,20 +168,20 @@ export default function Decide(props) {
 
 	return (
 		<>
-			<canvas
-				style={{ margin: "auto", outline: "2px solid black", display: "block" }}
-				width="300"
-				height="300"
-				ref={canvasRef}
-			>
-				A spinning wheel to get a random place {/* Alt text */}
-			</canvas>
-			<Button text="Spin" onClick={() => (drawables.current[0].speed = Math.random() / 4 - 0.25 / 2 + 0.5)} />
-			<dialog className="placeSelectedPopup" ref={dialogRef} closedby="any">
-				<div className="section-title">{placeChosenPhrases[Math.floor(Math.random() * placeChosenPhrases.length)]}</div>
-				<img width="300" height="150" src={place.images ? place.images[0] : null} />
-				<div className="placeName">{place.name}</div>
-			</dialog>
+			<div className="decision-container">
+				<Header backPath={"/dashboard"} title="Decision Wheel" />
+				<canvas width="300" height="300" ref={canvasRef} className="decision-wheel">
+					A spinning wheel to get a random place {/* Alt text */}
+				</canvas>
+				<Button text="Spin" onClick={() => (drawables.current[0].speed = Math.random() / 4 - 0.25 / 2 + 0.5)} />
+				<dialog className="decided-place-popup" ref={dialogRef} closedby="any">
+					<div className="section-title">
+						{placeChosenPhrases[Math.floor(Math.random() * placeChosenPhrases.length)]}
+					</div>
+					<img width="300" height="150" src={place.images ? place.images[0] : null} />
+					<div className="decided-place-name">{place.name}</div>
+				</dialog>
+			</div>
 		</>
 	);
 }

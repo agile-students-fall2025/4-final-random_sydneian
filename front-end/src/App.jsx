@@ -7,7 +7,7 @@ import Register from "./pages/Register";
 import EmailVerification from "./pages/EmailVerification";
 import Login from "./pages/Login";
 import ProfileSettings from "./pages/ProfileSettings";
-import Decide from "./pages/Decide";
+import DecidePlace from "./pages/DecidePlace";
 import Button from "./components/Button";
 
 function App() {
@@ -20,8 +20,7 @@ function App() {
 			<Route path="/verify-email" element={<EmailVerification />} />
 			<Route path="/login" element={<Login />} />
 			<Route path="/profile-settings" element={<ProfileSettings />} />
-			<Route path="/decide" element={<Decide />} />
-			<Route path="/decide2" element={<Button href="/decide" text="Go to decide" />} />
+			<Route path="/decide" element={<DecidePlace />} />
 		</Routes>
 	);
 }
