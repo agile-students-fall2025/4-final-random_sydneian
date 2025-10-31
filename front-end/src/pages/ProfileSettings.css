@@ -72,20 +72,3 @@
     border-radius: 0.25rem;
     padding: 0.5rem;
 }
-
-.link-btn {
-    display: block;
-    background: none;
-    border: 1px solid black;
-    border-radius: 0.5rem;
-    padding: 0.75rem;
-    width: 100%;
-    text-align: left;
-    cursor: pointer;
-    margin-bottom: 0.75rem;
-    max-width: 400px;
-}
-
-.link-btn:hover {
-    background-color: #f9f9f9;
-}

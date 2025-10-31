@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Button from "../components/Button";
 import "./Register.css";
 
 function Register() {
@@ -47,9 +48,11 @@ return (
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         />
-        <button type="submit" className="primary-btn">
-        Sign up
-        </button>
+        <Button
+            text="Sign up"
+            buttonType="primary"
+            onClick={handleSignUp}
+        />
     </form>
 
     <p className="bottom-text">

@@ -40,17 +40,6 @@
     border-radius: 0.25rem;
 }
 
-.verify-btn {
-    background: black;
-    color: white;
-    padding: 0.75rem;
-    width: 100%;
-    border: none;
-    border-radius: 0.5rem;
-    font-weight: 600;
-    cursor: pointer;
-}
-
 .resend-text {
     margin-top: 1rem;
     font-size: 0.8rem;
