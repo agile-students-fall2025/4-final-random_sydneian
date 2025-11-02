@@ -61,7 +61,7 @@ class Wheel {
 		// Background circle
 		this.ctx.beginPath();
 		this.ctx.arc(0, 0, this.radius + 8, 0, 2 * Math.PI);
-		this.ctx.strokeStyle = "black";
+		this.ctx.strokeStyle = "#0072B2"; // --color-primary
 		this.ctx.lineWidth = 4;
 		this.ctx.stroke();
 		this.ctx.lineWidth = 1;
@@ -140,7 +140,7 @@ export default function DecidePlace() {
 					{ x: canvas.width / 2, y: canvas.height / 2 },
 					256 / 2,
 					places.current,
-					["lightgray", "gray"],
+					["#0072B2", "#9ad2f2"], // primary and accent colors
 					(place) => {
 						setPlace(place);
 						dialogRef.current.showModal();
@@ -169,11 +169,13 @@ export default function DecidePlace() {
 	return (
 		<>
 			<div className="decision-container">
-				<Header backPath={"/dashboard"} title="Decision Wheel" />
+				<Header backPath={"/bucket-list"} title="Decision Wheel" />
 				<canvas width="300" height="300" ref={canvasRef} className="decision-wheel">
 					A spinning wheel to get a random place {/* Alt text */}
 				</canvas>
-				<Button text="Spin" onClick={() => (drawables.current[0].speed = Math.random() / 4 - 0.25 / 2 + 0.5)} />
+				<div className="decision-wheel-button">
+				<Button text="Spin" onClick={() => (drawables.current[0].speed = Math.random() / 4 - 0.25 / 2 + 0.5)}  />
+				</div>
 				<dialog className="decided-place-popup" ref={dialogRef} closedby="any">
 					<div className="section-title">
 						{placeChosenPhrases[Math.floor(Math.random() * placeChosenPhrases.length)]}

@@ -17,6 +17,36 @@ const handleSignUp = (e) => {
     return;
     }
 
+    // Check if username or email already exists
+    const existingUsers = JSON.parse(localStorage.getItem('users') || '[]');
+    const usernameExists = existingUsers.some(user => user.username === username);
+    const emailExists = existingUsers.some(user => user.email === email);
+
+    if (usernameExists) {
+        setError("Username already exists");
+        return;
+    }
+
+    if (emailExists) {
+        setError("Email already exists");
+        return;
+    }
+
+    // Create new user
+    const newUser = {
+        id: Date.now().toString(),
+        username,
+        email,
+        password // In production, this should be hashed
+    };
+
+    // Save to localStorage
+    existingUsers.push(newUser);
+    localStorage.setItem('users', JSON.stringify(existingUsers));
+
+    // Set current user
+    localStorage.setItem('currentUser', JSON.stringify(newUser));
+
     // normally: send data to backend
     navigate("/verify-email");
 };

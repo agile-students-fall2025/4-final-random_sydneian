@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import "./MemoryBookPage.css";
 import "../components/Button.css";
 import AddMemoryPopup from "./AddMemoryPopup";
+import Header from "../components/Header";
 
 export default function MemoryBookPage() {
   const [showPopup, setShowPopup] = useState(false);
@@ -28,17 +29,20 @@ export default function MemoryBookPage() {
 
   return (
     <div className="memory-container">
-      <h1 className="memory-header">Our Memories</h1>
-      <hr className="memory-divider" />
+      {/* <h1 className="memory-header">Our Memories</h1>
+      <hr className="memory-divider" /> */}
+      <Header backPath={"/bucket-list"} title="Our Memories" />
 
       {/* Search bar */}
-      <input
-        type="text"
-        className="search-input"
-        placeholder="Search memories..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
+      <div className="search-container">
+        <input
+          type="text"
+          className="search-input"
+          placeholder="Search memories..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
 
       {filteredMemories.length === 0 ? (
         <div className="memory-empty">

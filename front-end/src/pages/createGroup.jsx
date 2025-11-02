@@ -1,113 +1,110 @@
-import { ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useState, useRef } from "react";
 import Button from "../components/Button";
+import Header from "../components/Header";
+import "./createGroup.css";
 
 export default function CreateGroupPage() {
 	const navigate = useNavigate();
+	const [groupName, setGroupName] = useState("");
+	const [groupDescription, setGroupDescription] = useState("");
+	const [inviteFriends, setInviteFriends] = useState("");
+	const [profileImage, setProfileImage] = useState("https://placehold.co/48");
+	const fileInputRef = useRef(null);
 
 	const onNavigate = (path) => {
 		navigate(path);
 	};
 
+	const handleFileChange = (e) => {
+		const file = e.target.files[0];
+		if (file) {
+			const reader = new FileReader();
+			reader.onload = (e) => {
+				setProfileImage(e.target.result);
+			};
+			reader.readAsDataURL(file);
+		}
+		e.target.value = '';
+	};
+
+	const handleProfileUploadClick = () => {
+		fileInputRef.current?.click();
+	};
+
+	const handleCreateGroup = () => {
+		if (!groupName.trim()) {
+			alert("Please enter a group name");
+			return;
+		}
+
+		// Get existing groups from localStorage
+		const existingGroups = JSON.parse(localStorage.getItem('userGroups') || '[]');
+		
+		// Create new group
+		const newGroup = {
+			id: Date.now(), // Use timestamp as unique ID
+			name: groupName,
+			img: profileImage,
+			description: groupDescription,
+			inviteFriends: inviteFriends
+		};
+
+		// Add new group to the list
+		const updatedGroups = [...existingGroups, newGroup];
+		
+		// Save to localStorage
+		localStorage.setItem('userGroups', JSON.stringify(updatedGroups));
+
+		// Navigate back to dashboard
+		onNavigate("/dashboard");
+	};
+
 	return (
-		<>
-			<style>{`
-          .create-container {
-            max-width: 400px;
-            margin: 0 auto;
-            padding: 24px;
-            font-family: system-ui, -apple-system, sans-serif;
-          }
-  
-          .create-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 32px;
-            padding-bottom: 16px;
-            border-bottom: 3px solid #000;
-          }
-  
-          .back-button {
-            cursor: pointer;
-            padding: 0;
-            background: none;
-            border: none;
-            padding-top: 2px;
-            padding-left: 2px;
-            padding-right: 2px;
-            border: 2px solid #000;
-            border-radius: 4px;
-          }
-  
-          .create-title {
-            position: relative;
-            left: 42%;
-            transform: translateX(-50%);
-            font-size: 24px;
-            font-weight: 700;
-            margin: 0;
-          }
-  
-          .profile-upload {
-            border: 2px dashed #ccc;
-            border-radius: 8px;
-            padding: 60px 24px;
-            text-align: center;
-            margin-bottom: 24px;
-            cursor: pointer;
-            color: #999;
-            font-size: 16px;
-          }
-  
-          .form-input {
-            width: 100%;
-            padding: 16px;
-            border: 2px solid #000;
-            border-radius: 8px;
-            font-size: 16px;
-            margin-bottom: 24px;
-            font-family: system-ui, -apple-system, sans-serif;
-            box-sizing: border-box;
-          }
-  
-          .form-textarea {
-            width: 100%;
-            padding: 16px;
-            border: 2px solid #000;
-            border-radius: 8px;
-            font-size: 16px;
-            margin-bottom: 24px;
-            font-family: system-ui, -apple-system, sans-serif;
-            min-height: 120px;
-            resize: vertical;
-            box-sizing: border-box;
-          }
-  
-          .form-input::placeholder,
-          .form-textarea::placeholder {
-            color: #999;
-          }
-  
-        `}</style>
+		<div className="create-container">
+        <Header backPath={"/dashboard"} title="Create New Group" />
 
-			<div className="create-container">
-				<div className="create-header">
-					<button className="back-button" onClick={() => onNavigate("/dashboard")}>
-						<ChevronLeft size={24} />
-					</button>
-					<h1 className="create-title">Create New Group</h1>
+				<div className="create-content">
+					<input
+						type="file"
+						ref={fileInputRef}
+						onChange={handleFileChange}
+						accept="image/*"
+						style={{ display: 'none' }}
+					/>
+					<div className="profile-upload" onClick={handleProfileUploadClick}>
+						{profileImage !== "https://placehold.co/48" ? (
+							<img src={profileImage} alt="Profile preview" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px' }} />
+						) : (
+							'+ Add Profile Picture'
+						)}
+					</div>
+
+					<input 
+						type="text" 
+						className="form-input" 
+						placeholder="Group name" 
+						value={groupName}
+						onChange={(e) => setGroupName(e.target.value)}
+					/>
+
+					<textarea 
+						className="form-textarea" 
+						placeholder="Group description" 
+						value={groupDescription}
+						onChange={(e) => setGroupDescription(e.target.value)}
+					/>
+
+					<input 
+						type="text" 
+						className="form-input" 
+						placeholder="Invite friends" 
+						value={inviteFriends}
+						onChange={(e) => setInviteFriends(e.target.value)}
+					/>
+
+					<Button text="Create Group" buttonType="primary" onClick={handleCreateGroup} />
 				</div>
-
-				<div className="profile-upload">+ Add Profile Picture</div>
-
-				<input type="text" className="form-input" placeholder="Group name" />
-
-				<textarea className="form-textarea" placeholder="Group description" />
-
-				<input type="text" className="form-input" placeholder="Invite friends" />
-
-				<Button text="Create Group" buttonType="primary" onClick={() => onNavigate("/dashboard")} />
 			</div>
-		</>
 	);
 }

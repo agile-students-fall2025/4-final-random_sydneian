@@ -10,7 +10,7 @@
 
 .dialog-content {
 	background: #fff;
-	border: 2px solid #000;
+	border: 2px solid var(--color-primary);
 	border-radius: 12px;
 	padding: 32px;
 	max-width: 400px;

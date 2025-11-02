@@ -2,18 +2,28 @@
 	height: 100%;
 
 	/* CSS vars */
+	--color-primary: #0072B2;
+	--color-accent: #9ad2f2;
+	--color-neutral: #000000;
+	
+	/* Legacy colors for backward compatibility */
+	--soft-mint-green: #D1E8E2;
+	--deep-teal: #19747E;
+	--light-sky-blue: #A9D6E5;
+	--light-gray: #E2E2E2;
 }
 
 body {
 	height: 100%;
+	background-color: #f5f5f5;
 }
 
 #root {
 	height: 100%;
-	padding: 16px;
+	padding: 0 16px;
 	max-width: 400px;
 	margin: auto;
-	height: 100%;
+	background-color: white;
 }
 
 .section-title {

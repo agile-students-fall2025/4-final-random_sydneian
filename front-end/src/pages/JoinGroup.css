@@ -1,20 +1,22 @@
 .join-container {
 	max-width: 400px;
 	margin: 0 auto;
-	padding: 24px;
+	padding: 8px 0;
 	font-family:
 		system-ui,
 		-apple-system,
 		sans-serif;
 }
 
+.search-container {
+	padding: 0 16px 16px 16px;
+}
+
 .search-input {
 	width: 100%;
 	padding: 16px;
-	border: 2px solid #000;
 	border-radius: 8px;
 	font-size: 16px;
-	margin-bottom: 16px;
 	font-family:
 		system-ui,
 		-apple-system,
@@ -31,18 +33,20 @@
 	flex-direction: column;
 	gap: 16px;
 	margin-bottom: 16px;
+	padding: 0 16px;
 }
 
 .invites-title {
 	font-size: 18px;
 	font-weight: 700;
+	padding: 0 16px;
 }
 
 .invite-item {
 	display: flex;
 	align-items: center;
 	padding: 16px;
-	border: 2px solid #000;
+	border: 2px solid var(--color-primary);
 	border-radius: 8px;
 	margin-bottom: 12px;
 	cursor: pointer;
@@ -75,7 +79,7 @@
 .group-button {
 	width: 100%;
 	padding: 16px;
-	border: 2px solid #000;
+	border: 2px solid var(--color-primary);
 	border-radius: 8px;
 	background: #fff;
 	font-size: 16px;
@@ -92,4 +96,5 @@
 	font-size: 14px;
 	text-align: center;
 	padding: 16px;
+	margin: 0 16px;
 }
