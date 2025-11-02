@@ -30,12 +30,13 @@
 	width: 100%;
 	padding: 16px;
 	padding-right: 48px;
-	border: 2px solid #000;
+	border: 2px solid var(--color-primary);
 	border-radius: 8px;
 	font-size: 16px;
 	box-sizing: border-box;
 	font-family: system-ui, -apple-system, sans-serif;
 	cursor: pointer;
+	transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .select-place-input::placeholder {
@@ -44,6 +45,8 @@
 
 .select-place-input:focus {
 	outline: none;
+	border-color: var(--color-accent);
+	box-shadow: 0 0 0 3px rgba(154, 210, 242, 0.2);
 }
 
 .select-place-chevron {
@@ -103,14 +106,14 @@
 	height: 100%;
 	object-fit: cover;
 	border-radius: 8px;
-	border: 2px solid #000;
+	border: 2px solid var(--color-primary);
 }
 
 .remove-btn {
 	position: absolute;
 	top: 8px;
 	right: 8px;
-	background: #000;
+	background: var(--color-primary);
 	color: #fff;
 	border: none;
 	border-radius: 50%;
@@ -122,6 +125,16 @@
 	align-items: center;
 	justify-content: center;
 	font-weight: 700;
+	transition: background-color 0.2s ease;
+}
+
+.remove-btn:hover {
+	background: var(--color-accent);
+}
+
+.remove-btn:focus {
+	outline: 2px solid var(--color-accent);
+	outline-offset: 2px;
 }
 
 .add-more-photos {

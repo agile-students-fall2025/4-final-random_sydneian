@@ -10,10 +10,28 @@ const navigate = useNavigate();
 
 const handleLogin = (e) => {
     e.preventDefault();
-    if (username !== "testuser" || password !== "password123") {
+    
+    // Check against registered users in localStorage
+    const users = JSON.parse(localStorage.getItem('users') || '[]');
+    const user = users.find(u => u.username === username && u.password === password);
+
+    // Fallback to hardcoded test user for demo purposes
+    if (!user && (username !== "testuser" || password !== "password123")) {
         setError("Incorrect username or password");
         return;
     }
+
+    // Set current user
+    if (user) {
+        localStorage.setItem('currentUser', JSON.stringify(user));
+    } else if (username === "testuser" && password === "password123") {
+        localStorage.setItem('currentUser', JSON.stringify({ 
+            id: 'testuser-id', 
+            username: 'testuser',
+            email: 'test@example.com'
+        }));
+    }
+    
     navigate("/dashboard");
 };
 

@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import "./App.css";
 import Dashboard from "./pages/dashboard";
 import CreateGroup from "./pages/createGroup";
@@ -18,6 +18,7 @@ import AddPlaceThroughLink from "./pages/addPlaceThroughLink";
 function App() {
 	return (
 		<Routes>
+			<Route path="/" element={<Navigate to="/login" replace />} />
 			<Route path="/dashboard" element={<Dashboard />} />
 			<Route path="/group/create" element={<CreateGroup />} />
 			<Route path="/group/join" element={<JoinGroup />} />

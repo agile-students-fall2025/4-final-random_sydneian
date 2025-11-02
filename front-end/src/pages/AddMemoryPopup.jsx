@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { ChevronDown } from "lucide-react";
 import Button from "../components/Button";
 import "./AddMemoryPopup.css";
@@ -6,11 +6,23 @@ import "./AddMemoryPopup.css";
 export default function AddMemoryPopup({ onClose, onAdd }) {
   const [selectedPlace, setSelectedPlace] = useState("");
   const [photos, setPhotos] = useState([]);
+  const fileInputRef = useRef(null);
 
   const handleAddPhoto = () => {
-    const randomId = Math.floor(Math.random() * 1000);
-    const newPhoto = `https://picsum.photos/seed/${randomId}/400/300`;
-    setPhotos((prev) => [...prev, newPhoto]);
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files);
+    files.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setPhotos((prev) => [...prev, e.target.result]);
+      };
+      reader.readAsDataURL(file);
+    });
+    // Reset file input so same file can be selected again
+    e.target.value = '';
   };
 
   const handleRemovePhoto = (index) => {
@@ -41,6 +53,14 @@ export default function AddMemoryPopup({ onClose, onAdd }) {
   return (
     <div className="popup-overlay">
       <div className="popup-content">
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileChange}
+          accept="image/*"
+          multiple
+          style={{ display: 'none' }}
+        />
         {/* Select place dropdown */}
         <div className="select-place-container">
           <input

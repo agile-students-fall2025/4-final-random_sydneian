@@ -1,74 +1,36 @@
 import Button from "../components/Button";
 import { MoreVertical } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import "./dashboard.css";
 
 export default function DashboardPage() {
 	const navigate = useNavigate();
+	const [groups, setGroups] = useState([]);
+
+	// Load groups from localStorage on mount
+	useEffect(() => {
+		const savedGroups = localStorage.getItem('userGroups');
+		if (savedGroups) {
+			setGroups(JSON.parse(savedGroups));
+		} else {
+			// Default groups for initial load
+			const defaultGroups = [
+				{ id: 1, name: "Syndeian", img: "https://placehold.co/48" },
+				{ id: 2, name: "Third North", img: "https://placehold.co/48" },
+				{ id: 3, name: "NYU", img: "https://placehold.co/48" }
+			];
+			setGroups(defaultGroups);
+			localStorage.setItem('userGroups', JSON.stringify(defaultGroups));
+		}
+	}, []);
 
 	const onNavigate = (path) => {
 		navigate(path);
 	};
 
 	return (
-		<>
-			<style>{`
-          .dashboard-container {
-            max-width: 400px;
-            margin: 0 auto;
-            padding: 24px;
-            font-family: system-ui, -apple-system, sans-serif;
-          }
-  
-          .dashboard-header {
-            position: relative;
-            display: flex;
-            align-items: center;
-            margin-bottom: 32px;
-            padding-bottom: 16px;
-            border-bottom: 3px solid #000;
-            }
-
-          .dashboard-title {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 24px;
-            font-weight: 700;
-            margin: 0;
-            }
-
-  
-          .menu-icon {
-            position: relative;
-            left: 96%;
-            transform: translateX(-50%);
-            cursor: pointer;
-            padding-top: 2px;
-            padding-left: 3.5px;
-            padding-right: 3.5px;
-            border: 2px solid #000;
-            border-radius: 4px;
-          }
-  
-          .section-title {
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 16px;
-          }
-  
-          .quick-actions {
-            margin-bottom: 40px;
-          }
-  
-          .button-spacing {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-          }
-  
-        `}</style>
-
-			<div className="dashboard-container">
+		<div className="dashboard-container">
 				<div className="dashboard-header">
 					<h1 className="dashboard-title">Dashboard</h1>
 					<div className="menu-icon"
@@ -90,12 +52,18 @@ export default function DashboardPage() {
 				<div className="my-groups">
 					<h2 className="section-title">My Groups</h2>
 					<div className="button-spacing">
-						<Button img="https://placehold.co/48" buttonType="secondary" text="Syndeian" arrowType="forward" />
-						<Button img="https://placehold.co/48" buttonType="secondary" text="Third North" arrowType="forward" />
-						<Button img="https://placehold.co/48" buttonType="secondary" text="NYU" arrowType="forward" />
+						{groups.map((group) => (
+							<Button 
+								key={group.id}
+								img={group.img} 
+								buttonType="secondary" 
+								text={group.name} 
+								arrowType="forward"  
+								onClick={() => onNavigate("/bucket-list")}
+							/>
+						))}
 					</div>
 				</div>
 			</div>
-		</>
 	);
 }

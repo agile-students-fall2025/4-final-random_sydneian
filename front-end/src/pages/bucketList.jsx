@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Heart } from 'lucide-react';
 import { getMockActivities, getCompletedActivities } from '../data/mockData';
 import './bucketList.css';
+import Header from '../components/Header';
 
 export default function BucketList() {
   const navigate = useNavigate();
@@ -51,7 +52,7 @@ export default function BucketList() {
     <div className="bucket-list-container">
       {/* Header */}
       <div className="bucket-list-header">
-        <div className="bucket-list-header-content">
+        {/* <div className="bucket-list-header-content">
           <button 
             className="back-button"
             onClick={() => navigate(-1)}
@@ -61,7 +62,8 @@ export default function BucketList() {
           </button>
           <h1 className="bucket-list-title">Sydneian</h1>
           <div className="header-spacer"></div>
-        </div>
+        </div> */}
+        <Header backPath={"/dashboard"} title="Bucket List" />
         
         {/* Search Bar */}
         <div className="search-container">

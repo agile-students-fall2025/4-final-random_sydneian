@@ -1,0 +1,62 @@
+.dashboard-container {
+  font-family: system-ui, -apple-system, sans-serif;
+  max-width: 400px;
+  padding: 8px 0;
+}
+
+.dashboard-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin: 16px -16px 32px -16px;
+  padding: 0 16px 16px 16px;
+  border-bottom: 3px solid var(--color-primary);
+}
+
+.dashboard-title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.menu-icon {
+  position: relative;
+  left: 96%;
+  transform: translateX(-50%);
+  cursor: pointer;
+  padding-top: 2px;
+  padding-left: 3.5px;
+  padding-right: 3.5px;
+  border: 2px solid var(--color-primary);
+  border-radius: 4px;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.menu-icon:hover {
+  background-color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.menu-icon:focus {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.quick-actions {
+  margin-bottom: 40px;
+  padding: 0 16px;
+}
+
+.button-spacing {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.my-groups {
+  padding: 0 16px;
+}
+

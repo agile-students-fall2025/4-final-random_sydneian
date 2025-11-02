@@ -1,2 +1,20 @@
 @import "../node_modules/modern-normalize/modern-normalize.css";
 @import "https://rsms.me/inter/inter.css";
+
+/* Global input styles */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea {
+  border: 2px solid var(--color-primary);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(154, 210, 242, 0.2);
+}

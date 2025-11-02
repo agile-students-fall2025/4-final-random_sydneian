@@ -4,6 +4,7 @@ import { ChevronLeft } from 'lucide-react';
 import Button from '../components/Button';
 import { getRecentAdditions } from '../data/mockData';
 import './addPlace.css';
+import Header from '../components/Header';
 
 export default function AddPlace() {
   const navigate = useNavigate();
@@ -32,19 +33,7 @@ export default function AddPlace() {
   return (
     <div className="add-place-container">
       {/* Header */}
-      <div className="add-place-header">
-        <div className="add-place-header-content">
-          <button 
-            className="back-button"
-            onClick={() => navigate(-1)}
-            aria-label="Back"
-          >
-            <ChevronLeft size={20} />
-          </button>
-          <h1 className="add-place-title">Add Place</h1>
-          <div className="header-spacer"></div>
-        </div>
-      </div>
+      <Header backPath={"/dashboard"} title="Add Place" />
 
       {/* Main Content */}
       <div className="add-place-content">
