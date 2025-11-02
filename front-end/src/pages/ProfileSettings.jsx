@@ -72,8 +72,18 @@ return (
       {/* Misc */}
     <div className="section">
         <h3>Misc</h3>
-        <button className="link-btn">Rate our app →</button>
-        <button className="link-btn">About →</button>
+        <Button
+            text="Rate our app"
+            arrowType="forward"
+            buttonType="secondary"
+            onClick={() => console.log("Rate app clicked")}
+            />
+        <Button
+            text="About"
+            arrowType="forward"
+            buttonType="secondary"
+            onClick={() => console.log("About clicked")}
+        />
     </div>
     </div>
     </>

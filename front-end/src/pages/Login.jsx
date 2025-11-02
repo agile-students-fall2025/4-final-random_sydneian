@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Button from "../components/Button";
 import "./Login.css";
 
 function Login() {
@@ -55,9 +56,11 @@ return (
             value={password}
             onChange={(e) => setPassword(e.target.value)}
         />
-        <button type="submit" className="login-btn">
-            Log in
-        </button>
+        <Button
+            text="Log in"
+            buttonType="primary"
+            onClick={handleLogin}
+        />
     </form>
 
     <p className="login-bottom-text">
