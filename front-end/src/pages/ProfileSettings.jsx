@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "./ProfileSettings.css";
 import Header from "../components/Header";
+import Button from "../components/Button";
 
 function ProfileSettings() {
 const [notif1, setNotif1] = useState(true);
