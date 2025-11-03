@@ -17,7 +17,7 @@ return (
 
       {/* Account Info */}
     <div className="account-section">
-        <div className="profile-pic">Profile Picture</div>
+        <div className="profile-pic"></div>
         <div>
         <p className="profile-name">Lynda</p>
         <p className="profile-email">lynda25@gmail.com</p>
