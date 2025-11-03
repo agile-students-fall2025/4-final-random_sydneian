@@ -18,8 +18,30 @@ export default function MemoryBookPage() {
         year: "numeric",
       }),
     };
-    setMemories((prev) => [...prev, datedMemory]);
+
+    if (editingIndex !== null) {
+      // Edit existing memory
+      const updatedMemories = [...memories];
+      updatedMemories[editingIndex] = datedMemory;
+      setMemories(updatedMemories);
+      setEditingIndex(null);
+    } 
+    else {
+      setMemories((prev) => [...prev, datedMemory]);
+    }
+
     setShowPopup(false);
+  };
+
+  const handleDeleteMemory = (index) => {
+    if (window.confirm("Are you sure you want to delete this memory?")) {
+      setMemories(memories.filter((_, i) => i !== index));
+    }
+  };
+
+  const handleEditMemory = (index) => {
+    setEditingIndex(index);
+    setShowPopup(true);
   };
 
   //Filter memories based on search input
