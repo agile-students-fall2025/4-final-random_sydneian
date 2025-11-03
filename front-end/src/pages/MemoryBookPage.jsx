@@ -3,6 +3,7 @@ import "./MemoryBookPage.css";
 import "../components/Button.css";
 import AddMemoryPopup from "./AddMemoryPopup";
 import Header from "../components/Header";
+import Button from "../components/Button";
 
 export default function MemoryBookPage() {
   const [showPopup, setShowPopup] = useState(false);
