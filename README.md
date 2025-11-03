@@ -6,11 +6,11 @@ Our vision is to make spontaneous hangouts exciting rather than stressful, by en
 
 | Name & GitHub | Role |
 |:--------------|:-----|
-| [Catalin Botezat](https://github.com/CatalinMoldova) | |
+| [Catalin Botezat](https://github.com/CatalinMoldova) | Product Owner |
 | [Deema Hazim](https://github.com/deema-hazim) | |
-| [Nada Beltagui](https://github.com/nadsb26) | |
-| [Nursultan Sagyntay](https://github.com/kazakhpunk) | Product Owner |
-| [Zavier Shaikh](https://github.com/zs-5) | Scrum Master |
+| [Nada Beltagui](https://github.com/nadsb26) | Scrum Master |
+| [Nursultan Sagyntay](https://github.com/kazakhpunk) | |
+| [Zavier Shaikh](https://github.com/zs-5) | |
 
 ## Project Description
 
