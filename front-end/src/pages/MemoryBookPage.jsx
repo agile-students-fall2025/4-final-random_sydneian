@@ -8,6 +8,7 @@ export default function MemoryBookPage() {
   const [showPopup, setShowPopup] = useState(false);
   const [memories, setMemories] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [editingIndex, setEditingIndex] = useState(null);
 
   const handleAddMemory = (newMemory) => {
     const datedMemory = {
@@ -33,12 +34,14 @@ export default function MemoryBookPage() {
     setShowPopup(false);
   };
 
+  // Delete memory
   const handleDeleteMemory = (index) => {
     if (window.confirm("Are you sure you want to delete this memory?")) {
       setMemories(memories.filter((_, i) => i !== index));
     }
   };
 
+  // Edit memory
   const handleEditMemory = (index) => {
     setEditingIndex(index);
     setShowPopup(true);
@@ -85,6 +88,21 @@ export default function MemoryBookPage() {
                   </div>
                 ))}
               </div>
+
+              {/* Edit & Delete Buttons */}
+              <div className="memory-actions">
+                <Button
+                  text="Edit"
+                  buttonType="secondary"
+                  onClick={() => handleEditMemory(index)}
+                />
+                <Button
+                  text="Delete"
+                  buttonType="secondary"
+                  onClick={() => handleDeleteMemory(index)}
+                />
+              </div>
+
             </div>
           ))}
         </div>
@@ -100,8 +118,12 @@ export default function MemoryBookPage() {
 
       {showPopup && (
         <AddMemoryPopup
-          onClose={() => setShowPopup(false)}
+          onClose={() => {
+            setEditingIndex(null);
+            setShowPopup(false);
+          }}
           onAdd={handleAddMemory}
+          memoryToEdit={editingIndex !== null ? memories[editingIndex] : null}
         />
       )}
     </div>

@@ -117,3 +117,16 @@
 	outline: 2px solid var(--color-accent);
 	outline-offset: 2px;
 }
+
+.memory-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.memory-actions .Button {
+  flex: 1;
+  font-size: 14px;
+  padding: 12px;
+}
