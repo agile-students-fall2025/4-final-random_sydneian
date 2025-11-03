@@ -47,6 +47,12 @@
     box-shadow: 0 0 0 3px rgba(154, 210, 242, 0.2);
 }
 
+.otp-inputs input:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px rgba(154, 210, 242, 0.2);
+}
+
 .verify-btn {
     background: var(--color-primary);
     color: white;

@@ -1,12 +1,15 @@
 import React, { useState, useRef } from "react";
 import { ChevronDown } from "lucide-react";
 import Button from "../components/Button";
+import { getMockActivities, getCompletedActivities } from "../data/mockData";
 import "./AddMemoryPopup.css";
 
 export default function AddMemoryPopup({ onClose, onAdd }) {
   const [selectedPlace, setSelectedPlace] = useState("");
   const [photos, setPhotos] = useState([]);
+  const [error, setError] = useState("");
   const fileInputRef = useRef(null);
+  const activities = [...getMockActivities(), ...getCompletedActivities()];
 
   const handleAddPhoto = () => {
     fileInputRef.current?.click();
@@ -23,6 +26,7 @@ export default function AddMemoryPopup({ onClose, onAdd }) {
     });
     // Reset file input so same file can be selected again
     e.target.value = '';
+    setError("");
   };
 
   const handleRemovePhoto = (index) => {
@@ -31,10 +35,12 @@ export default function AddMemoryPopup({ onClose, onAdd }) {
 
   const handleSubmit = () => {
     if (!selectedPlace.trim()) {
+      setError("Please select a place before adding a memory.");
       return;
     }
 
     if (photos.length === 0) {
+      setError("Please add at least one photo.");
       return;
     }
 
@@ -46,6 +52,7 @@ export default function AddMemoryPopup({ onClose, onAdd }) {
     onAdd(newMemory);
     setSelectedPlace("");
     setPhotos([]);
+    setError("");
     onClose();
   };
 
@@ -62,16 +69,26 @@ export default function AddMemoryPopup({ onClose, onAdd }) {
         />
         {/* Select place dropdown */}
         <div className="select-place-container">
-          <input
-            type="text"
-            placeholder="Select place"
+          <select
+            className="select-place-dropdown"
             value={selectedPlace}
-            onChange={(e) => setSelectedPlace(e.target.value)}
-            className="select-place-input"
-            readOnly
-          />
+            onChange={(e) => {
+              setSelectedPlace(e.target.value)
+              setError("");
+            }}
+          >
+            <option value="">Select place</option>
+            {activities.map((activity) => (
+              <option key={activity.id} value={activity.title}>
+                {activity.title}
+              </option>
+            ))}
+          </select>
           <ChevronDown className="select-place-chevron" size={20} />
         </div>
+
+        {/* Error message */}
+        {error && <p className="error-text">{error}</p>}
 
         {/* Add Photos Area */}
         <div className="add-photos-container">
@@ -85,12 +102,13 @@ export default function AddMemoryPopup({ onClose, onAdd }) {
               {photos.map((photo, index) => (
                 <div key={index} className="photo-item">
                   <img src={photo} alt={`Preview ${index}`} />
-                  <button
-                    className="remove-btn"
+                  
+                  {/* Replace raw button with <Button /> */}
+                  <Button
+                    text="✕"
+                    buttonType="secondary"
                     onClick={() => handleRemovePhoto(index)}
-                  >
-                    ✕
-                  </button>
+                  />
                 </div>
               ))}
               <div className="add-more-photos" onClick={handleAddPhoto}>
@@ -101,7 +119,7 @@ export default function AddMemoryPopup({ onClose, onAdd }) {
           )}
         </div>
 
-        {/* Buttons */}
+        {/* Popup action buttons */}
         <div className="popup-buttons">
           <Button
             text="ADD MEMORY"
