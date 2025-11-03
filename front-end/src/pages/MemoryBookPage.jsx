@@ -4,6 +4,7 @@ import "../components/Button.css";
 import AddMemoryPopup from "./AddMemoryPopup";
 import Header from "../components/Header";
 import Button from "../components/Button";
+import { Pencil, Trash2 } from "lucide-react";
 
 export default function MemoryBookPage() {
   const [showPopup, setShowPopup] = useState(false);
@@ -90,17 +91,19 @@ export default function MemoryBookPage() {
                 ))}
               </div>
 
-              {/* Edit & Delete Buttons */}
-              <div className="memory-actions">
-                <Button
-                  text="Edit"
-                  buttonType="secondary"
+              {/* Edit & Delete Icons */}
+              <div className="memory-actions-icons">
+                <Pencil
+                  size={18}
+                  className="icon edit-icon"
                   onClick={() => handleEditMemory(index)}
+                  title="Edit Memory"
                 />
-                <Button
-                  text="Delete"
-                  buttonType="secondary"
+                <Trash2
+                  size={18}
+                  className="icon delete-icon"
                   onClick={() => handleDeleteMemory(index)}
+                  title="Delete Memory"
                 />
               </div>
 
