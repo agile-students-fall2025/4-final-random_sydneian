@@ -47,7 +47,12 @@
     box-shadow: 0 0 0 3px rgba(154, 210, 242, 0.2);
 }
 
-<<<<<<< HEAD
+.otp-inputs input:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px rgba(154, 210, 242, 0.2);
+}
+
 .verify-btn {
     background: var(--color-primary);
     color: white;
@@ -77,8 +82,6 @@
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-=======
->>>>>>> 6fd1fe0 (edited to use button component in my pages)
 .resend-text {
     margin-top: 1rem;
     font-size: 0.8rem;
