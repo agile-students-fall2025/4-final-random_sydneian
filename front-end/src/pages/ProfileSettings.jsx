@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "./ProfileSettings.css";
+import Header from "../components/Header";
 import Button from "../components/Button";
 
 function ProfileSettings() {
@@ -10,8 +11,9 @@ const [notif3, setNotif3] = useState(false);
 const [theme, setTheme] = useState("light");
 
 return (
+    <>
+    <Header backPath={"/dashboard"} title="Profile & Settings" />
     <div className="profile-container">
-    <h2 className="profile-header">Profile & Settings</h2>
 
       {/* Account Info */}
     <div className="account-section">
@@ -85,6 +87,7 @@ return (
         />
     </div>
     </div>
+    </>
 );
 }
 

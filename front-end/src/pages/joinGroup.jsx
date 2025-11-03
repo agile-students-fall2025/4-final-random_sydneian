@@ -10,9 +10,9 @@ export default function JoinGroupPage() {
 	const dialogRef = useRef(null);
 
 	const invites = [
-		{ name: "Syndeian2", by: "Sarah", description: "Wanna join our awesome group?" },
-		{ name: "The Teapot Society", by: "Jimmy", description: "Wanna join our awesome group?" },
-		{ name: "Agile Friends", by: "Mike", description: "Wanna join our awesome group?" },
+		{ id: 1001, name: "Syndeian2", by: "Sarah", description: "Wanna join our awesome group?" },
+		{ id: 1002, name: "The Teapot Society", by: "Jimmy", description: "Wanna join our awesome group?" },
+		{ id: 1003, name: "Agile Friends", by: "Mike", description: "Wanna join our awesome group?" },
 	];
 
 	// Filter function
@@ -32,6 +32,29 @@ export default function JoinGroupPage() {
 
 	const handleAccept = () => {
 		if (selectedGroup) {
+			// Get existing groups from localStorage
+			const existingGroups = JSON.parse(localStorage.getItem('userGroups') || '[]');
+			
+			// Check if group already exists
+			const groupExists = existingGroups.some(g => g.id === selectedGroup.id);
+			
+			if (!groupExists) {
+				// Create group object
+				const newGroup = {
+					id: selectedGroup.id || Date.now(),
+					name: selectedGroup.name,
+					img: "https://placehold.co/128",
+					description: selectedGroup.description,
+					by: selectedGroup.by
+				};
+
+				// Add new group to the list
+				const updatedGroups = [...existingGroups, newGroup];
+				
+				// Save to localStorage
+				localStorage.setItem('userGroups', JSON.stringify(updatedGroups));
+			}
+			
 			console.log("Accepted invite to:", selectedGroup.name);
 		}
 		setSelectedGroup(null);
@@ -55,13 +78,15 @@ export default function JoinGroupPage() {
 		<div className="join-container">
 			<Header title="Join Existing Group" backPath="/dashboard" />
 
-			<input
-				type="text"
-				className="search-input"
-				placeholder="Search..."
-				value={searchQuery}
-				onChange={(e) => setSearchQuery(e.target.value)}
-			/>
+			<div className="search-container">
+				<input
+					type="text"
+					className="search-input"
+					placeholder="Search..."
+					value={searchQuery}
+					onChange={(e) => setSearchQuery(e.target.value)}
+				/>
+			</div>
 
 			<h2 className="invites-title">Invites</h2>
 			<div className="invites-section">

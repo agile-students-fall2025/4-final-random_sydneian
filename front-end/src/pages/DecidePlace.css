@@ -11,7 +11,8 @@
 	justify-content: space-between;
 }
 
-.decision-wheel {
+.decision-wheel-button {
+	margin-bottom: 24px;
 }
 
 .decided-place-popup {

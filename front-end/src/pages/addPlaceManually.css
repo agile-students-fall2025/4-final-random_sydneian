@@ -13,7 +13,8 @@
 .add-place-manually-header {
   width: 100%;
   background-color: white;
-  border-bottom: 2px solid #000;
+  border-bottom: 2px solid var(--color-primary);
+  margin: 16px -16px 0 -16px;
 }
 
 .add-place-manually-header-content {
@@ -30,11 +31,22 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  background: #000;
-  border: 2px solid #000;
+  background: var(--color-primary);
+  border: 2px solid var(--color-primary);
   border-radius: 4px;
   padding: 0;
   color: #fff;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.back-button:hover {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.back-button:focus {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }
 
 .back-button svg {
@@ -65,7 +77,6 @@
 .form-input {
   width: 100%;
   padding: 16px;
-  border: 2px solid #000;
   border-radius: 8px;
   font-size: 16px;
   margin-bottom: 16px;
@@ -75,10 +86,6 @@
 
 .form-input::placeholder {
   color: #999;
-}
-
-.form-input:focus {
-  outline: none;
 }
 
 .select-container {
@@ -113,7 +120,6 @@
 .form-textarea {
   width: 100%;
   padding: 16px;
-  border: 2px solid #000;
   border-radius: 8px;
   font-size: 16px;
   font-family: system-ui, -apple-system, sans-serif;
@@ -125,17 +131,19 @@
   color: #999;
 }
 
-.form-textarea:focus {
-  outline: none;
-}
-
 .add-photos-area {
-  border: 2px dashed #000;
+  border: 2px dashed var(--color-primary);
   border-radius: 8px;
   padding: 48px 16px;
   text-align: center;
   cursor: pointer;
   background-color: #fff;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.add-photos-area:hover {
+  border-color: var(--color-accent);
+  background-color: rgba(154, 210, 242, 0.05);
 }
 
 .add-photos-plus {
@@ -156,14 +164,15 @@
 }
 
 .bottom-nav {
-  width: 100%;
-  max-width: 400px;
   background-color: white;
-  border-top: 2px solid #000;
+  border-top: 2px solid var(--color-primary);
   position: fixed;
   bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
+  right: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
 }
 
 .bottom-nav-content {
@@ -171,6 +180,8 @@
   justify-content: space-around;
   align-items: center;
   padding: 12px 0;
+  width: 100%;
+  max-width: 400px;
 }
 
 .nav-button {
@@ -182,6 +193,17 @@
   border: none;
   cursor: pointer;
   padding: 0;
+  transition: opacity 0.2s ease;
+}
+
+.nav-button:hover {
+  opacity: 0.6;
+}
+
+.nav-button:focus {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: 4px;
 }
 
 .nav-icon {
@@ -194,7 +216,7 @@
 .nav-icon-outlined {
   width: 20px;
   height: 20px;
-  border: 2px solid #000;
+  border: 2px solid var(--color-primary);
   border-radius: 2px;
   background-color: transparent;
 }

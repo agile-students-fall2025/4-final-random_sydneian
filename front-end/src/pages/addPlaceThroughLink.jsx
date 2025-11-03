@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
 import Button from '../components/Button';
 import './addPlaceThroughLink.css';
+import Header from '../components/Header';
 
 export default function AddPlaceThroughLink() {
   const navigate = useNavigate();
@@ -34,20 +35,7 @@ export default function AddPlaceThroughLink() {
 
   return (
     <div className="add-place-link-container">
-      {/* Header */}
-      <div className="add-place-link-header">
-        <div className="add-place-link-header-content">
-          <button 
-            className="back-button"
-            onClick={() => navigate(-1)}
-            aria-label="Back"
-          >
-            <ChevronLeft size={20} />
-          </button>
-          <h1 className="add-place-link-title">Import From Link</h1>
-          <div className="header-spacer"></div>
-        </div>
-      </div>
+      <Header backPath={"/add-place"} title="Import From Link" />
 
       {/* Main Content */}
       <div className="add-place-link-content">
