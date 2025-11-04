@@ -4,9 +4,9 @@ import Button from "../components/Button";
 import { getMockActivities, getCompletedActivities } from "../data/mockData";
 import "./AddMemoryPopup.css";
 
-export default function AddMemoryPopup({ onClose, onAdd }) {
-  const [selectedPlace, setSelectedPlace] = useState("");
-  const [photos, setPhotos] = useState([]);
+export default function AddMemoryPopup({ onClose, onAdd, memoryToEdit }) {
+  const [selectedPlace, setSelectedPlace] = useState(memoryToEdit?.title || "");
+  const [photos, setPhotos] = useState(memoryToEdit?.photos || []);
   const [error, setError] = useState("");
   const fileInputRef = useRef(null);
   const activities = [...getMockActivities(), ...getCompletedActivities()];

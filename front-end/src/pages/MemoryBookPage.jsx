@@ -3,11 +3,14 @@ import "./MemoryBookPage.css";
 import "../components/Button.css";
 import AddMemoryPopup from "./AddMemoryPopup";
 import Header from "../components/Header";
+import Button from "../components/Button";
+import { Pencil, Trash2 } from "lucide-react";
 
 export default function MemoryBookPage() {
   const [showPopup, setShowPopup] = useState(false);
   const [memories, setMemories] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [editingIndex, setEditingIndex] = useState(null);
 
   const handleAddMemory = (newMemory) => {
     const datedMemory = {
@@ -18,8 +21,32 @@ export default function MemoryBookPage() {
         year: "numeric",
       }),
     };
-    setMemories((prev) => [...prev, datedMemory]);
+
+    if (editingIndex !== null) {
+      // Edit existing memory
+      const updatedMemories = [...memories];
+      updatedMemories[editingIndex] = datedMemory;
+      setMemories(updatedMemories);
+      setEditingIndex(null);
+    } 
+    else {
+      setMemories((prev) => [...prev, datedMemory]);
+    }
+
     setShowPopup(false);
+  };
+
+  // Delete memory
+  const handleDeleteMemory = (index) => {
+    if (window.confirm("Are you sure you want to delete this memory?")) {
+      setMemories(memories.filter((_, i) => i !== index));
+    }
+  };
+
+  // Edit memory
+  const handleEditMemory = (index) => {
+    setEditingIndex(index);
+    setShowPopup(true);
   };
 
   //Filter memories based on search input
@@ -63,6 +90,23 @@ export default function MemoryBookPage() {
                   </div>
                 ))}
               </div>
+
+              {/* Edit & Delete Icons */}
+              <div className="memory-actions-icons">
+                <Pencil
+                  size={18}
+                  className="icon edit-icon"
+                  onClick={() => handleEditMemory(index)}
+                  title="Edit Memory"
+                />
+                <Trash2
+                  size={18}
+                  className="icon delete-icon"
+                  onClick={() => handleDeleteMemory(index)}
+                  title="Delete Memory"
+                />
+              </div>
+
             </div>
           ))}
         </div>
@@ -78,8 +122,12 @@ export default function MemoryBookPage() {
 
       {showPopup && (
         <AddMemoryPopup
-          onClose={() => setShowPopup(false)}
+          onClose={() => {
+            setEditingIndex(null);
+            setShowPopup(false);
+          }}
           onAdd={handleAddMemory}
+          memoryToEdit={editingIndex !== null ? memories[editingIndex] : null}
         />
       )}
     </div>
