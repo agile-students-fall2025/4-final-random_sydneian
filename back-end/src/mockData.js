@@ -3,53 +3,49 @@
 // - Image URLs should point to copies stored on this filesystem, but currently they are picsum URLs.
 // - Check other notes (comments starting with "Note:")
 
-export let users = [
+export const users = [
 	{
-		_id: "user1-id",
+		_id: "user1-id", // auto handled by MongoDB
 		username: "user1",
+		password: "password123", // Note: Will be salted and hashed once auth is properly implemented
 		email: "user1@example.com",
-		// Note: Password is also present in db (salted and hashed), but we never send that
+		emailVerified: true, // Note: If the email isn't verified, the user should not be able to do anything until it is.
 		profilePicture: "https://picsum.photos/64",
 		preferences: {
 			notifications: {
 				eventNextDay: true,
 				newEventAdded: true,
-				eventNextDay: true,
 			},
 			theme: "light", // or dark, pastel, high-contrast
 		},
+		createdAt: "2025-10-24T00:00:00.000Z", // auto handled by Mongoose
+		updatedAt: "2025-10-24T00:00:00.000Z", // auto handled by Mongoose
 	},
 	{
 		_id: "user2-id",
 		username: "user2",
+		password: "password123",
 		email: "user2@example.com",
+		emailVerified: true,
 		profilePicture: "https://picsum.photos/64",
 		preferences: {
 			notifications: {
 				eventNextDay: true,
 				newEventAdded: true,
-				eventNextDay: true,
 			},
-			theme: "light",
+			theme: "dark",
 		},
 	},
 	{
 		_id: "user3-id",
 		username: "user3",
 		email: "user3@example.com",
-		profilePicture: "https://picsum.photos/64",
-		preferences: {
-			notifications: {
-				eventNextDay: true,
-				newEventAdded: true,
-				eventNextDay: true,
-			},
-			theme: "light",
-		},
+		password: "password123",
+		emailVerified: false,
 	},
 ];
 
-export let groups = [
+export const groups = [
 	{
 		_id: "group-syd-id",
 		name: "Sydneian",
@@ -92,17 +88,14 @@ export let groups = [
 				updatedAt: "2025-10-24T00:00:00.000Z",
 			},
 			{
-				// Note: this one is intentionally missing optional fields, to ensure we handle them correctly
+				// Note: Optional fields set to undefined, to ensure they are handled them correctly
 				_id: "activity-silent-party-id",
 				name: "Silent Party",
 				images: [],
-				// category: "Restaurant",
-				// tags: ["aesthetic", "matcha"],
+				category: undefined,
+				tags: undefined,
 				likes: 12,
-				// location: {
-				// 	type: "Point",
-				// 	coordinates: [0, 0],
-				// },
+				location: undefined,
 				memories: [],
 				done: false,
 				createdAt: "2025-10-18T00:00:00.000Z",
@@ -167,7 +160,6 @@ export let groups = [
 		members: ["user2-id"],
 		invitedMembers: ["user1-id"],
 		activities: [
-			// Note: Invited members should only be able to see basic group details (name, desc, icon, and maybe members). NOT stuff like activities or their memories.
 			{
 				_id: "activity-lorem-cafe-id",
 				name: "Lorem Cafe",
