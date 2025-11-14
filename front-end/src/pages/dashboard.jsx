@@ -7,34 +7,67 @@ import "./dashboard.css";
 export default function DashboardPage() {
 	const navigate = useNavigate();
 	const [groups, setGroups] = useState([]);
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState(null);
 
-	// Load groups from localStorage on mount
+	// Fetch groups from backend on mount
 	useEffect(() => {
-		const savedGroups = localStorage.getItem('userGroups');
-		if (savedGroups) {
-			setGroups(JSON.parse(savedGroups));
-		} else {
-			// Default groups for initial load
-			const defaultGroups = [
-				{ id: 1, name: "Syndeian", img: "https://placehold.co/48" },
-				{ id: 2, name: "Third North", img: "https://placehold.co/48" },
-				{ id: 3, name: "NYU", img: "https://placehold.co/48" }
-			];
-			setGroups(defaultGroups);
-			localStorage.setItem('userGroups', JSON.stringify(defaultGroups));
-		}
+		const fetchGroups = async () => {
+			try {
+				// Get list of group IDs
+				const groupIdsResponse = await fetch('http://localhost:8000/api/groups');
+
+				if (!groupIdsResponse.ok) {
+					throw new Error('Failed to fetch groups');
+				}
+
+				const groupIds = await groupIdsResponse.json();
+
+				// Fetch full details for each group
+				const groupDetails = await Promise.all(
+					groupIds.map(async (id) => {
+						const response = await fetch(`http://localhost:8000/api/groups/${id}`);
+						if (response.ok) {
+							return response.json();
+						}
+						return null;
+					})
+				);
+
+				// Filter out null groups and sort by updatedAt (newest first)
+				const validGroups = groupDetails.filter(group => group !== null);
+				validGroups.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+
+				setGroups(validGroups);
+			} catch (err) {
+				setError(err.message);
+				console.error('Error fetching groups:', err);
+			} finally {
+				setLoading(false);
+			}
+		};
+
+		fetchGroups();
 	}, []);
 
 	const onNavigate = (path) => {
 		navigate(path);
 	};
 
+	if (loading) {
+		return <div className="dashboard-container">Loading...</div>;
+	}
+
+	if (error) {
+		return <div className="dashboard-container">Error: {error}</div>;
+	}
+
 	return (
 		<div className="dashboard-container">
 				<div className="dashboard-header">
 					<h1 className="dashboard-title">Dashboard</h1>
 					<div className="menu-icon"
-            onClick={() => onNavigate("/profile-settings")} 
+            onClick={() => onNavigate("/profile-settings")}
             role = "button"
             tabIndex = {0}>
 						<MoreVertical size={20} />
@@ -53,12 +86,12 @@ export default function DashboardPage() {
 					<h2 className="section-title">My Groups</h2>
 					<div className="button-spacing">
 						{groups.map((group) => (
-							<Button 
-								key={group.id}
-								img={group.img} 
-								buttonType="secondary" 
-								text={group.name} 
-								arrowType="forward"  
+							<Button
+								key={group._id}
+								img={group.icon || "https://placehold.co/48"}
+								buttonType="secondary"
+								text={group.name}
+								arrowType="forward"
 								onClick={() => onNavigate("/bucket-list")}
 							/>
 						))}

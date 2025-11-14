@@ -1,19 +1,52 @@
 import Button from "../components/Button";
 import Header from "../components/Header";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import "./JoinGroup.css";
 import "../components/Dialog.css";
 
 export default function JoinGroupPage() {
 	const [selectedGroup, setSelectedGroup] = useState(null);
 	const [searchQuery, setSearchQuery] = useState("");
+	const [invites, setInvites] = useState([]);
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState(null);
 	const dialogRef = useRef(null);
 
-	const invites = [
-		{ id: 1001, name: "Syndeian2", by: "Sarah", description: "Wanna join our awesome group?" },
-		{ id: 1002, name: "The Teapot Society", by: "Jimmy", description: "Wanna join our awesome group?" },
-		{ id: 1003, name: "Agile Friends", by: "Mike", description: "Wanna join our awesome group?" },
-	];
+	// Fetch invites from backend on mount
+	useEffect(() => {
+		const fetchInvites = async () => {
+			try {
+				// Get list of invite IDs
+				const inviteIdsResponse = await fetch('http://localhost:8000/api/invites');
+
+				if (!inviteIdsResponse.ok) {
+					throw new Error('Failed to fetch invites');
+				}
+
+				const inviteIds = await inviteIdsResponse.json();
+
+				// Fetch full details for each invite
+				const inviteDetails = await Promise.all(
+					inviteIds.map(async (id) => {
+						const response = await fetch(`http://localhost:8000/api/groups/${id}`);
+						if (response.ok) {
+							return response.json();
+						}
+						return null;
+					})
+				);
+
+				setInvites(inviteDetails.filter(invite => invite !== null));
+			} catch (err) {
+				setError(err.message);
+				console.error('Error fetching invites:', err);
+			} finally {
+				setLoading(false);
+			}
+		};
+
+		fetchInvites();
+	}, []);
 
 	// Filter function
 	const filterGroups = (groups) => {
@@ -23,39 +56,34 @@ export default function JoinGroupPage() {
 		return groups.filter(
 			(group) =>
 				group.name.toLowerCase().includes(query) ||
-				group.by.toLowerCase().includes(query) ||
-				group.description.toLowerCase().includes(query),
+				(group.desc && group.desc.toLowerCase().includes(query)),
 		);
 	};
 
 	const filteredInvites = filterGroups(invites);
 
-	const handleAccept = () => {
+	const handleAccept = async () => {
 		if (selectedGroup) {
-			// Get existing groups from localStorage
-			const existingGroups = JSON.parse(localStorage.getItem('userGroups') || '[]');
-			
-			// Check if group already exists
-			const groupExists = existingGroups.some(g => g.id === selectedGroup.id);
-			
-			if (!groupExists) {
-				// Create group object
-				const newGroup = {
-					id: selectedGroup.id || Date.now(),
-					name: selectedGroup.name,
-					img: "https://placehold.co/128",
-					description: selectedGroup.description,
-					by: selectedGroup.by
-				};
+			try {
+				const response = await fetch(`http://localhost:8000/api/groups/${selectedGroup._id}/accept`, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					}
+				});
 
-				// Add new group to the list
-				const updatedGroups = [...existingGroups, newGroup];
-				
-				// Save to localStorage
-				localStorage.setItem('userGroups', JSON.stringify(updatedGroups));
+				if (!response.ok) {
+					throw new Error('Failed to accept invite');
+				}
+
+				console.log("Accepted invite to:", selectedGroup.name);
+
+				// Refresh invites list
+				setInvites(invites.filter(invite => invite._id !== selectedGroup._id));
+			} catch (error) {
+				console.error('Error accepting invite:', error);
+				alert('Failed to accept invite. Please try again.');
 			}
-			
-			console.log("Accepted invite to:", selectedGroup.name);
 		}
 		setSelectedGroup(null);
 		dialogRef.current?.close();
@@ -74,6 +102,24 @@ export default function JoinGroupPage() {
 		dialogRef.current?.showModal();
 	};
 
+	if (loading) {
+		return (
+			<div className="join-container">
+				<Header title="Join Existing Group" backPath="/dashboard" />
+				<div>Loading...</div>
+			</div>
+		);
+	}
+
+	if (error) {
+		return (
+			<div className="join-container">
+				<Header title="Join Existing Group" backPath="/dashboard" />
+				<div>Error: {error}</div>
+			</div>
+		);
+	}
+
 	return (
 		<div className="join-container">
 			<Header title="Join Existing Group" backPath="/dashboard" />
@@ -91,10 +137,10 @@ export default function JoinGroupPage() {
 			<h2 className="invites-title">Invites</h2>
 			<div className="invites-section">
 				{filteredInvites.length > 0 ? (
-					filteredInvites.map((invite, index) => (
+					filteredInvites.map((invite) => (
 						<Button
-							key={index}
-							img="https://placehold.co/128"
+							key={invite._id}
+							img={invite.icon || "https://placehold.co/128"}
 							buttonType="secondary"
 							text={invite.name}
 							arrowType="forward"
@@ -110,12 +156,11 @@ export default function JoinGroupPage() {
 				<div className="dialog-content">
 					<div className="dialog-layout">
 						<div className="dialog-photo">
-							<img src="https://placehold.co/128" />
+							<img src={selectedGroup?.icon || "https://placehold.co/128"} alt="Group icon" />
 						</div>
 						<div>
 							<div className="dialog-group-name">{selectedGroup?.name}</div>
-							<div className="dialog-by">By {selectedGroup?.by}</div>
-							<div className="dialog-description">{selectedGroup?.description}</div>
+							<div className="dialog-description">{selectedGroup?.desc}</div>
 						</div>
 					</div>
 					<div className="dialog-buttons">

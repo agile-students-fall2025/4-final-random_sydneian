@@ -14,37 +14,47 @@
 	border-radius: 12px;
 	padding: 32px;
 	max-width: 400px;
-	width: 90%;
+	width: max;
 	position: relative;
 }
 
 .dialog-layout {
 	display: flex;
 	flex-direction: row;
-	margin-bottom: 32px;
-}
-
-.dialog-photo img {
-	border-radius: 128px;
-	margin-right: 24pt;
-}
-
-.dialog-group-name {
-	font-size: 24px;
-	font-weight: 700;
-	margin-bottom: 8px;
-}
-
-.dialog-by {
-	font-size: 16px;
-	color: #666;
+	gap: 16px;
+	align-items: flex-start;
 	margin-bottom: 24px;
 }
 
+.dialog-photo {
+	flex-shrink: 0;
+}
+
+.dialog-photo img {
+	width: 64px;
+	height: 64px;
+	border-radius: 50%;
+	object-fit: cover;
+}
+
+.dialog-group-name {
+	font-size: 20px;
+	font-weight: 700;
+	margin-bottom: 8px;
+	line-height: 1.2;
+}
+
+.dialog-by {
+	font-size: 14px;
+	color: #666;
+	margin-bottom: 8px;
+}
+
 .dialog-description {
-	font-size: 16px;
-	color: #333;
-	margin-bottom: 0;
+	font-size: 14px;
+	color: #666;
+	line-height: 1.4;
+	margin: 0;
 }
 
 .dialog-buttons {
