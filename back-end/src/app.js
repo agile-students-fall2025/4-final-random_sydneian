@@ -1,6 +1,7 @@
 import path from "node:path";
 import express from "express";
 import { users, groups } from "./mockData.js";
+import bucketListRoutes from './bucket/bucketListRoutes.js';
 
 const app = express();
 
@@ -9,6 +10,7 @@ const app = express();
 app.use(express.static(path.join(import.meta.dirname, "../public")));
 app.use(express.urlencoded());
 app.use(express.json());
+app.use('/api/bucketlist', bucketListRoutes);
 
 // --- Routes ---
 
@@ -159,6 +161,8 @@ app.use((req, res, next) => {
 
 	next();
 });
+
+
 
 // Get user details
 app.get("/api/users/:id", (req, res) => {
