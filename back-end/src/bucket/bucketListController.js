@@ -59,7 +59,14 @@ const bucketListController = {
     } catch (error) {
       res.status(500).json({ error: 'Failed to update item' });
     }
-  }
+  },
+
+  // Reset method
+
+  _reset: () => {
+    bucketListItems.length = 0; // Clear array
+    nextId = 1; // Reset ID counter
+  },
 };
 
 export default bucketListController;
