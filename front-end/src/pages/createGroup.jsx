@@ -32,32 +32,36 @@ export default function CreateGroupPage() {
 		fileInputRef.current?.click();
 	};
 
-	const handleCreateGroup = () => {
+	const handleCreateGroup = async () => {
 		if (!groupName.trim()) {
 			alert("Please enter a group name");
 			return;
 		}
 
-		// Get existing groups from localStorage
-		const existingGroups = JSON.parse(localStorage.getItem('userGroups') || '[]');
-		
-		// Create new group
-		const newGroup = {
-			id: Date.now(), // Use timestamp as unique ID
-			name: groupName,
-			img: profileImage,
-			description: groupDescription,
-			inviteFriends: inviteFriends
-		};
+		try {
+			const response = await fetch('http://localhost:8000/api/groups', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					name: groupName,
+					desc: groupDescription,
+					icon: profileImage !== "https://placehold.co/48" ? profileImage : undefined,
+					invitedMembers: inviteFriends.split(',').map(f => f.trim()).filter(f => f.length > 0)
+				})
+			});
 
-		// Add new group to the list
-		const updatedGroups = [...existingGroups, newGroup];
-		
-		// Save to localStorage
-		localStorage.setItem('userGroups', JSON.stringify(updatedGroups));
+			if (!response.ok) {
+				throw new Error('Failed to create group');
+			}
 
-		// Navigate back to dashboard
-		onNavigate("/dashboard");
+			// Navigate back to dashboard
+			onNavigate("/dashboard");
+		} catch (error) {
+			console.error('Error creating group:', error);
+			alert('Failed to create group. Please try again.');
+		}
 	};
 
 	return (
