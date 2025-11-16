@@ -1,228 +1,241 @@
 .add-place-manually-container {
-  min-height: 100vh;
-  background-color: white;
-  display: flex;
-  flex-direction: column;
-  max-width: 400px;
-  margin: 0 auto;
-  font-family: system-ui, -apple-system, sans-serif;
-  position: relative;
-  padding-bottom: 80px;
+	min-height: 100vh;
+	background-color: white;
+	display: flex;
+	flex-direction: column;
+	max-width: 400px;
+	margin: 0 auto;
+	font-family:
+		system-ui,
+		-apple-system,
+		sans-serif;
+	position: relative;
+	padding-bottom: 80px;
 }
 
 .add-place-manually-header {
-  width: 100%;
-  background-color: white;
-  border-bottom: 2px solid var(--color-primary);
-  margin: 16px -16px 0 -16px;
+	width: 100%;
+	background-color: white;
+	border-bottom: 2px solid var(--color-primary);
+	margin: 16px -16px 0 -16px;
 }
 
 .add-place-manually-header-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 16px;
 }
 
 .back-button {
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  background: var(--color-primary);
-  border: 2px solid var(--color-primary);
-  border-radius: 4px;
-  padding: 0;
-  color: #fff;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
+	width: 24px;
+	height: 24px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	background: var(--color-primary);
+	border: 2px solid var(--color-primary);
+	border-radius: 4px;
+	padding: 0;
+	color: #fff;
+	transition:
+		background-color 0.2s ease,
+		border-color 0.2s ease;
 }
 
 .back-button:hover {
-  background: var(--color-accent);
-  border-color: var(--color-accent);
+	background: var(--color-accent);
+	border-color: var(--color-accent);
 }
 
 .back-button:focus {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 2px;
+	outline: 2px solid var(--color-accent);
+	outline-offset: 2px;
 }
 
 .back-button svg {
-  width: 20px;
-  height: 20px;
-  stroke: currentColor;
+	width: 20px;
+	height: 20px;
+	stroke: currentColor;
 }
 
 .add-place-manually-title {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 24px;
-  font-weight: 700;
-  margin: 0;
+	position: absolute;
+	left: 50%;
+	transform: translateX(-50%);
+	font-size: 24px;
+	font-weight: 700;
+	margin: 0;
 }
 
 .header-spacer {
-  width: 24px;
+	width: 24px;
 }
 
 .add-place-manually-content {
-  flex: 1;
-  padding: 24px 16px;
-  overflow-y: auto;
+	flex: 1;
+	padding: 24px 16px;
+	overflow-y: auto;
 }
 
 .form-input {
-  width: 100%;
-  padding: 16px;
-  border-radius: 8px;
-  font-size: 16px;
-  margin-bottom: 16px;
-  box-sizing: border-box;
-  font-family: system-ui, -apple-system, sans-serif;
+	width: 100%;
+	padding: 16px;
+	border-radius: 8px;
+	font-size: 16px;
+	margin-bottom: 16px;
+	box-sizing: border-box;
+	font-family:
+		system-ui,
+		-apple-system,
+		sans-serif;
 }
 
 .form-input::placeholder {
-  color: #999;
+	color: #999;
 }
 
 .select-container {
-  position: relative;
-  margin-bottom: 16px;
+	position: relative;
+	margin-bottom: 16px;
 }
 
 .select-input {
-  padding-right: 48px;
+	padding-right: 48px;
 }
 
 .select-chevron {
-  position: absolute;
-  right: 16px;
-  top: 50%;
-  transform: translateY(-50%);
-  pointer-events: none;
-  color: #000;
+	position: absolute;
+	right: 16px;
+	top: 50%;
+	transform: translateY(-50%);
+	pointer-events: none;
+	color: #000;
 }
 
 .form-section {
-  margin-bottom: 24px;
+	margin-bottom: 24px;
 }
 
 .section-heading {
-  font-size: 18px;
-  font-weight: 700;
-  margin-bottom: 12px;
-  color: #000;
+	font-size: 18px;
+	font-weight: 700;
+	margin-bottom: 12px;
+	color: #000;
 }
 
 .form-textarea {
-  width: 100%;
-  padding: 16px;
-  border-radius: 8px;
-  font-size: 16px;
-  font-family: system-ui, -apple-system, sans-serif;
-  resize: vertical;
-  box-sizing: border-box;
+	width: 100%;
+	padding: 16px;
+	border-radius: 8px;
+	font-size: 16px;
+	font-family:
+		system-ui,
+		-apple-system,
+		sans-serif;
+	resize: vertical;
+	box-sizing: border-box;
 }
 
 .form-textarea::placeholder {
-  color: #999;
+	color: #999;
 }
 
 .add-photos-area {
-  border: 2px dashed var(--color-primary);
-  border-radius: 8px;
-  padding: 48px 16px;
-  text-align: center;
-  cursor: pointer;
-  background-color: #fff;
-  transition: border-color 0.2s ease, background-color 0.2s ease;
+	border: 2px dashed var(--color-primary);
+	border-radius: 8px;
+	padding: 48px 16px;
+	text-align: center;
+	cursor: pointer;
+	background-color: #fff;
+	transition:
+		border-color 0.2s ease,
+		background-color 0.2s ease;
 }
 
 .add-photos-area:hover {
-  border-color: var(--color-accent);
-  background-color: rgba(154, 210, 242, 0.05);
+	border-color: var(--color-accent);
+	background-color: rgba(154, 210, 242, 0.05);
 }
 
 .add-photos-plus {
-  font-size: 48px;
-  color: #999;
-  display: inline-block;
-  margin-right: 8px;
+	font-size: 48px;
+	color: #999;
+	display: inline-block;
+	margin-right: 8px;
 }
 
 .add-photos-text {
-  font-size: 16px;
-  color: #999;
+	font-size: 16px;
+	color: #999;
 }
 
 .submit-button-container {
-  margin-top: 32px;
-  margin-bottom: 16px;
+	margin-top: 32px;
+	margin-bottom: 16px;
 }
 
 .bottom-nav {
-  background-color: white;
-  border-top: 2px solid var(--color-primary);
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  width: 100%;
-  display: flex;
-  justify-content: center;
+	background-color: white;
+	border-top: 2px solid var(--color-primary);
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	width: 100%;
+	display: flex;
+	justify-content: center;
 }
 
 .bottom-nav-content {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  padding: 12px 0;
-  width: 100%;
-  max-width: 400px;
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+	padding: 12px 0;
+	width: 100%;
+	max-width: 400px;
 }
 
 .nav-button {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  transition: opacity 0.2s ease;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 4px;
+	background: none;
+	border: none;
+	cursor: pointer;
+	padding: 0;
+	transition: opacity 0.2s ease;
 }
 
 .nav-button:hover {
-  opacity: 0.6;
+	opacity: 0.6;
 }
 
 .nav-button:focus {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 2px;
-  border-radius: 4px;
+	outline: 2px solid var(--color-accent);
+	outline-offset: 2px;
+	border-radius: 4px;
 }
 
 .nav-icon {
-  width: 20px;
-  height: 20px;
-  background-color: #000;
-  border-radius: 2px;
+	width: 20px;
+	height: 20px;
+	background-color: #000;
+	border-radius: 2px;
 }
 
 .nav-icon-outlined {
-  width: 20px;
-  height: 20px;
-  border: 2px solid var(--color-primary);
-  border-radius: 2px;
-  background-color: transparent;
+	width: 20px;
+	height: 20px;
+	border: 2px solid var(--color-primary);
+	border-radius: 2px;
+	background-color: transparent;
 }
 
 .nav-label {
-  font-size: 12px;
-  font-weight: 500;
-  color: #000;
+	font-size: 12px;
+	font-weight: 500;
+	color: #000;
 }
