@@ -5,6 +5,8 @@ import Button from "../components/Button";
 
 function EmailVerification() {
 	const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+	const [error, setError] = useState("");
+	const [message, setMessage] = useState("");
 	const navigate = useNavigate();
 
 	const handleChange = (value, index) => {
@@ -19,13 +21,67 @@ function EmailVerification() {
 		}
 	};
 
-	const handleVerify = (e) => {
+	const handleVerify = async (e) => {
 		e.preventDefault();
+		setError("");
+		setMessage("");
+
 		const isComplete = otp.every((digit) => digit !== "");
-		if (isComplete) {
+		if (!isComplete) {
+			setError("Please enter the complete OTP code.");
+			return;
+		}
+
+		const username = sessionStorage.getItem("username");
+		if (!username) {
+			setError("Session expired. Please register again.");
+			navigate("/register");
+			return;
+		}
+
+		const enteredOtp = otp.join("");
+		try {
+			const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+			const response = await fetch(`${backendURL}/api/register/verify-email`, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ username, otp: enteredOtp }),
+			});
+
+			const data = await response.json();
+
+			if (!response.ok) throw new Error(data.error || "Verification failed.");
+
+			// Redirect to login
 			navigate("/login");
-		} else {
-			alert("Please enter all 6 digits.");
+		} catch (err) {
+			setError(err.message);
+		}
+	};
+
+	const handleResend = async () => {
+		setError("");
+		setMessage("");
+		const username = sessionStorage.getItem("username");
+
+		if (!username) {
+			setError("Session expired. Please register again.");
+			navigate("/register");
+			return;
+		}
+
+		try {
+			const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+			const response = await fetch(`${backendURL}/api/register/renew-otp`, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ username }),
+			});
+
+			if (!response.ok) throw new Error("Failed to resend OTP.");
+			setMessage("OTP has been resent to your email.");
+		} catch (err) {
+			setError(err.message);
 		}
 	};
 
@@ -34,6 +90,9 @@ function EmailVerification() {
 			<div className="verify-box">
 				<h2>Email Verification</h2>
 				<p>Please enter the OTP code sent to your email</p>
+
+				{error && <p className="error-text">{error}</p>}
+				{message && <p className="success-text">{message}</p>}
 
 				<div className="otp-inputs">
 					{otp.map((digit, index) => (
@@ -51,7 +110,10 @@ function EmailVerification() {
 				<Button text="Verify" buttonType="primary" onClick={handleVerify} />
 
 				<p className="resend-text">
-					Didn’t receive it? Check spam, otherwise <span className="resend-link">click to resend</span>
+					Didn’t receive it? Check spam, otherwise{" "}
+					<span className="resend-link" onClick={handleResend}>
+						click to resend
+					</span>
 				</p>
 			</div>
 		</div>
