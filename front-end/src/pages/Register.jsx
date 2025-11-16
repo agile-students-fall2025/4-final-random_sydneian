@@ -4,92 +4,73 @@ import Button from "../components/Button";
 import "./Register.css";
 
 function Register() {
-const [username, setUsername] = useState("");
-const [email, setEmail] = useState("");
-const [password, setPassword] = useState("");
-const [error, setError] = useState("");
-const navigate = useNavigate();
+	const [username, setUsername] = useState("");
+	const [email, setEmail] = useState("");
+	const [password, setPassword] = useState("");
+	const [error, setError] = useState("");
+	const navigate = useNavigate();
 
-const handleSignUp = (e) => {
-    e.preventDefault();
+	const handleSignUp = (e) => {
+		e.preventDefault();
 
-    if (password.length < 8) {
-    setError("Please enter a stronger password (min 8 chars)");
-    return;
-    }
+		if (password.length < 8) {
+			setError("Please enter a stronger password (min 8 chars)");
+			return;
+		}
 
-    // Check if username or email already exists
-    const existingUsers = JSON.parse(localStorage.getItem('users') || '[]');
-    const usernameExists = existingUsers.some(user => user.username === username);
-    const emailExists = existingUsers.some(user => user.email === email);
+		// Check if username or email already exists
+		const existingUsers = JSON.parse(localStorage.getItem("users") || "[]");
+		const usernameExists = existingUsers.some((user) => user.username === username);
+		const emailExists = existingUsers.some((user) => user.email === email);
 
-    if (usernameExists) {
-        setError("Username already exists");
-        return;
-    }
+		if (usernameExists) {
+			setError("Username already exists");
+			return;
+		}
 
-    if (emailExists) {
-        setError("Email already exists");
-        return;
-    }
+		if (emailExists) {
+			setError("Email already exists");
+			return;
+		}
 
-    // Create new user
-    const newUser = {
-        id: Date.now().toString(),
-        username,
-        email,
-        password // In production, this should be hashed
-    };
+		// Create new user
+		const newUser = {
+			id: Date.now().toString(),
+			username,
+			email,
+			password, // In production, this should be hashed
+		};
 
-    // Save to localStorage
-    existingUsers.push(newUser);
-    localStorage.setItem('users', JSON.stringify(existingUsers));
+		// Save to localStorage
+		existingUsers.push(newUser);
+		localStorage.setItem("users", JSON.stringify(existingUsers));
 
-    // Set current user
-    localStorage.setItem('currentUser', JSON.stringify(newUser));
+		// Set current user
+		localStorage.setItem("currentUser", JSON.stringify(newUser));
 
-    // normally: send data to backend
-    navigate("/verify-email");
-};
+		// normally: send data to backend
+		navigate("/verify-email");
+	};
 
-return (
-    <div className="register-container">
-    <h1 className="register-title">Rendezvous</h1>
-    <p className="register-subtitle">Plan together, decide faster</p>
+	return (
+		<div className="register-container">
+			<h1 className="register-title">Rendezvous</h1>
+			<p className="register-subtitle">Plan together, decide faster</p>
 
-    {error && <p className="error-text">{error}</p>}
+			{error && <p className="error-text">{error}</p>}
 
-    <form className="register-form" onSubmit={handleSignUp}>
-        <input
-        type="text"
-        placeholder="Username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-        />
-        <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        />
-        <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        />
-        <Button
-            text="Sign up"
-            buttonType="primary"
-            onClick={handleSignUp}
-        />
-    </form>
+			<form className="register-form" onSubmit={handleSignUp}>
+				<input type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} />
+				<input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+				<input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
+				<Button text="Sign up" buttonType="primary" onClick={handleSignUp} />
+			</form>
 
-    <p className="bottom-text">
-        Already have an account? <a href="/login">Log in</a>
-    </p>
-    </div>
-);
+			<p className="bottom-text">
+				Already have an account? <a href="/login">Log in</a>
+			</p>
+		</div>
+	);
 }
 
 export default Register;

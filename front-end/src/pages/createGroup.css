@@ -1,31 +1,35 @@
 .create-container {
-  font-family: system-ui, -apple-system, sans-serif;
-  max-width: 400px;
-  padding: 8px 0;
+	font-family:
+		system-ui,
+		-apple-system,
+		sans-serif;
+	max-width: 400px;
+	padding: 8px 0;
 }
 
 .create-content {
-  padding: 0 16px;
+	padding: 0 16px;
 }
 
 .form-textarea {
-  margin-bottom: 14px;
+	margin-bottom: 14px;
 }
 
 .profile-upload {
-  border: 2px dashed var(--color-primary);
-  border-radius: 8px;
-  padding: 60px 24px;
-  text-align: center;
-  margin-bottom: 24px;
-  cursor: pointer;
-  color: #999;
-  font-size: 16px;
-  transition: border-color 0.2s ease, background-color 0.2s ease;
+	border: 2px dashed var(--color-primary);
+	border-radius: 8px;
+	padding: 60px 24px;
+	text-align: center;
+	margin-bottom: 24px;
+	cursor: pointer;
+	color: #999;
+	font-size: 16px;
+	transition:
+		border-color 0.2s ease,
+		background-color 0.2s ease;
 }
 
 .profile-upload:hover {
-  border-color: var(--color-accent);
-  background-color: rgba(154, 210, 242, 0.05);
+	border-color: var(--color-accent);
+	background-color: rgba(154, 210, 242, 0.05);
 }
-

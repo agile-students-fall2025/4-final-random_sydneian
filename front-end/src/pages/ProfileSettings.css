@@ -1,105 +1,110 @@
 .profile-container {
-    min-height: 100vh;
-    background: white;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 2rem 1rem;
-    font-family: system-ui, -apple-system, sans-serif;
+	min-height: 100vh;
+	background: white;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 2rem 1rem;
+	font-family:
+		system-ui,
+		-apple-system,
+		sans-serif;
 }
 
 .profile-header {
-    font-size: 1.5rem;
-    font-weight: bold;
-    text-align: center;
-    width: 100%;
-    max-width: 400px;
-    padding-bottom: 0.75rem;
-    border-bottom: 2px solid var(--color-primary);
-    margin-bottom: 2rem;
+	font-size: 1.5rem;
+	font-weight: bold;
+	text-align: center;
+	width: 100%;
+	max-width: 400px;
+	padding-bottom: 0.75rem;
+	border-bottom: 2px solid var(--color-primary);
+	margin-bottom: 2rem;
 }
 
 .account-section {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 2rem;
-    width: 100%;
-    max-width: 400px;
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	margin-bottom: 2rem;
+	width: 100%;
+	max-width: 400px;
 }
 
 .profile-pic {
-    border: 1px solid var(--color-primary);
-    border-radius: 50%;
-    width: 60px;
-    height: 60px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 0.75rem;
+	border: 1px solid var(--color-primary);
+	border-radius: 50%;
+	width: 60px;
+	height: 60px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-size: 0.75rem;
 }
 
 .profile-name {
-    font-weight: bold;
+	font-weight: bold;
 }
 
 .profile-email {
-    font-size: 0.875rem;
-    color: gray;
+	font-size: 0.875rem;
+	color: gray;
 }
 
 .section {
-    width: 100%;
-    max-width: 400px;
-    margin-bottom: 2rem;
+	width: 100%;
+	max-width: 400px;
+	margin-bottom: 2rem;
 }
 
 .section h3 {
-    font-size: 1rem;
-    font-weight: 700;
-    margin-bottom: 0.75rem;
-    text-align: left;
+	font-size: 1rem;
+	font-weight: 700;
+	margin-bottom: 0.75rem;
+	text-align: left;
 }
 
 .toggle-group label {
-    display: block;
-    margin-bottom: 0.5rem;
+	display: block;
+	margin-bottom: 0.5rem;
 }
 
 .theme-select {
-    width: 100%;
-    border: 1px solid var(--color-primary);
-    border-radius: 0.25rem;
-    padding: 0.5rem;
+	width: 100%;
+	border: 1px solid var(--color-primary);
+	border-radius: 0.25rem;
+	padding: 0.5rem;
 }
 
 .link-btn {
-    display: block;
-    background: none;
-    border: 1px solid var(--color-primary);
-    border-radius: 0.5rem;
-    padding: 0.75rem;
-    width: 100%;
-    text-align: left;
-    cursor: pointer;
-    margin-bottom: 0.75rem;
-    max-width: 400px;
-    transition: background-color 0.2s ease, box-shadow 0.2s ease;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+	display: block;
+	background: none;
+	border: 1px solid var(--color-primary);
+	border-radius: 0.5rem;
+	padding: 0.75rem;
+	width: 100%;
+	text-align: left;
+	cursor: pointer;
+	margin-bottom: 0.75rem;
+	max-width: 400px;
+	transition:
+		background-color 0.2s ease,
+		box-shadow 0.2s ease;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .link-btn:hover {
-    background-color: var(--color-accent);
-    color: #000;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	background-color: var(--color-accent);
+	color: #000;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .link-btn:focus {
-    outline: 2px solid var(--color-accent);
-    outline-offset: 2px;
+	outline: 2px solid var(--color-accent);
+	outline-offset: 2px;
 }
 
 .link-btn:active {
-    transform: translateY(1px);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+	transform: translateY(1px);
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }

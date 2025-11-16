@@ -174,7 +174,7 @@ export default function DecidePlace() {
 					A spinning wheel to get a random place {/* Alt text */}
 				</canvas>
 				<div className="decision-wheel-button">
-				<Button text="Spin" onClick={() => (drawables.current[0].speed = Math.random() / 4 - 0.25 / 2 + 0.5)}  />
+					<Button text="Spin" onClick={() => (drawables.current[0].speed = Math.random() / 4 - 0.25 / 2 + 0.5)} />
 				</div>
 				<dialog className="decided-place-popup" ref={dialogRef} closedby="any">
 					<div className="section-title">

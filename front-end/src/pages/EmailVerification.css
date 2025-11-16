@@ -1,94 +1,98 @@
 .verify-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    background: white;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100vh;
+	background: white;
 }
 
 .verify-box {
-    text-align: center;
-    border: 1px solid var(--color-primary);
-    border-radius: 0.5rem;
-    padding: 2rem;
-    width: 300px;
+	text-align: center;
+	border: 1px solid var(--color-primary);
+	border-radius: 0.5rem;
+	padding: 2rem;
+	width: 300px;
 }
 
 .verify-box h2 {
-    font-weight: bold;
-    margin-bottom: 1rem;
+	font-weight: bold;
+	margin-bottom: 1rem;
 }
 
 .verify-box p {
-    margin-bottom: 1rem;
-    font-size: 0.9rem;
+	margin-bottom: 1rem;
+	font-size: 0.9rem;
 }
 
 .otp-inputs {
-    display: flex;
-    justify-content: center;
-    gap: 0.5rem;
-    margin-bottom: 1.5rem;
+	display: flex;
+	justify-content: center;
+	gap: 0.5rem;
+	margin-bottom: 1.5rem;
 }
 
 .otp-inputs input {
-    width: 2rem;
-    height: 2rem;
-    text-align: center;
-    font-size: 1.25rem;
-    border: 1px solid var(--color-primary);
-    border-radius: 0.25rem;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+	width: 2rem;
+	height: 2rem;
+	text-align: center;
+	font-size: 1.25rem;
+	border: 1px solid var(--color-primary);
+	border-radius: 0.25rem;
+	transition:
+		border-color 0.2s ease,
+		box-shadow 0.2s ease;
 }
 
 .otp-inputs input:focus {
-    outline: none;
-    border-color: var(--color-accent);
-    box-shadow: 0 0 0 3px rgba(154, 210, 242, 0.2);
+	outline: none;
+	border-color: var(--color-accent);
+	box-shadow: 0 0 0 3px rgba(154, 210, 242, 0.2);
 }
 
 .otp-inputs input:focus {
-    outline: none;
-    border-color: var(--color-accent);
-    box-shadow: 0 0 0 3px rgba(154, 210, 242, 0.2);
+	outline: none;
+	border-color: var(--color-accent);
+	box-shadow: 0 0 0 3px rgba(154, 210, 242, 0.2);
 }
 
 .verify-btn {
-    background: var(--color-primary);
-    color: white;
-    padding: 0.75rem;
-    width: 100%;
-    border: none;
-    border-radius: 0.5rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s ease, box-shadow 0.2s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	background: var(--color-primary);
+	color: white;
+	padding: 0.75rem;
+	width: 100%;
+	border: none;
+	border-radius: 0.5rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition:
+		background-color 0.2s ease,
+		box-shadow 0.2s ease;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .verify-btn:hover {
-    background: var(--color-accent);
-    color: #000;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+	background: var(--color-accent);
+	color: #000;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .verify-btn:focus {
-    outline: 2px solid var(--color-accent);
-    outline-offset: 2px;
+	outline: 2px solid var(--color-accent);
+	outline-offset: 2px;
 }
 
 .verify-btn:active {
-    transform: translateY(1px);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+	transform: translateY(1px);
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .resend-text {
-    margin-top: 1rem;
-    font-size: 0.8rem;
+	margin-top: 1rem;
+	font-size: 0.8rem;
 }
 
 .resend-link {
-    font-weight: bold;
-    text-decoration: underline;
-    cursor: pointer;
+	font-weight: bold;
+	text-decoration: underline;
+	cursor: pointer;
 }
