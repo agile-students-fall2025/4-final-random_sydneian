@@ -1,9 +1,6 @@
 import path from "node:path";
 import express from "express";
 import { users, groups } from "./mockData.js";
-import bucketListRoutes from './bucket/bucketListRoutes.js';
-import dotenv from 'dotenv';
-dotenv.config();
 
 const app = express();
 
@@ -11,21 +8,18 @@ const app = express();
 
 // Enable CORS for frontend
 app.use((req, res, next) => {
-	res.header('Access-Control-Allow-Origin', '*');
-	res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-	res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-	if (req.method === 'OPTIONS') {
+	res.header("Access-Control-Allow-Origin", "*");
+	res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+	res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+	if (req.method === "OPTIONS") {
 		return res.sendStatus(200);
 	}
 	next();
 });
 
 app.use(express.static(path.join(import.meta.dirname, "../public")));
-app.use(express.urlencoded());
-app.use(express.json());
-app.use('/api/bucketlist', bucketListRoutes);
-app.use(express.urlencoded({ limit: '10mb', extended: true }));
-app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: "10mb", extended: true }));
+app.use(express.json({ limit: "10mb" }));
 
 // --- Routes ---
 
@@ -180,8 +174,6 @@ app.use((req, res, next) => {
 
 	// next();
 });
-
-
 
 // Get user details
 app.get("/api/users/:id", (req, res) => {
