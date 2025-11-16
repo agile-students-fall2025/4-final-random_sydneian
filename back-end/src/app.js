@@ -139,7 +139,7 @@ app.post("/api/register/verify-email", (req, res) => {
 
 app.post("/api/register/renew-otp", (req, res) => {
 	// Ensure required fields are present
-	if (!req.body?.username) { 
+	if (!req.body?.username) {
 		return res.status(400).json({ error: "Missing required fields" });
 	}
 
