@@ -10,46 +10,38 @@ const [password, setPassword] = useState("");
 const [error, setError] = useState("");
 const navigate = useNavigate();
 
-const handleSignUp = (e) => {
+const handleSignUp = async (e) => {
     e.preventDefault();
 
     if (password.length < 8) {
-    setError("Please enter a stronger password (min 8 chars)");
-    return;
-    }
-
-    // Check if username or email already exists
-    const existingUsers = JSON.parse(localStorage.getItem('users') || '[]');
-    const usernameExists = existingUsers.some(user => user.username === username);
-    const emailExists = existingUsers.some(user => user.email === email);
-
-    if (usernameExists) {
-        setError("Username already exists");
+        setError("Please enter a stronger password (min 8 chars)");
         return;
     }
 
-    if (emailExists) {
-        setError("Email already exists");
-        return;
+    try {
+        const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+
+        const response = await fetch(`${backendURL}/api/register`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, password, email }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+        // Handle backend-defined errors (like username taken, email taken)
+            throw new Error(data.error || "Failed to register (network error)");
+        }
+
+        if (data.redirect) {
+        // Temporarily save username for verification step
+            sessionStorage.setItem("username", username);
+            navigate(data.redirect);
+        }
+        } catch (err) {
+        setError(err.message);
     }
-
-    // Create new user
-    const newUser = {
-        id: Date.now().toString(),
-        username,
-        email,
-        password // In production, this should be hashed
-    };
-
-    // Save to localStorage
-    existingUsers.push(newUser);
-    localStorage.setItem('users', JSON.stringify(existingUsers));
-
-    // Set current user
-    localStorage.setItem('currentUser', JSON.stringify(newUser));
-
-    // normally: send data to backend
-    navigate("/verify-email");
 };
 
 return (
