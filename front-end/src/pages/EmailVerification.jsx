@@ -35,7 +35,7 @@ function EmailVerification() {
 		const username = sessionStorage.getItem("username");
 		if (!username) {
 			setError("Session expired. Please register again.");
-			navigate("/register");
+			navigate("/login");
 			return;
 		}
 
@@ -66,7 +66,7 @@ function EmailVerification() {
 
 		if (!username) {
 			setError("Session expired. Please register again.");
-			navigate("/register");
+			navigate("/login");
 			return;
 		}
 
