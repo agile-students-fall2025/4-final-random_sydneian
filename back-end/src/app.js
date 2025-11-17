@@ -1,9 +1,7 @@
 import path from "node:path";
+import crypto from "node:crypto";
 import express from "express";
 import { users, groups } from "./mockData.js";
-import bucketListRoutes from './bucket/bucketListRoutes.js';
-import dotenv from 'dotenv';
-dotenv.config();
 
 const app = express();
 
@@ -11,21 +9,18 @@ const app = express();
 
 // Enable CORS for frontend
 app.use((req, res, next) => {
-	res.header('Access-Control-Allow-Origin', '*');
-	res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-	res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-	if (req.method === 'OPTIONS') {
+	res.header("Access-Control-Allow-Origin", "*");
+	res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+	res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+	if (req.method === "OPTIONS") {
 		return res.sendStatus(200);
 	}
 	next();
 });
 
 app.use(express.static(path.join(import.meta.dirname, "../public")));
-app.use(express.urlencoded());
-app.use(express.json());
-app.use('/api/bucketlist', bucketListRoutes);
-app.use(express.urlencoded({ limit: '10mb', extended: true }));
-app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: "10mb", extended: true }));
+app.use(express.json({ limit: "10mb" }));
 
 // --- Routes ---
 
@@ -86,7 +81,7 @@ app.post("/api/register", (req, res) => {
 		email: req.body.email,
 		emailVerified: false,
 		OTP: "000000", // Store OTP and generation time temporarily (should this be an in memory obj instead?)
-		OTPTimestamp: Math.floor(new Date().getTime / 1000),
+		OTPTimestamp: Math.floor(new Date().getTime() / 1000),
 		profilePicture: undefined,
 		preferences: {
 			notifications: {
@@ -144,7 +139,7 @@ app.post("/api/register/verify-email", (req, res) => {
 
 app.post("/api/register/renew-otp", (req, res) => {
 	// Ensure required fields are present
-	if (!req.body?.username || !req.body?.otp) {
+	if (!req.body?.username) {
 		return res.status(400).json({ error: "Missing required fields" });
 	}
 
@@ -155,7 +150,7 @@ app.post("/api/register/renew-otp", (req, res) => {
 	if (!user || user.emailVerified) return res.status(404).json({ error: "Username invalid or already verified" });
 
 	user.OTP = "000000";
-	user.OTPTimestamp = Math.floor(new Date().getTime / 1000);
+	user.OTPTimestamp = Math.floor(new Date().getTime() / 1000);
 
 	// Successful response, indicating OTP has been renewed
 	res.send();
@@ -180,8 +175,6 @@ app.use((req, res, next) => {
 
 	// next();
 });
-
-
 
 // Get user details
 app.get("/api/users/:id", (req, res) => {
