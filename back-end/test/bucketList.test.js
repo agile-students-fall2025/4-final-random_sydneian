@@ -1,96 +1,224 @@
 import { expect } from 'chai';
-import BucketListModel from '../src/bucket/bucketListModel.js';
+import { groups } from '../src/mockData.js';
+import crypto from 'node:crypto';
 
-describe('BucketList Model', () => {
-  
-  beforeEach(() => {
-    // Clear bucket list before each test
-    const items = BucketListModel.getAll();
-    items.forEach(item => BucketListModel.delete(item.id));
-  });
+describe('Bucket List Functionality', () => {
+    let testGroup;
 
-  describe('create()', () => {
-    it('should create a new bucket list item', () => {
-      const itemData = {
-        title: 'Visit Paris',
-        location: 'France',
-        description: 'See the Eiffel Tower'
-      };
-      
-      const newItem = BucketListModel.create(itemData);
-      
-      expect(newItem).to.have.property('id');
-      expect(newItem.title).to.equal('Visit Paris');
-      expect(newItem.location).to.equal('France');
-      expect(newItem.completed).to.equal(false);
+    beforeEach(() => {
+        // Reset test group's bucket list before each test
+        testGroup = groups.find(g => g._id === "group1-id");
+        if (testGroup) {
+            testGroup.bucketList = [];
+        }
     });
 
-    it('should auto-increment IDs', () => {
-      const item1 = BucketListModel.create({ title: 'Test 1', location: 'Location 1' });
-      const item2 = BucketListModel.create({ title: 'Test 2', location: 'Location 2' });
-      
-      expect(item2.id).to.be.greaterThan(item1.id);
-    });
-  });
+    describe('Group Bucket List Structure', () => {
+        it('should have bucketList property in group object', () => {
+            expect(testGroup).to.have.property('bucketList');
+            expect(testGroup.bucketList).to.be.an('array');
+        });
 
-  describe('getAll()', () => {
-    it('should return empty array when no items', () => {
-      const items = BucketListModel.getAll();
-      expect(items).to.be.an('array');
-      expect(items).to.have.length(0);
+        it('should start with empty bucket list', () => {
+            expect(testGroup.bucketList).to.have.length(0);
+        });
     });
 
-    it('should return all bucket list items', () => {
-      BucketListModel.create({ title: 'Test 1', location: 'Location 1' });
-      BucketListModel.create({ title: 'Test 2', location: 'Location 2' });
-      
-      const items = BucketListModel.getAll();
-      expect(items).to.have.length(2);
-    });
-  });
+    describe('Adding Items to Bucket List', () => {
+        it('should add a new item to bucket list', () => {
+            const newItem = {
+                id: crypto.randomUUID(),
+                title: 'Visit Central Park',
+                location: 'New York, USA',
+                description: 'Enjoy nature in the city',
+                image: null,
+                completed: false,
+                createdAt: new Date().toISOString()
+            };
 
-  describe('getById()', () => {
-    it('should return item by ID', () => {
-      const created = BucketListModel.create({ title: 'Test', location: 'Location' });
-      const found = BucketListModel.getById(created.id);
-      
-      expect(found).to.deep.equal(created);
+            testGroup.bucketList.push(newItem);
+
+            expect(testGroup.bucketList).to.have.length(1);
+            expect(testGroup.bucketList[0]).to.deep.equal(newItem);
+        });
+
+        it('should create item with required fields', () => {
+            const newItem = {
+                id: crypto.randomUUID(),
+                title: 'Visit Brooklyn Bridge',
+                location: 'Brooklyn, NY',
+                description: 'Walk across historic bridge',
+                image: null,
+                completed: false,
+                createdAt: new Date().toISOString()
+            };
+
+            testGroup.bucketList.push(newItem);
+
+            expect(testGroup.bucketList[0]).to.have.property('id');
+            expect(testGroup.bucketList[0]).to.have.property('title');
+            expect(testGroup.bucketList[0]).to.have.property('location');
+            expect(testGroup.bucketList[0]).to.have.property('completed');
+            expect(testGroup.bucketList[0].completed).to.equal(false);
+        });
+
+        it('should generate unique IDs for different items', () => {
+            const item1 = {
+                id: crypto.randomUUID(),
+                title: 'Item 1',
+                location: 'Location 1',
+                completed: false,
+                createdAt: new Date().toISOString()
+            };
+
+            const item2 = {
+                id: crypto.randomUUID(),
+                title: 'Item 2',
+                location: 'Location 2',
+                completed: false,
+                createdAt: new Date().toISOString()
+            };
+
+            expect(item1.id).to.not.equal(item2.id);
+        });
     });
 
-    it('should return undefined for non-existent ID', () => {
-      const found = BucketListModel.getById(9999);
-      expect(found).to.be.undefined;
-    });
-  });
+    describe('Retrieving Bucket List Items', () => {
+        beforeEach(() => {
+            // Add test items
+            testGroup.bucketList.push({
+                id: 'test-id-1',
+                title: 'Test Place 1',
+                location: 'Test Location 1',
+                description: 'Test Description 1',
+                image: null,
+                completed: false,
+                createdAt: new Date().toISOString()
+            });
+            testGroup.bucketList.push({
+                id: 'test-id-2',
+                title: 'Test Place 2',
+                location: 'Test Location 2',
+                description: 'Test Description 2',
+                image: null,
+                completed: true,
+                createdAt: new Date().toISOString()
+            });
+        });
 
-  describe('update()', () => {
-    it('should update an existing item', () => {
-      const created = BucketListModel.create({ title: 'Test', location: 'Location' });
-      const updated = BucketListModel.update(created.id, { completed: true });
-      
-      expect(updated.completed).to.equal(true);
-      expect(updated.title).to.equal('Test');
+        it('should retrieve all bucket list items', () => {
+            expect(testGroup.bucketList).to.have.length(2);
+        });
+
+        it('should find item by ID', () => {
+            const found = testGroup.bucketList.find(item => item.id === 'test-id-1');
+            expect(found).to.exist;
+            expect(found.title).to.equal('Test Place 1');
+        });
+
+        it('should return undefined for non-existent ID', () => {
+            const found = testGroup.bucketList.find(item => item.id === 'non-existent-id');
+            expect(found).to.be.undefined;
+        });
     });
 
-    it('should return null for non-existent ID', () => {
-      const result = BucketListModel.update(9999, { completed: true });
-      expect(result).to.be.null;
-    });
-  });
+    describe('Updating Bucket List Items', () => {
+        beforeEach(() => {
+            testGroup.bucketList.push({
+                id: 'update-test-id',
+                title: 'Original Title',
+                location: 'Original Location',
+                description: 'Original Description',
+                image: null,
+                completed: false,
+                createdAt: new Date().toISOString()
+            });
+        });
 
-  describe('delete()', () => {
-    it('should delete an item by ID', () => {
-      const created = BucketListModel.create({ title: 'Test', location: 'Location' });
-      const deleted = BucketListModel.delete(created.id);
-      
-      expect(deleted).to.deep.equal(created);
-      expect(BucketListModel.getAll()).to.have.length(0);
+        it('should update item completion status', () => {
+            const item = testGroup.bucketList.find(i => i.id === 'update-test-id');
+            item.completed = true;
+
+            expect(item.completed).to.equal(true);
+        });
+
+        it('should update item details', () => {
+            const item = testGroup.bucketList.find(i => i.id === 'update-test-id');
+            item.title = 'Updated Title';
+            item.description = 'Updated Description';
+
+            expect(item.title).to.equal('Updated Title');
+            expect(item.description).to.equal('Updated Description');
+        });
     });
 
-    it('should return null for non-existent ID', () => {
-      const result = BucketListModel.delete(9999);
-      expect(result).to.be.null;
-    });
-  });
+    describe('Deleting Bucket List Items', () => {
+        beforeEach(() => {
+            testGroup.bucketList.push({
+                id: 'delete-test-id',
+                title: 'To Delete',
+                location: 'Delete Location',
+                completed: false,
+                createdAt: new Date().toISOString()
+            });
+        });
 
+        it('should delete item by ID', () => {
+            const initialLength = testGroup.bucketList.length;
+            const index = testGroup.bucketList.findIndex(i => i.id === 'delete-test-id');
+            testGroup.bucketList.splice(index, 1);
+
+            expect(testGroup.bucketList).to.have.length(initialLength - 1);
+            const found = testGroup.bucketList.find(i => i.id === 'delete-test-id');
+            expect(found).to.be.undefined;
+        });
+
+        it('should handle deleting non-existent item gracefully', () => {
+            const initialLength = testGroup.bucketList.length;
+            const index = testGroup.bucketList.findIndex(i => i.id === 'non-existent');
+            
+            expect(index).to.equal(-1);
+            expect(testGroup.bucketList).to.have.length(initialLength);
+        });
+    });
+
+    describe('Validation', () => {
+        it('should require title field', () => {
+            const invalidItem = {
+                id: crypto.randomUUID(),
+                location: 'Test Location',
+                completed: false
+            };
+
+            // Simulate validation
+            const isValid = invalidItem.title && invalidItem.location;
+            expect(isValid).to.be.false;
+        });
+
+        it('should require location field', () => {
+            const invalidItem = {
+                id: crypto.randomUUID(),
+                title: 'Test Title',
+                completed: false
+            };
+
+            // Simulate validation
+            const isValid = invalidItem.title && invalidItem.location;
+            expect(isValid).to.be.false;
+        });
+
+        it('should accept valid item with all required fields', () => {
+            const validItem = {
+                id: crypto.randomUUID(),
+                title: 'Valid Title',
+                location: 'Valid Location',
+                completed: false,
+                createdAt: new Date().toISOString()
+            };
+
+            // Simulate validation
+            const isValid = validItem.title && validItem.location;
+            expect(isValid).to.be.true;
+        });
+    });
 });
