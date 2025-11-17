@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Button from "../components/Button";
 import "./DecideActivity.css";
+import { ImageIcon } from "lucide-react";
 
 const activityChosenPhrases = ["The wheel has spoken, the universe has chosen..."]; // I might need a better name for this. It's the message that displays in the pop up after you spin the wheel
 
@@ -207,7 +208,11 @@ export default function DecideActivity() {
 					<div className="section-title">
 						{activityChosenPhrases[Math.floor(Math.random() * activityChosenPhrases.length)]}
 					</div>
-					<img width="300" height="150" src={activity.images ? activity.images[0] : null} />
+					{activity.images?.at(0) ? (
+						<img width="300" height="150" src={activity.images ? activity.images[0] : null} />
+					) : (
+						<ImageIcon width="300" height="150" color="#AAA" />
+					)}
 					<div className="decided-activity-name">{activity.name}</div>
 				</dialog>
 			</div>
