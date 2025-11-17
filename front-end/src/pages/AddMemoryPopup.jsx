@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { ChevronDown } from "lucide-react";
 import Button from "../components/Button";
 import "./AddMemoryPopup.css";
@@ -55,7 +55,7 @@ export default function AddMemoryPopup({ onClose, onAdd, memoryToEdit }) {
     const newMemory = { 
       place: selectedPlace, 
       photos,
-      title: selectedPlace // For compatibility with existing code
+      title: selectedPlace
     };
     onAdd(newMemory);
     setSelectedPlace("");

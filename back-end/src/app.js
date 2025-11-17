@@ -1,5 +1,6 @@
 import path from "node:path";
 import express from "express";
+import crypto from "node:crypto";
 import { users, groups } from "./mockData.js";
 
 const app = express();
@@ -297,7 +298,7 @@ app.get("/api/groups/:groupId/activities/:activityId/memories", (req, res) => {
 });
 
 app.post("/api/groups/:groupId/activities/:activityId/memories", (req, res) => {
-	const { images } = req.body;
+	const { images, title } = req.body;
 
 	if (!images || !Array.isArray(images) || images.length === 0) {
 		return res.status(400).json({ error: "Missing images array" });
@@ -311,6 +312,7 @@ app.post("/api/groups/:groupId/activities/:activityId/memories", (req, res) => {
 
 	const newMemory = {
 		_id: crypto.randomUUID(),
+		title: title || "Untitled Memory",
 		images,
 		createdAt: new Date().toISOString(),
 		updatedAt: new Date().toISOString(),
@@ -335,9 +337,12 @@ app.put("/api/groups/:groupId/activities/:activityId/memories/:memoryId", (req, 
 	if (!memory) return res.status(404).json({ error: "Memory not found" });
 
 	if (req.body.images && Array.isArray(req.body.images)) {
-		memory.images = req.body.images;
-		memory.updatedAt = new Date().toISOString();
+  		memory.images = req.body.images;
 	}
+	if (req.body.title) {
+  	memory.title = req.body.title;
+	}
+	memory.updatedAt = new Date().toISOString();
 
 	res.json(memory);
 });

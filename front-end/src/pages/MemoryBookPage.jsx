@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./MemoryBookPage.css";
 import "../components/Button.css";
 import AddMemoryPopup from "./AddMemoryPopup";
@@ -6,42 +6,78 @@ import Header from "../components/Header";
 import Button from "../components/Button";
 import { Pencil, Trash2 } from "lucide-react";
 
+const API_BASE = "http://localhost:8000/api/groups/group-syd-id/activities/activity-lorem-cafe-id/memories";
+
 export default function MemoryBookPage() {
   const [showPopup, setShowPopup] = useState(false);
   const [memories, setMemories] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [editingIndex, setEditingIndex] = useState(null);
 
-  const handleAddMemory = (newMemory) => {
-    const datedMemory = {
-      ...newMemory,
-      dateAdded: new Date().toLocaleDateString("en-US", {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      }),
-    };
+  useEffect(() => {
+    fetch(API_BASE)
+      .then((res) => res.json())
+      .then((data) => setMemories(data))
+      .catch((err) => console.error("Error fetching memories:", err));
+  }, []);
 
+  const handleAddMemory = async (newMemory) => {
+  const datedMemory = {
+    ...newMemory,
+    dateAdded: new Date().toLocaleDateString("en-US", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    }),
+  };
+
+  try {
     if (editingIndex !== null) {
-      // Edit existing memory
+      const memoryId = memories[editingIndex]._id;
+      const res = await fetch(
+        `${API_BASE}/${memoryId}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ images: datedMemory.photos, title: datedMemory.title }),
+        }
+      );
+      if (!res.ok) throw new Error("Failed to edit memory");
+      const updated = await res.json();
+
       const updatedMemories = [...memories];
-      updatedMemories[editingIndex] = datedMemory;
+      updatedMemories[editingIndex] = updated;
       setMemories(updatedMemories);
       setEditingIndex(null);
-    } 
-    else {
-      setMemories((prev) => [...prev, datedMemory]);
+    } else {
+      const res = await fetch(API_BASE, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ images: datedMemory.photos, title: datedMemory.title }),
+      });
+      if (!res.ok) throw new Error("Failed to add memory");
+      const created = await res.json();
+      setMemories((prev) => [...prev, created]);
     }
+  } catch (err) {
+    console.error(err);
+  }
 
-    setShowPopup(false);
-  };
+  setShowPopup(false);
+};
 
   // Delete memory
-  const handleDeleteMemory = (index) => {
-    if (window.confirm("Are you sure you want to delete this memory?")) {
+  const handleDeleteMemory = async (index) => {
+  if (window.confirm("Are you sure you want to delete this memory?")) {
+    const memoryId = memories[index]._id;
+    try {
+      await fetch(`${API_BASE}/${memoryId}`, { method: "DELETE" });
       setMemories(memories.filter((_, i) => i !== index));
+    } catch (err) {
+      console.error("Failed to delete memory:", err);
     }
-  };
+  }
+};
 
   // Edit memory
   const handleEditMemory = (index) => {
@@ -84,7 +120,7 @@ export default function MemoryBookPage() {
                 <p className="memory-date">Added on {memory.dateAdded}</p>
               </div>
               <div className="memory-photo-grid">
-                {memory.photos.map((photo, i) => (
+                {memory.images?.map((photo, i) => (
                   <div key={i} className="photo-item">
                     <img src={photo} alt={`Memory ${i}`} />
                   </div>
