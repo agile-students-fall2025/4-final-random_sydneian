@@ -52,7 +52,7 @@ function EmailVerification() {
 
 			if (!response.ok) throw new Error(data.error || "Verification failed.");
 
-			// Redirect to login
+			// Redirect to dashboard on success
 			navigate("/dashboard");
 		} catch (err) {
 			setError(err.message);
