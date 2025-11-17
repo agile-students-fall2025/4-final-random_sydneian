@@ -52,7 +52,8 @@ function EmailVerification() {
 
 			if (!response.ok) throw new Error(data.error || "Verification failed.");
 
-			// Redirect to login
+			localStorage.setItem("JWT", data.JWT);
+
 			navigate("/dashboard");
 		} catch (err) {
 			setError(err.message);
