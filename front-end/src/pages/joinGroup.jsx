@@ -17,10 +17,10 @@ export default function JoinGroupPage() {
 		const fetchInvites = async () => {
 			try {
 				// Get list of invite IDs
-				const inviteIdsResponse = await fetch('http://localhost:8000/api/invites');
+				const inviteIdsResponse = await fetch("http://localhost:8000/api/invites");
 
 				if (!inviteIdsResponse.ok) {
-					throw new Error('Failed to fetch invites');
+					throw new Error("Failed to fetch invites");
 				}
 
 				const inviteIds = await inviteIdsResponse.json();
@@ -33,13 +33,13 @@ export default function JoinGroupPage() {
 							return response.json();
 						}
 						return null;
-					})
+					}),
 				);
 
-				setInvites(inviteDetails.filter(invite => invite !== null));
+				setInvites(inviteDetails.filter((invite) => invite !== null));
 			} catch (err) {
 				setError(err.message);
-				console.error('Error fetching invites:', err);
+				console.error("Error fetching invites:", err);
 			} finally {
 				setLoading(false);
 			}
@@ -54,9 +54,7 @@ export default function JoinGroupPage() {
 
 		const query = searchQuery.toLowerCase();
 		return groups.filter(
-			(group) =>
-				group.name.toLowerCase().includes(query) ||
-				(group.desc && group.desc.toLowerCase().includes(query)),
+			(group) => group.name.toLowerCase().includes(query) || (group.desc && group.desc.toLowerCase().includes(query)),
 		);
 	};
 
@@ -66,23 +64,23 @@ export default function JoinGroupPage() {
 		if (selectedGroup) {
 			try {
 				const response = await fetch(`http://localhost:8000/api/groups/${selectedGroup._id}/accept`, {
-					method: 'POST',
+					method: "POST",
 					headers: {
-						'Content-Type': 'application/json',
-					}
+						"Content-Type": "application/json",
+					},
 				});
 
 				if (!response.ok) {
-					throw new Error('Failed to accept invite');
+					throw new Error("Failed to accept invite");
 				}
 
 				console.log("Accepted invite to:", selectedGroup.name);
 
 				// Refresh invites list
-				setInvites(invites.filter(invite => invite._id !== selectedGroup._id));
+				setInvites(invites.filter((invite) => invite._id !== selectedGroup._id));
 			} catch (error) {
-				console.error('Error accepting invite:', error);
-				alert('Failed to accept invite. Please try again.');
+				console.error("Error accepting invite:", error);
+				alert("Failed to accept invite. Please try again.");
 			}
 		}
 		setSelectedGroup(null);

@@ -20,10 +20,10 @@ const normalizeMemory = (m) => ({
 });
 
 export default function MemoryBookPage() {
-  const [showPopup, setShowPopup] = useState(false);
-  const [memories, setMemories] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [editingIndex, setEditingIndex] = useState(null);
+	const [showPopup, setShowPopup] = useState(false);
+	const [memories, setMemories] = useState([]);
+	const [searchTerm, setSearchTerm] = useState("");
+	const [editingIndex, setEditingIndex] = useState(null);
 
   useEffect(() => {
     fetch(API_BASE)
@@ -90,33 +90,33 @@ export default function MemoryBookPage() {
   }
 };
 
-  // Edit memory
-  const handleEditMemory = (index) => {
-    setEditingIndex(index);
-    setShowPopup(true);
-  };
+	// Edit memory
+	const handleEditMemory = (index) => {
+		setEditingIndex(index);
+		setShowPopup(true);
+	};
 
   //Filter memories based on search input
   const filteredMemories = memories.filter((memory) =>
   (memory.title || "").toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  return (
-    <div className="memory-container">
-      {/* <h1 className="memory-header">Our Memories</h1>
+	return (
+		<div className="memory-container">
+			{/* <h1 className="memory-header">Our Memories</h1>
       <hr className="memory-divider" /> */}
-      <Header backPath={"/bucket-list"} title="Our Memories" />
+			<Header backPath={"/bucket-list"} title="Our Memories" />
 
-      {/* Search bar */}
-      <div className="search-container">
-        <input
-          type="text"
-          className="search-input"
-          placeholder="Search memories..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </div>
+			{/* Search bar */}
+			<div className="search-container">
+				<input
+					type="text"
+					className="search-input"
+					placeholder="Search memories..."
+					value={searchTerm}
+					onChange={(e) => setSearchTerm(e.target.value)}
+				/>
+			</div>
 
       {filteredMemories.length === 0 ? (
         <div className="memory-empty">
@@ -138,45 +138,40 @@ export default function MemoryBookPage() {
                 ))}
               </div>
 
-              {/* Edit & Delete Icons */}
-              <div className="memory-actions-icons">
-                <Pencil
-                  size={18}
-                  className="icon edit-icon"
-                  onClick={() => handleEditMemory(index)}
-                  title="Edit Memory"
-                />
-                <Trash2
-                  size={18}
-                  className="icon delete-icon"
-                  onClick={() => handleDeleteMemory(index)}
-                  title="Delete Memory"
-                />
-              </div>
+							{/* Edit & Delete Icons */}
+							<div className="memory-actions-icons">
+								<Pencil
+									size={18}
+									className="icon edit-icon"
+									onClick={() => handleEditMemory(index)}
+									title="Edit Memory"
+								/>
+								<Trash2
+									size={18}
+									className="icon delete-icon"
+									onClick={() => handleDeleteMemory(index)}
+									title="Delete Memory"
+								/>
+							</div>
+						</div>
+					))}
+				</div>
+			)}
 
-            </div>
-          ))}
-        </div>
-      )}
+			<button className="add-memory-btn" onClick={() => setShowPopup(true)} aria-label="Add memory">
+				+
+			</button>
 
-      <button
-        className="add-memory-btn"
-        onClick={() => setShowPopup(true)}
-        aria-label="Add memory"
-      >
-        +
-      </button>
-
-      {showPopup && (
-        <AddMemoryPopup
-          onClose={() => {
-            setEditingIndex(null);
-            setShowPopup(false);
-          }}
-          onAdd={handleAddMemory}
-          memoryToEdit={editingIndex !== null ? memories[editingIndex] : null}
-        />
-      )}
-    </div>
-  );
+			{showPopup && (
+				<AddMemoryPopup
+					onClose={() => {
+						setEditingIndex(null);
+						setShowPopup(false);
+					}}
+					onAdd={handleAddMemory}
+					memoryToEdit={editingIndex !== null ? memories[editingIndex] : null}
+				/>
+			)}
+		</div>
+	);
 }

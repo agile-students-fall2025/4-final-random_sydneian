@@ -15,10 +15,10 @@ export default function DashboardPage() {
 		const fetchGroups = async () => {
 			try {
 				// Get list of group IDs
-				const groupIdsResponse = await fetch('http://localhost:8000/api/groups');
+				const groupIdsResponse = await fetch("http://localhost:8000/api/groups");
 
 				if (!groupIdsResponse.ok) {
-					throw new Error('Failed to fetch groups');
+					throw new Error("Failed to fetch groups");
 				}
 
 				const groupIds = await groupIdsResponse.json();
@@ -31,17 +31,17 @@ export default function DashboardPage() {
 							return response.json();
 						}
 						return null;
-					})
+					}),
 				);
 
 				// Filter out null groups and sort by updatedAt (newest first)
-				const validGroups = groupDetails.filter(group => group !== null);
+				const validGroups = groupDetails.filter((group) => group !== null);
 				validGroups.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
 
 				setGroups(validGroups);
 			} catch (err) {
 				setError(err.message);
-				console.error('Error fetching groups:', err);
+				console.error("Error fetching groups:", err);
 			} finally {
 				setLoading(false);
 			}
@@ -64,39 +64,36 @@ export default function DashboardPage() {
 
 	return (
 		<div className="dashboard-container">
-				<div className="dashboard-header">
-					<h1 className="dashboard-title">Dashboard</h1>
-					<div className="menu-icon"
-            onClick={() => onNavigate("/profile-settings")}
-            role = "button"
-            tabIndex = {0}>
-						<MoreVertical size={20} />
-					</div>
-				</div>
-
-				<div className="quick-actions">
-					<h2 className="section-title">Quick Actions</h2>
-					<div className="button-spacing">
-						<Button text="Create New Group" buttonType="primary" onClick={() => onNavigate("/group/create")} />
-						<Button text="Join Existing Group" buttonType="secondary" onClick={() => onNavigate("/group/join")} />
-					</div>
-				</div>
-
-				<div className="my-groups">
-					<h2 className="section-title">My Groups</h2>
-					<div className="button-spacing">
-						{groups.map((group) => (
-							<Button
-								key={group._id}
-								img={group.icon || "https://placehold.co/48"}
-								buttonType="secondary"
-								text={group.name}
-								arrowType="forward"
-								onClick={() => onNavigate("/bucket-list")}
-							/>
-						))}
-					</div>
+			<div className="dashboard-header">
+				<h1 className="dashboard-title">Dashboard</h1>
+				<div className="menu-icon" onClick={() => onNavigate("/profile-settings")} role="button" tabIndex={0}>
+					<MoreVertical size={20} />
 				</div>
 			</div>
+
+			<div className="quick-actions">
+				<h2 className="section-title">Quick Actions</h2>
+				<div className="button-spacing">
+					<Button text="Create New Group" buttonType="primary" onClick={() => onNavigate("/group/create")} />
+					<Button text="Join Existing Group" buttonType="secondary" onClick={() => onNavigate("/group/join")} />
+				</div>
+			</div>
+
+			<div className="my-groups">
+				<h2 className="section-title">My Groups</h2>
+				<div className="button-spacing">
+					{groups.map((group) => (
+						<Button
+							key={group._id}
+							img={group.icon || "https://placehold.co/48"}
+							buttonType="secondary"
+							text={group.name}
+							arrowType="forward"
+							onClick={() => onNavigate("/bucket-list")}
+						/>
+					))}
+				</div>
+			</div>
+		</div>
 	);
 }
