@@ -35,7 +35,7 @@ function EmailVerification() {
 		const username = sessionStorage.getItem("username");
 		if (!username) {
 			setError("Session expired. Please register again.");
-			navigate("/register");
+			navigate("/login");
 			return;
 		}
 
@@ -52,8 +52,9 @@ function EmailVerification() {
 
 			if (!response.ok) throw new Error(data.error || "Verification failed.");
 
-			// Redirect to login
-			navigate("/login");
+			localStorage.setItem("JWT", data.JWT);
+
+			navigate("/dashboard");
 		} catch (err) {
 			setError(err.message);
 		}
@@ -66,7 +67,7 @@ function EmailVerification() {
 
 		if (!username) {
 			setError("Session expired. Please register again.");
-			navigate("/register");
+			navigate("/login");
 			return;
 		}
 
