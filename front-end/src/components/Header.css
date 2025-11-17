@@ -16,7 +16,9 @@
 	padding-right: 2px;
 	border: 2px solid var(--color-primary);
 	border-radius: 4px;
-	transition: background-color 0.2s ease, border-color 0.2s ease;
+	transition:
+		background-color 0.2s ease,
+		border-color 0.2s ease;
 }
 
 .header-back-button:hover {
