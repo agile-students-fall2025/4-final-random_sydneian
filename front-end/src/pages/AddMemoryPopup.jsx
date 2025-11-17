@@ -1,7 +1,6 @@
 import React, { useState, useRef } from "react";
 import { ChevronDown } from "lucide-react";
 import Button from "../components/Button";
-import { getMockActivities, getCompletedActivities } from "../data/mockData";
 import "./AddMemoryPopup.css";
 
 export default function AddMemoryPopup({ onClose, onAdd, memoryToEdit }) {
@@ -10,6 +9,15 @@ export default function AddMemoryPopup({ onClose, onAdd, memoryToEdit }) {
   const [error, setError] = useState("");
   const fileInputRef = useRef(null);
   const activities = [...getMockActivities(), ...getCompletedActivities()];
+
+  useEffect(() => {
+    fetch("http://localhost:8000/api/groups/group-syd-id") // Use your test group ID
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.activities) setActivities(data.activities);
+      })
+      .catch((err) => console.error("Failed to load activities:", err));
+  }, []);
 
   const handleAddPhoto = () => {
     fileInputRef.current?.click();
@@ -80,7 +88,7 @@ export default function AddMemoryPopup({ onClose, onAdd, memoryToEdit }) {
             <option value="">Select place</option>
             {activities.map((activity) => (
               <option key={activity.id} value={activity.title}>
-                {activity.title}
+                {activity.name}
               </option>
             ))}
           </select>
