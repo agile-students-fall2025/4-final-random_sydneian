@@ -75,7 +75,10 @@ class Wheel {
 			this.ctx.beginPath();
 			this.ctx.moveTo(0, 0);
 			this.ctx.arc(0, 0, this.radius, 0, 2 * Math.PI * (1 / this.places.length));
-			this.ctx.fillStyle = this.colors[i % this.colors.length];
+			this.ctx.fillStyle =
+				this.colors[
+					this.places.length % this.colors.length === 1 && i === this.places.length - 1 ? 1 : i % this.colors.length // Avoid 2 adjacent slices having the same colours
+				];
 			this.ctx.fill();
 
 			// Text
@@ -166,7 +169,7 @@ export default function DecidePlace() {
 					{ x: canvas.width / 2, y: canvas.height / 2 },
 					256 / 2,
 					places.current,
-					["#0072B2", "#9ad2f2"], // primary and accent colors
+					["#0072B2", "#9ad2f2", "hsl(202, 80%, 50%)"], // primary, accent, and in between colors (need min 3 to avoid 2 adjacent slices having the same colours)
 					(place) => {
 						setPlace(place);
 						dialogRef.current.showModal();
