@@ -8,6 +8,17 @@ import { Pencil, Trash2 } from "lucide-react";
 
 const API_BASE = "http://localhost:8000/api/groups/group-syd-id/activities/activity-lorem-cafe-id/memories";
 
+const normalizeMemory = (m) => ({
+  _id: m._id,
+  title: m.title,
+  photos: m.images,   // backend → frontend
+  dateAdded: new Date(m.createdAt).toLocaleDateString("en-US", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }),
+});
+
 export default function MemoryBookPage() {
   const [showPopup, setShowPopup] = useState(false);
   const [memories, setMemories] = useState([]);
@@ -17,7 +28,7 @@ export default function MemoryBookPage() {
   useEffect(() => {
     fetch(API_BASE)
       .then((res) => res.json())
-      .then((data) => setMemories(data))
+      .then(data => setMemories(data.map(normalizeMemory)))
       .catch((err) => console.error("Error fetching memories:", err));
   }, []);
 
@@ -46,7 +57,7 @@ export default function MemoryBookPage() {
       const updated = await res.json();
 
       const updatedMemories = [...memories];
-      updatedMemories[editingIndex] = updated;
+      updatedMemories[editingIndex] = normalizeMemory(updated);
       setMemories(updatedMemories);
       setEditingIndex(null);
     } else {
@@ -57,7 +68,7 @@ export default function MemoryBookPage() {
       });
       if (!res.ok) throw new Error("Failed to add memory");
       const created = await res.json();
-      setMemories((prev) => [...prev, created]);
+      setMemories(prev => [...prev, normalizeMemory(created)])
     }
   } catch (err) {
     console.error(err);
@@ -87,7 +98,7 @@ export default function MemoryBookPage() {
 
   //Filter memories based on search input
   const filteredMemories = memories.filter((memory) =>
-    memory.title.toLowerCase().includes(searchTerm.toLowerCase())
+  (memory.title || "").toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -120,7 +131,7 @@ export default function MemoryBookPage() {
                 <p className="memory-date">Added on {memory.dateAdded}</p>
               </div>
               <div className="memory-photo-grid">
-                {memory.images?.map((photo, i) => (
+                {memory.photos?.map((photo, i) => (
                   <div key={i} className="photo-item">
                     <img src={photo} alt={`Memory ${i}`} />
                   </div>

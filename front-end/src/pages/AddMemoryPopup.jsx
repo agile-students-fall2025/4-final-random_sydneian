@@ -7,11 +7,11 @@ export default function AddMemoryPopup({ onClose, onAdd, memoryToEdit }) {
   const [selectedPlace, setSelectedPlace] = useState(memoryToEdit?.title || "");
   const [photos, setPhotos] = useState(memoryToEdit?.photos || []);
   const [error, setError] = useState("");
+  const [activities, setActivities] = useState([]);
   const fileInputRef = useRef(null);
-  const activities = [...getMockActivities(), ...getCompletedActivities()];
 
   useEffect(() => {
-    fetch("http://localhost:8000/api/groups/group-syd-id") // Use your test group ID
+    fetch("http://localhost:8000/api/groups/group-syd-id")
       .then((res) => res.json())
       .then((data) => {
         if (data.activities) setActivities(data.activities);
@@ -87,7 +87,7 @@ export default function AddMemoryPopup({ onClose, onAdd, memoryToEdit }) {
           >
             <option value="">Select place</option>
             {activities.map((activity) => (
-              <option key={activity.id} value={activity.title}>
+              <option key={activity._id} value={activity.name}>
                 {activity.name}
               </option>
             ))}
