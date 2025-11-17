@@ -157,6 +157,118 @@ app.post("/api/register/renew-otp", (req, res) => {
 	res.send();
 });
 
+// Do the post request for the bucketlist
+
+app.post("/api/register/renew-otp", (req, res) => {
+    // ...existing code...
+    res.send();
+});
+
+// Bucket list routes
+app.post("/api/bucketlist", (req, res) => {
+    try {
+        const { title, location, description, image } = req.body;
+
+        if (!title || !location) {
+            return res.status(400).json({ error: "Title and location are required" });
+        }
+
+        const newItem = {
+            id: crypto.randomUUID(),
+            title,
+            location,
+            description,
+            image: image || null,
+            completed: false,
+            createdAt: new Date().toISOString(),
+        };
+
+        // Add to group's bucket list (assuming bucketList array exists in group)
+        // For now, just return the created item
+        res.status(201).json(newItem);
+    } catch (error) {
+        res.status(500).json({ error: "Failed to create item" });
+    }
+});
+
+app.get("/api/bucketlist", (req, res) => {
+    try {
+        // Return bucket list items (from group data)
+        // For now, return empty array
+        res.status(200).json([]);
+    } catch (error) {
+        res.status(500).json({ error: "Failed to fetch bucket list items" });
+    }
+});
+
+app.get("/api/bucketlist/:id", (req, res) => {
+    try {
+        // Find bucket list item by ID
+        // For now, return 404
+        res.status(404).json({ error: "Item not found" });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to fetch item" });
+    }
+});
+
+app.put("/api/bucketlist/:id", (req, res) => {
+    try {
+        // Update bucket list item
+        // For now, return 404
+        res.status(404).json({ error: "Item not found" });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to update item" });
+    }
+});
+
+app.delete("/api/bucketlist/:id", (req, res) => {
+    try {
+        // Delete bucket list item
+        // For now, return 404
+        res.status(404).json({ error: "Item not found" });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to delete item" });
+    }
+});
+
+// Get bucket list for a group
+app.get("/api/group/:groupId/bucketlist", (req, res) => {
+    const group = groups.find(g => g._id === req.params.groupId);
+    if (!group) {
+        return res.status(404).json({ error: "Group not found" });
+    }
+    res.json(group.bucketList || []);
+});
+
+// Add item to group bucket list
+app.post("/api/group/:groupId/bucketlist", (req, res) => {
+    const group = groups.find(g => g._id === req.params.groupId);
+    if (!group) {
+        return res.status(404).json({ error: "Group not found" });
+    }
+
+    const { title, location, description, image } = req.body;
+    if (!title || !location) {
+        return res.status(400).json({ error: "Title and location are required" });
+    }
+
+    const newItem = {
+        id: crypto.randomUUID(),
+        title,
+        location,
+        description,
+        image: image || null,
+        completed: false,
+        createdAt: new Date().toISOString()
+    };
+
+    if (!group.bucketList) group.bucketList = [];
+    group.bucketList.push(newItem);
+
+    res.status(201).json(newItem);
+});
+
+
 // Note: All APIs henceforth require authentication
 
 // Mock: Put user id into req.user (in actual usage, this will be handled in a Passport callback, after validating and verifying the JWT)
