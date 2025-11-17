@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Button from "../components/Button";
 import "./DecidePlace.css";
 import Header from "../components/Header";
@@ -123,13 +124,38 @@ export default function DecidePlace() {
 	const animId = useRef();
 	const places = useRef([]);
 	const [place, setPlace] = useState({});
+	const navigate = useNavigate();
 
 	useEffect(() => {
 		(async () => {
 			// Fetch places
 
-			places.current = (await (await fetch("/api/groups/syd-id.json")).json()).places;
-			console.log(places.current);
+			// Should probably consolidate and abstract normal fetch checks like JWT and JSON redirects
+			const JWT = localStorage.getItem("JWT");
+			if (!JWT) {
+				console.log("Not authenticated, please login or register");
+				return navigate("/login");
+			}
+
+			try {
+				const response = await fetch(
+					`${import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000"}/api/groups/group-syd-id`,
+					{ headers: { Authorization: `Bearer ${JWT}` } },
+				);
+
+				if (!response.ok) {
+					if (response.status >= 400 && response.status < 500) {
+						const responseData = await response.json();
+						if (responseData.redirect) navigate(responseData.redirect);
+						throw new Error(responseData.error || "Client side error");
+					} else throw new Error("Network error");
+				}
+
+				places.current = (await response.json()).activities.filter((activity) => !activity.done);
+			} catch (err) {
+				console.error("Failed to get activities. Error:", err.message);
+				alert("Couldn't get activities :("); // Strongly dislike using alert, but there's no custom app-wide notification/toast system yet
+			}
 
 			// Wheel
 
