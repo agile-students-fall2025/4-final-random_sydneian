@@ -85,8 +85,8 @@ class Wheel {
 			this.ctx.rotate(Math.PI / this.activities.length);
 			this.ctx.fillStyle = "black";
 			this.ctx.globalAlpha = 1;
-			this.ctx.font = "16px Inter";
-			this.ctx.fillText(this.activities[i].name, 32, 16 / 3, this.radius * 0.75);
+			this.ctx.font = "32px Inter";
+			this.ctx.fillText(this.activities[i].name, 64, 8, this.radius * 0.75);
 			this.ctx.restore();
 
 			this.ctx.rotate((2 * Math.PI) / this.activities.length);
@@ -97,19 +97,19 @@ class Wheel {
 		this.ctx.globalAlpha = 1;
 
 		this.ctx.beginPath();
-		this.ctx.arc(0, 0, 20, 0, 2 * Math.PI);
+		this.ctx.arc(0, 0, 40, 0, 2 * Math.PI);
 		this.ctx.fillStyle = "white";
 		this.ctx.fill();
 
 		this.ctx.beginPath();
-		this.ctx.arc(0, 0, 16, 0, 2 * Math.PI);
+		this.ctx.arc(0, 0, 32, 0, 2 * Math.PI);
 		this.ctx.fillStyle = "black";
 		this.ctx.fill();
 
 		this.ctx.beginPath();
-		this.ctx.moveTo(-8, -14);
-		this.ctx.lineTo(0, -30);
-		this.ctx.lineTo(8, -14);
+		this.ctx.moveTo(-16, -28);
+		this.ctx.lineTo(0, -60);
+		this.ctx.lineTo(16, -28);
 		this.ctx.closePath();
 		this.ctx.fillStyle = "black";
 		this.ctx.fill();
@@ -165,7 +165,7 @@ export default function DecideActivity() {
 				new Wheel(
 					canvasRef.current.getContext("2d"),
 					{ x: canvasRef.current.width / 2, y: canvasRef.current.height / 2 },
-					256 / 2,
+					256,
 					activities,
 					["#0072B2", "#9ad2f2", "hsl(202, 80%, 50%)"], // primary, accent, and in between colors (need min 3 to avoid 2 adjacent slices having the same colours)
 					(activity) => {
@@ -197,7 +197,7 @@ export default function DecideActivity() {
 		<>
 			<div className="decision-container">
 				<Header backPath={"/bucket-list"} title="Decision Wheel" />
-				<canvas width="300" height="300" ref={canvasRef} className="decision-wheel">
+				<canvas width="600" height="600" ref={canvasRef} className="decision-wheel">
 					A spinning wheel to get a random activity {/* Alt text */}
 				</canvas>
 				<div className="decision-wheel-button">
