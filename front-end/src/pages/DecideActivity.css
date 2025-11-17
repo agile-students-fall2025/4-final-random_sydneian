@@ -15,7 +15,7 @@
 	margin-bottom: 24px;
 }
 
-.decided-place-popup {
+.decided-activity-popup {
 	border: none;
 	border-radius: 16px;
 
@@ -30,7 +30,7 @@
 		height: auto;
 	}
 
-	.decided-place-name {
+	.decided-activity-name {
 		font-size: 36px;
 		font-weight: bold;
 	}
