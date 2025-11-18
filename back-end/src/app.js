@@ -479,6 +479,47 @@ app.post("/api/groups/:id/leave", (req, res) => {
 	res.json({ message: "Left group successfully" });
 });
 
+// Invite users to a group
+app.post("/api/groups/:id/invite", (req, res) => {
+	const group = groups.find((group) => group._id === req.params.id);
+
+	// Error if group doesn't exist
+	if (!group) return res.status(404).json({ error: "Group not found" });
+
+	// Only members can invite
+	if (!group.members.includes(req.user._id)) {
+		return res.status(403).json({ error: "Only members can invite users" });
+	}
+
+	// Ensure userId is provided
+	if (!req.body?.userId) {
+		return res.status(400).json({ error: "Missing required field: userId" });
+	}
+
+	const userToInvite = users.find((user) => user._id === req.body.userId);
+
+	// Check if user exists
+	if (!userToInvite) {
+		return res.status(404).json({ error: "User not found" });
+	}
+
+	// Check if user is already a member
+	if (group.members.includes(req.body.userId)) {
+		return res.status(409).json({ error: "User is already a member" });
+	}
+
+	// Check if user is already invited
+	if (group.invitedMembers.includes(req.body.userId)) {
+		return res.status(409).json({ error: "User is already invited" });
+	}
+
+	// Add user to invited members
+	group.invitedMembers.push(req.body.userId);
+	group.updatedAt = new Date().toISOString();
+
+	res.json({ message: "User invited successfully", group });
+});
+
 // Get dashboard data - user's groups and recent activities
 app.get("/api/dashboard", (req, res) => {
 	// Get all groups user is a member of
