@@ -433,6 +433,52 @@ app.put("/api/groups/:id", (req, res) => {
 	res.json(group);
 });
 
+// Delete a group (only if user is the last member)
+app.delete("/api/groups/:id", (req, res) => {
+	const groupIndex = groups.findIndex((group) => group._id === req.params.id);
+
+	// Error if group doesn't exist
+	if (groupIndex === -1) return res.status(404).json({ error: "Group not found" });
+
+	const group = groups[groupIndex];
+
+	// Only members can delete
+	if (!group.members.includes(req.user._id)) {
+		return res.status(403).json({ error: "Only members can delete the group" });
+	}
+
+	// Can only delete if user is the last member
+	if (group.members.length > 1) {
+		return res.status(400).json({
+			error: "Cannot delete group with multiple members. Please leave the group instead.",
+		});
+	}
+
+	// Remove group from array
+	groups.splice(groupIndex, 1);
+
+	res.json({ message: "Group deleted successfully" });
+});
+
+// Leave a group
+app.post("/api/groups/:id/leave", (req, res) => {
+	const group = groups.find((group) => group._id === req.params.id);
+
+	// Error if group doesn't exist
+	if (!group) return res.status(404).json({ error: "Group not found" });
+
+	// Check if user is a member
+	if (!group.members.includes(req.user._id)) {
+		return res.status(400).json({ error: "User is not a member of this group" });
+	}
+
+	// Remove user from members
+	group.members = group.members.filter((id) => id !== req.user._id);
+	group.updatedAt = new Date().toISOString();
+
+	res.json({ message: "Left group successfully" });
+});
+
 // Get dashboard data - user's groups and recent activities
 app.get("/api/dashboard", (req, res) => {
 	// Get all groups user is a member of
