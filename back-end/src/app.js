@@ -398,6 +398,48 @@ app.get("/api/groups/:id", (req, res) => {
 	} else res.status(403).json({ error: "User isn't a part of, nor invited to, this group" });
 });
 
+// Get dashboard data - user's groups and recent activities
+app.get("/api/dashboard", (req, res) => {
+	// Get all groups user is a member of
+	const userGroups = groups.filter((group) => group.members.includes(req.user._id));
+
+	// Collect all activities from user's groups
+	const allActivities = [];
+	userGroups.forEach((group) => {
+		if (group.activities && group.activities.length > 0) {
+			group.activities.forEach((activity) => {
+				allActivities.push({
+					...activity,
+					groupId: group._id,
+					groupName: group.name,
+				});
+			});
+		}
+	});
+
+	// Sort activities by updatedAt (most recent first) and limit to 10
+	const recentActivities = allActivities
+		.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+		.slice(0, 10);
+
+	res.json({
+		groups: userGroups.map((g) => ({
+			_id: g._id,
+			name: g.name,
+			desc: g.desc,
+			icon: g.icon,
+			memberCount: g.members.length,
+			activityCount: g.activities?.length || 0,
+		})),
+		recentActivities,
+		stats: {
+			totalGroups: userGroups.length,
+			totalActivities: allActivities.length,
+			completedActivities: allActivities.filter((a) => a.done).length,
+		},
+	});
+});
+
 // Catchall for unspecified routes (Express sends 404 anyways, but changing HTML for JSON with error property)
 app.use((req, res, next) => {
 	res.status(404).json({ error: "Path not found" });
