@@ -398,6 +398,41 @@ app.get("/api/groups/:id", (req, res) => {
 	} else res.status(403).json({ error: "User isn't a part of, nor invited to, this group" });
 });
 
+// Update group details
+app.put("/api/groups/:id", (req, res) => {
+	const group = groups.find((group) => group._id === req.params.id);
+
+	// Error if group doesn't exist
+	if (!group) return res.status(404).json({ error: "Group not found" });
+
+	// Only members can update group details
+	if (!group.members.includes(req.user._id)) {
+		return res.status(403).json({ error: "Only members can update group details" });
+	}
+
+	// Update allowed fields
+	if (req.body.name !== undefined) {
+		if (!req.body.name.trim()) {
+			return res.status(400).json({ error: "Group name cannot be empty" });
+		}
+		group.name = req.body.name;
+	}
+
+	if (req.body.desc !== undefined) {
+		group.desc = req.body.desc;
+	}
+
+	if (req.body.icon !== undefined) {
+		group.icon = req.body.icon;
+	}
+
+	// Update timestamp
+	group.updatedAt = new Date().toISOString();
+
+	// Return updated group
+	res.json(group);
+});
+
 // Get dashboard data - user's groups and recent activities
 app.get("/api/dashboard", (req, res) => {
 	// Get all groups user is a member of
