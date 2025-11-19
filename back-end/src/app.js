@@ -81,7 +81,7 @@ app.post("/api/register", (req, res) => {
 		email: req.body.email,
 		emailVerified: false,
 		OTP: "000000", // Store OTP and generation time temporarily (should this be an in memory obj instead?)
-		OTPTimestamp: Math.floor(new Date().getTime() / 1000),
+		OTPTimestamp: Date.now(),
 		profilePicture: undefined,
 		preferences: {
 			notifications: {
@@ -149,8 +149,9 @@ app.post("/api/register/renew-otp", (req, res) => {
 	// Ensure user exists & email is unverified
 	if (!user || user.emailVerified) return res.status(404).json({ error: "Username invalid or already verified" });
 
+	// Generate and save new OTP
 	user.OTP = "000000";
-	user.OTPTimestamp = Math.floor(new Date().getTime() / 1000);
+	user.OTPTimestamp = Date.now();
 
 	// Successful response, indicating OTP has been renewed
 	res.send();
@@ -321,7 +322,11 @@ app.get("/api/groups/:id", (req, res) => {
 });
 
 // Create a new group
+<<<<<<< HEAD
 app.post("/api/group/:id/activities", (req, res) => {
+=======
+app.post("/api/groups", (req, res) => {
+>>>>>>> origin/master
 	// Ensure required fields are present
 	if (!req.body?.name) {
 		return res.status(400).json({ error: "Missing required fields" });
