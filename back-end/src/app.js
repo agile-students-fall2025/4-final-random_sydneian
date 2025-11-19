@@ -323,7 +323,7 @@ app.get("/api/groups/:id", (req, res) => {
 
 // Create a new group
 app.post("/api/group/:id/activities", (req, res) => {
-	// Ensure required fields are present
+	// Ensure requir	git push origin test/bucket-list-unit-testsed fields are present
 	if (!req.body?.name) {
 		return res.status(400).json({ error: "Missing required fields" });
 	}
@@ -574,3 +574,5 @@ app.listen(process.env.PORT || 8000, () => {
 
 
 // Solved a conflict
+
+// Made some changes
