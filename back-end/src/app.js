@@ -398,6 +398,170 @@ app.get("/api/groups/:id", (req, res) => {
 	} else res.status(403).json({ error: "User isn't a part of, nor invited to, this group" });
 });
 
+// Update group details
+app.put("/api/groups/:id", (req, res) => {
+	const group = groups.find((group) => group._id === req.params.id);
+
+	// Error if group doesn't exist
+	if (!group) return res.status(404).json({ error: "Group not found" });
+
+	// Only members can update group details
+	if (!group.members.includes(req.user._id)) {
+		return res.status(403).json({ error: "Only members can update group details" });
+	}
+
+	// Update allowed fields
+	if (req.body.name !== undefined) {
+		if (!req.body.name.trim()) {
+			return res.status(400).json({ error: "Group name cannot be empty" });
+		}
+		group.name = req.body.name;
+	}
+
+	if (req.body.desc !== undefined) {
+		group.desc = req.body.desc;
+	}
+
+	if (req.body.icon !== undefined) {
+		group.icon = req.body.icon;
+	}
+
+	// Update timestamp
+	group.updatedAt = new Date().toISOString();
+
+	// Return updated group
+	res.json(group);
+});
+
+// Delete a group (only if user is the last member)
+app.delete("/api/groups/:id", (req, res) => {
+	const groupIndex = groups.findIndex((group) => group._id === req.params.id);
+
+	// Error if group doesn't exist
+	if (groupIndex === -1) return res.status(404).json({ error: "Group not found" });
+
+	const group = groups[groupIndex];
+
+	// Only members can delete
+	if (!group.members.includes(req.user._id)) {
+		return res.status(403).json({ error: "Only members can delete the group" });
+	}
+
+	// Can only delete if user is the last member
+	if (group.members.length > 1) {
+		return res.status(400).json({
+			error: "Cannot delete group with multiple members. Please leave the group instead.",
+		});
+	}
+
+	// Remove group from array
+	groups.splice(groupIndex, 1);
+
+	res.json({ message: "Group deleted successfully" });
+});
+
+// Leave a group
+app.post("/api/groups/:id/leave", (req, res) => {
+	const group = groups.find((group) => group._id === req.params.id);
+
+	// Error if group doesn't exist
+	if (!group) return res.status(404).json({ error: "Group not found" });
+
+	// Check if user is a member
+	if (!group.members.includes(req.user._id)) {
+		return res.status(400).json({ error: "User is not a member of this group" });
+	}
+
+	// Remove user from members
+	group.members = group.members.filter((id) => id !== req.user._id);
+	group.updatedAt = new Date().toISOString();
+
+	res.json({ message: "Left group successfully" });
+});
+
+// Invite users to a group
+app.post("/api/groups/:id/invite", (req, res) => {
+	const group = groups.find((group) => group._id === req.params.id);
+
+	// Error if group doesn't exist
+	if (!group) return res.status(404).json({ error: "Group not found" });
+
+	// Only members can invite
+	if (!group.members.includes(req.user._id)) {
+		return res.status(403).json({ error: "Only members can invite users" });
+	}
+
+	// Ensure userId is provided
+	if (!req.body?.userId) {
+		return res.status(400).json({ error: "Missing required field: userId" });
+	}
+
+	const userToInvite = users.find((user) => user._id === req.body.userId);
+
+	// Check if user exists
+	if (!userToInvite) {
+		return res.status(404).json({ error: "User not found" });
+	}
+
+	// Check if user is already a member
+	if (group.members.includes(req.body.userId)) {
+		return res.status(409).json({ error: "User is already a member" });
+	}
+
+	// Check if user is already invited
+	if (group.invitedMembers.includes(req.body.userId)) {
+		return res.status(409).json({ error: "User is already invited" });
+	}
+
+	// Add user to invited members
+	group.invitedMembers.push(req.body.userId);
+	group.updatedAt = new Date().toISOString();
+
+	res.json({ message: "User invited successfully", group });
+});
+
+// Get dashboard data - user's groups and recent activities
+app.get("/api/dashboard", (req, res) => {
+	// Get all groups user is a member of
+	const userGroups = groups.filter((group) => group.members.includes(req.user._id));
+
+	// Collect all activities from user's groups
+	const allActivities = [];
+	userGroups.forEach((group) => {
+		if (group.activities && group.activities.length > 0) {
+			group.activities.forEach((activity) => {
+				allActivities.push({
+					...activity,
+					groupId: group._id,
+					groupName: group.name,
+				});
+			});
+		}
+	});
+
+	// Sort activities by updatedAt (most recent first) and limit to 10
+	const recentActivities = allActivities
+		.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+		.slice(0, 10);
+
+	res.json({
+		groups: userGroups.map((g) => ({
+			_id: g._id,
+			name: g.name,
+			desc: g.desc,
+			icon: g.icon,
+			memberCount: g.members.length,
+			activityCount: g.activities?.length || 0,
+		})),
+		recentActivities,
+		stats: {
+			totalGroups: userGroups.length,
+			totalActivities: allActivities.length,
+			completedActivities: allActivities.filter((a) => a.done).length,
+		},
+	});
+});
+
 // Catchall for unspecified routes (Express sends 404 anyways, but changing HTML for JSON with error property)
 app.use((req, res, next) => {
 	res.status(404).json({ error: "Path not found" });
