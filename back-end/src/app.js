@@ -322,11 +322,7 @@ app.get("/api/groups/:id", (req, res) => {
 });
 
 // Create a new group
-<<<<<<< HEAD
 app.post("/api/group/:id/activities", (req, res) => {
-=======
-app.post("/api/groups", (req, res) => {
->>>>>>> origin/master
 	// Ensure required fields are present
 	if (!req.body?.name) {
 		return res.status(400).json({ error: "Missing required fields" });
