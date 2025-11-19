@@ -200,7 +200,7 @@ app.get("/api/bucketlist", (req, res) => {
     }
 });
 
-app.get("/api/bucketlist/:id", (req, res) => {
+app.get("/api/group/:id", (req, res) => {
     try {
         // Find bucket list item by ID
         // For now, return 404
@@ -210,7 +210,7 @@ app.get("/api/bucketlist/:id", (req, res) => {
     }
 });
 
-app.put("/api/bucketlist/:id", (req, res) => {
+app.put("/api/group/:id", (req, res) => {
     try {
         // Update bucket list item
         // For now, return 404
@@ -220,7 +220,7 @@ app.put("/api/bucketlist/:id", (req, res) => {
     }
 });
 
-app.delete("/api/bucketlist/:id", (req, res) => {
+app.delete("/api/group/:id/", (req, res) => {
     try {
         // Delete bucket list item
         // For now, return 404
@@ -231,7 +231,7 @@ app.delete("/api/bucketlist/:id", (req, res) => {
 });
 
 // Get bucket list for a group
-app.get("/api/group/:groupId/bucketlist", (req, res) => {
+app.get("/api/group/:id/activities", (req, res) => {
     const group = groups.find(g => g._id === req.params.groupId);
     if (!group) {
         return res.status(404).json({ error: "Group not found" });
@@ -240,7 +240,7 @@ app.get("/api/group/:groupId/bucketlist", (req, res) => {
 });
 
 // Add item to group bucket list
-app.post("/api/group/:groupId/bucketlist", (req, res) => {
+app.post("/api/group/:id/activities", (req, res) => {
     const group = groups.find(g => g._id === req.params.groupId);
     if (!group) {
         return res.status(404).json({ error: "Group not found" });
@@ -311,17 +311,17 @@ app.get("/api/users/:id", (req, res) => {
 });
 
 // Get a list of group ids user is invited to
-app.get("/api/invites", (req, res) => {
+app.get("/api/invites/:id", (req, res) => {
 	res.json(groups.filter((group) => group.invitedMembers.includes(req.user._id)).map((group) => group._id));
 });
 
 // Get a list of group ids user is a member of
-app.get("/api/groups", (req, res) => {
+app.get("/api/groups/:id", (req, res) => {
 	res.json(groups.filter((group) => group.members.includes(req.user._id)).map((group) => group._id));
 });
 
 // Create a new group
-app.post("/api/group/:id", (req, res) => {
+app.post("/api/group/:id/activities", (req, res) => {
 	// Ensure required fields are present
 	if (!req.body?.name) {
 		return res.status(400).json({ error: "Missing required fields" });
