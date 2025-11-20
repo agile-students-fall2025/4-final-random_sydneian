@@ -673,3 +673,6 @@ app.listen(process.env.PORT || 8000, () => {
 // Solved a conflict
 
 // Made some changes
+
+
+// Made the router buttons work
