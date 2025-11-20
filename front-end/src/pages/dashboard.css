@@ -74,3 +74,71 @@
 .section-title {
 	margin-bottom: 16px;
 }
+
+.group-item-wrapper {
+	position: relative;
+	overflow: hidden;
+	width: 100%;
+	height: auto;
+}
+
+.group-item-container {
+	position: relative;
+	display: flex;
+	align-items: stretch;
+	width: 100%;
+	background: white;
+	transition: transform 0.3s ease;
+	transform: translateX(0);
+	z-index: 1;
+}
+
+.group-item-container.swiped {
+	transform: translateX(-64px);
+}
+
+.group-item-container.swiped .Button {
+	border-radius: 8px 0 0 8px;
+	border-right: none;
+}
+
+.group-item-container .Button {
+	flex: 1;
+	margin: 0;
+}
+
+.delete-group-button {
+	position: absolute;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	width: 64px;
+	height: 100%;
+	background: #dc2626;
+	border: none;
+	border-radius: 0 8px 8px 0;
+	cursor: pointer;
+	color: white;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: background-color 0.2s ease, box-shadow 0.2s ease;
+	flex-shrink: 0;
+	margin: 0;
+	padding: 0;
+	z-index: 0;
+}
+
+.delete-group-button:hover {
+	background-color: #b91c1c;
+	box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.delete-group-button:focus {
+	outline: 2px solid #dc2626;
+	outline-offset: -2px;
+}
+
+.delete-group-button:active {
+	background-color: #991b1b;
+}

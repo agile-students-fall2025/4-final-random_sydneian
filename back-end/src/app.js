@@ -160,45 +160,45 @@ app.post("/api/register/renew-otp", (req, res) => {
 // Do the post request for the bucketlist
 
 app.post("/api/register/renew-otp", (req, res) => {
-    // ...existing code...
-    res.send();
+	// ...existing code...
+	res.send();
 });
 
 // Bucket list routes
 app.post("/api/bucketlist", (req, res) => {
-    try {
-        const { title, location, description, image } = req.body;
+	try {
+		const { title, location, description, image } = req.body;
 
-        if (!title || !location) {
-            return res.status(400).json({ error: "Title and location are required" });
-        }
+		if (!title || !location) {
+			return res.status(400).json({ error: "Title and location are required" });
+		}
 
-        const newItem = {
-            id: crypto.randomUUID(),
-            title,
-            location,
-            description,
-            image: image || null,
-            completed: false,
-            createdAt: new Date().toISOString(),
-        };
+		const newItem = {
+			id: crypto.randomUUID(),
+			title,
+			location,
+			description,
+			image: image || null,
+			completed: false,
+			createdAt: new Date().toISOString(),
+		};
 
-        // Add to group's bucket list (assuming bucketList array exists in group)
-        // For now, just return the created item
-        res.status(201).json(newItem);
-    } catch (error) {
-        res.status(500).json({ error: "Failed to create item" });
-    }
+		// Add to group's bucket list (assuming bucketList array exists in group)
+		// For now, just return the created item
+		res.status(201).json(newItem);
+	} catch (error) {
+		res.status(500).json({ error: "Failed to create item" });
+	}
 });
 
 app.get("/api/bucketlist", (req, res) => {
-    try {
-        // Return bucket list items (from group data)
-        // For now, return empty array
-        res.status(200).json([]);
-    } catch (error) {
-        res.status(500).json({ error: "Failed to fetch bucket list items" });
-    }
+	try {
+		// Return bucket list items (from group data)
+		// For now, return empty array
+		res.status(200).json([]);
+	} catch (error) {
+		res.status(500).json({ error: "Failed to fetch bucket list items" });
+	}
 });
 
 app.get("/api/group/:id", (req, res) => {
@@ -268,6 +268,26 @@ app.post("/api/group/:id/activities", (req, res) => {
     res.status(201).json(newItem);
 });
 
+	const { title, location, description, image } = req.body;
+	if (!title || !location) {
+		return res.status(400).json({ error: "Title and location are required" });
+	}
+
+	const newItem = {
+		id: crypto.randomUUID(),
+		title,
+		location,
+		description,
+		image: image || null,
+		completed: false,
+		createdAt: new Date().toISOString(),
+	};
+
+	if (!group.bucketList) group.bucketList = [];
+	group.bucketList.push(newItem);
+
+	res.status(201).json(newItem);
+});
 
 // Note: All APIs henceforth require authentication
 
@@ -398,6 +418,83 @@ app.get("/api/groups/:id", (req, res) => {
 	} else res.status(403).json({ error: "User isn't a part of, nor invited to, this group" });
 });
 
+// --- MemoryBook routes ---
+
+app.get("/api/groups/:groupId/activities/:activityId/memories", (req, res) => {
+	const group = groups.find((g) => g._id === req.params.groupId);
+	if (!group) return res.status(404).json({ error: "Group not found" });
+
+	const activity = group.activities.find((a) => a._id === req.params.activityId);
+	if (!activity) return res.status(404).json({ error: "Activity not found" });
+
+	res.json(activity.memories || []);
+});
+
+app.post("/api/groups/:groupId/activities/:activityId/memories", (req, res) => {
+	const { images, title } = req.body;
+
+	if (!images || !Array.isArray(images) || images.length === 0) {
+		return res.status(400).json({ error: "Missing images array" });
+	}
+
+	const group = groups.find((g) => g._id === req.params.groupId);
+	if (!group) return res.status(404).json({ error: "Group not found" });
+
+	const activity = group.activities.find((a) => a._id === req.params.activityId);
+	if (!activity) return res.status(404).json({ error: "Activity not found" });
+
+	const newMemory = {
+		_id: crypto.randomUUID(),
+		title: title || "Untitled Memory",
+		images,
+		createdAt: new Date().toISOString(),
+		updatedAt: new Date().toISOString(),
+	};
+
+	if (!activity.memories) activity.memories = [];
+	activity.memories.push(newMemory);
+	activity.updatedAt = new Date().toISOString();
+	group.updatedAt = new Date().toISOString();
+
+	res.status(201).json(newMemory);
+});
+
+app.put("/api/groups/:groupId/activities/:activityId/memories/:memoryId", (req, res) => {
+	const group = groups.find((g) => g._id === req.params.groupId);
+	if (!group) return res.status(404).json({ error: "Group not found" });
+
+	const activity = group.activities.find((a) => a._id === req.params.activityId);
+	if (!activity) return res.status(404).json({ error: "Activity not found" });
+
+	const memory = activity.memories.find((m) => m._id === req.params.memoryId);
+	if (!memory) return res.status(404).json({ error: "Memory not found" });
+
+	if (req.body.images && Array.isArray(req.body.images)) {
+		memory.images = req.body.images;
+	}
+	if (req.body.title) {
+		memory.title = req.body.title;
+	}
+	memory.updatedAt = new Date().toISOString();
+
+	res.json(memory);
+});
+
+app.delete("/api/groups/:groupId/activities/:activityId/memories/:memoryId", (req, res) => {
+	const group = groups.find((g) => g._id === req.params.groupId);
+	if (!group) return res.status(404).json({ error: "Group not found" });
+
+	const activity = group.activities.find((a) => a._id === req.params.activityId);
+	if (!activity) return res.status(404).json({ error: "Activity not found" });
+
+	const index = activity.memories.findIndex((m) => m._id === req.params.memoryId);
+	if (index === -1) return res.status(404).json({ error: "Memory not found" });
+
+	activity.memories.splice(index, 1);
+	activity.updatedAt = new Date().toISOString();
+	group.updatedAt = new Date().toISOString();
+
+	res.sendStatus(204);
 // Update group details
 app.put("/api/groups/:id", (req, res) => {
 	const group = groups.find((group) => group._id === req.params.id);

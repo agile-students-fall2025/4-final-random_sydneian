@@ -1,15 +1,42 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { ChevronDown } from "lucide-react";
 import Button from "../components/Button";
-import { getMockActivities, getCompletedActivities } from "../data/mockData";
 import "./AddMemoryPopup.css";
 
 export default function AddMemoryPopup({ onClose, onAdd, memoryToEdit }) {
 	const [selectedPlace, setSelectedPlace] = useState(memoryToEdit?.title || "");
 	const [photos, setPhotos] = useState(memoryToEdit?.photos || []);
 	const [error, setError] = useState("");
+	const [activities, setActivities] = useState([]);
 	const fileInputRef = useRef(null);
-	const activities = [...getMockActivities(), ...getCompletedActivities()];
+
+	const BACKEND = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+
+	useEffect(() => {
+		const fetchActivities = async () => {
+			try {
+				const res = await fetch(`${BACKEND}/api/groups/group-syd-id`, {
+					headers: {
+						// Include JWT
+						Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+						"Content-Type": "application/json",
+					},
+				});
+
+				if (!res.ok) {
+					throw new Error(`Failed to fetch activities. Status: ${res.status}`);
+				}
+
+				const data = await res.json();
+				if (data.activities) setActivities(data.activities);
+			} catch (err) {
+				console.error("Failed to load activities:", err);
+				setError("Could not load available places. Please try again.");
+			}
+		};
+
+		fetchActivities();
+	}, [BACKEND]);
 
 	const handleAddPhoto = () => {
 		fileInputRef.current?.click();
@@ -47,7 +74,7 @@ export default function AddMemoryPopup({ onClose, onAdd, memoryToEdit }) {
 		const newMemory = {
 			place: selectedPlace,
 			photos,
-			title: selectedPlace, // For compatibility with existing code
+			title: selectedPlace,
 		};
 		onAdd(newMemory);
 		setSelectedPlace("");
@@ -79,8 +106,8 @@ export default function AddMemoryPopup({ onClose, onAdd, memoryToEdit }) {
 					>
 						<option value="">Select place</option>
 						{activities.map((activity) => (
-							<option key={activity.id} value={activity.title}>
-								{activity.title}
+							<option key={activity._id} value={activity.name}>
+								{activity.name}
 							</option>
 						))}
 					</select>
