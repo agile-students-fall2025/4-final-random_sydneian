@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./MemoryBookPage.css";
 import "../components/Button.css";
 import AddMemoryPopup from "./AddMemoryPopup";
@@ -6,39 +6,87 @@ import Header from "../components/Header";
 import Button from "../components/Button";
 import { Pencil, Trash2 } from "lucide-react";
 
+const API_BASE = `${import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000"}/api/groups/group-syd-id/activities/activity-lorem-cafe-id/memories`;
+
+const normalizeMemory = (m) => ({
+	...m,
+	photos: m.images,
+	dateAdded: new Date(m.createdAt).toLocaleDateString("en-US", {
+		day: "numeric",
+		month: "long",
+		year: "numeric",
+	}),
+});
+
 export default function MemoryBookPage() {
 	const [showPopup, setShowPopup] = useState(false);
 	const [memories, setMemories] = useState([]);
 	const [searchTerm, setSearchTerm] = useState("");
 	const [editingIndex, setEditingIndex] = useState(null);
 
-	const handleAddMemory = (newMemory) => {
-		const datedMemory = {
-			...newMemory,
-			dateAdded: new Date().toLocaleDateString("en-US", {
-				day: "numeric",
-				month: "long",
-				year: "numeric",
-			}),
-		};
+	useEffect(() => {
+		fetch(API_BASE)
+			.then((res) => res.json())
+			.then((data) => setMemories(data.map(normalizeMemory)))
+			.catch((err) => console.error("Error fetching memories:", err));
+	}, []);
 
-		if (editingIndex !== null) {
-			// Edit existing memory
-			const updatedMemories = [...memories];
-			updatedMemories[editingIndex] = datedMemory;
-			setMemories(updatedMemories);
-			setEditingIndex(null);
-		} else {
-			setMemories((prev) => [...prev, datedMemory]);
+	const handleAddMemory = async (newMemory) => {
+		try {
+			if (editingIndex !== null) {
+				// EDIT MEMORY
+				const memoryId = memories[editingIndex]._id;
+
+				const res = await fetch(`${API_BASE}/${memoryId}`, {
+					method: "PUT",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({
+						images: newMemory.photos,
+						title: newMemory.title,
+					}),
+				});
+
+				if (!res.ok) throw new Error("Failed to edit memory");
+
+				const updated = await res.json();
+
+				const updatedMemories = [...memories];
+				updatedMemories[editingIndex] = normalizeMemory(updated);
+				setMemories(updatedMemories);
+				setEditingIndex(null);
+			} else {
+				// ADD MEMORY
+				const res = await fetch(API_BASE, {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({
+						images: newMemory.photos,
+						title: newMemory.title,
+					}),
+				});
+
+				if (!res.ok) throw new Error("Failed to add memory");
+
+				const created = await res.json();
+				setMemories((prev) => [...prev, normalizeMemory(created)]);
+			}
+		} catch (err) {
+			console.error(err);
 		}
 
 		setShowPopup(false);
 	};
 
 	// Delete memory
-	const handleDeleteMemory = (index) => {
+	const handleDeleteMemory = async (index) => {
 		if (window.confirm("Are you sure you want to delete this memory?")) {
-			setMemories(memories.filter((_, i) => i !== index));
+			const memoryId = memories[index]._id;
+			try {
+				await fetch(`${API_BASE}/${memoryId}`, { method: "DELETE" });
+				setMemories(memories.filter((_, i) => i !== index));
+			} catch (err) {
+				console.error("Failed to delete memory:", err);
+			}
 		}
 	};
 
@@ -49,7 +97,9 @@ export default function MemoryBookPage() {
 	};
 
 	//Filter memories based on search input
-	const filteredMemories = memories.filter((memory) => memory.title.toLowerCase().includes(searchTerm.toLowerCase()));
+	const filteredMemories = memories.filter((memory) =>
+		(memory.title || "").toLowerCase().includes(searchTerm.toLowerCase()),
+	);
 
 	return (
 		<div className="memory-container">
@@ -81,7 +131,7 @@ export default function MemoryBookPage() {
 								<p className="memory-date">Added on {memory.dateAdded}</p>
 							</div>
 							<div className="memory-photo-grid">
-								{memory.photos.map((photo, i) => (
+								{memory.photos?.map((photo, i) => (
 									<div key={i} className="photo-item">
 										<img src={photo} alt={`Memory ${i}`} />
 									</div>

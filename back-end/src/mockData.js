@@ -115,6 +115,7 @@ export const groups = [
 				memories: [
 					{
 						_id: "memory-lorem-cafe-id",
+						title: "Lorem Cafe",
 						images: ["https://picsum.photos/640/360", "https://picsum.photos/640/360"],
 						createdAt: "2025-11-09T00:00:00.000Z",
 						updatedAt: "2025-11-09T00:00:00.000Z",
