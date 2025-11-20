@@ -1,5 +1,5 @@
 import Button from "../components/Button";
-import { MoreVertical } from "lucide-react";
+import { MoreVertical, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import "./dashboard.css";
@@ -9,6 +9,9 @@ export default function DashboardPage() {
 	const [groups, setGroups] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
+	const [swipedGroupId, setSwipedGroupId] = useState(null);
+	const [touchStart, setTouchStart] = useState(null);
+	const [touchEnd, setTouchEnd] = useState(null);
 
 	// Fetch groups from backend on mount
 	useEffect(() => {
@@ -54,6 +57,153 @@ export default function DashboardPage() {
 		navigate(path);
 	};
 
+	const handleDeleteGroup = async (groupId, e) => {
+		if (e) {
+			e.stopPropagation(); // Prevent navigation when clicking delete
+		}
+
+		// Close swipe menu
+		setSwipedGroupId(null);
+
+		if (!window.confirm("Are you sure you want to delete this group?")) {
+			return;
+		}
+
+		try {
+			const response = await fetch(`http://localhost:8000/api/groups/${groupId}`, {
+				method: "DELETE",
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json();
+				const errorMessage = errorData.error || "Failed to delete group";
+				
+				// If group has multiple members, offer to leave instead
+				if (errorMessage.includes("multiple members")) {
+					const leaveGroup = window.confirm(
+						"Cannot delete group with multiple members. Would you like to leave the group instead?"
+					);
+					if (leaveGroup) {
+						await handleLeaveGroup(groupId);
+					}
+					return;
+				}
+				
+				throw new Error(errorMessage);
+			}
+
+			// Remove the group from the local state
+			setGroups((prevGroups) => prevGroups.filter((group) => group._id !== groupId));
+		} catch (err) {
+			setError(err.message);
+			console.error("Error deleting group:", err);
+			alert(`Error: ${err.message}`);
+		}
+	};
+
+	const handleLeaveGroup = async (groupId) => {
+		try {
+			const response = await fetch(`http://localhost:8000/api/groups/${groupId}/leave`, {
+				method: "POST",
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(errorData.error || "Failed to leave group");
+			}
+
+			// Remove the group from the local state
+			setGroups((prevGroups) => prevGroups.filter((group) => group._id !== groupId));
+		} catch (err) {
+			setError(err.message);
+			console.error("Error leaving group:", err);
+			alert(`Error: ${err.message}`);
+		}
+	};
+
+	const minSwipeDistance = 50;
+
+	const onTouchStart = (e, groupId) => {
+		setTouchEnd(null);
+		setTouchStart(e.targetTouches[0].clientX);
+	};
+
+	const onTouchMove = (e) => {
+		setTouchEnd(e.targetTouches[0].clientX);
+	};
+
+	const onTouchEnd = (groupId) => {
+		if (!touchStart || !touchEnd) return;
+
+		const distance = touchStart - touchEnd;
+		const isLeftSwipe = distance > minSwipeDistance;
+		const isRightSwipe = distance < -minSwipeDistance;
+
+		if (isLeftSwipe) {
+			setSwipedGroupId(groupId);
+		} else if (isRightSwipe) {
+			setSwipedGroupId(null);
+		}
+		
+		// Reset touch positions
+		setTouchStart(null);
+		setTouchEnd(null);
+	};
+
+	const onMouseDown = (e, groupId) => {
+		setTouchEnd(null);
+		setTouchStart(e.clientX);
+	};
+
+	const onMouseMove = (e) => {
+		if (touchStart !== null) {
+			setTouchEnd(e.clientX);
+		}
+	};
+
+	const onMouseUp = (groupId) => {
+		if (!touchStart || !touchEnd) {
+			setTouchStart(null);
+			setTouchEnd(null);
+			return;
+		}
+
+		const distance = touchStart - touchEnd;
+		const isLeftSwipe = distance > minSwipeDistance;
+		const isRightSwipe = distance < -minSwipeDistance;
+
+		if (isLeftSwipe) {
+			setSwipedGroupId(groupId);
+		} else if (isRightSwipe) {
+			setSwipedGroupId(null);
+		}
+		
+		// Reset positions
+		setTouchStart(null);
+		setTouchEnd(null);
+	};
+
+	const handleGroupClick = (groupId, e) => {
+		// Don't close if clicking the delete button (it handles its own click)
+		if (e?.target?.closest('.delete-group-button')) {
+			return;
+		}
+		
+		// If swiped open, close it instead of navigating
+		if (swipedGroupId === groupId) {
+			setSwipedGroupId(null);
+			return;
+		}
+		
+		// Close any other swiped group
+		if (swipedGroupId && swipedGroupId !== groupId) {
+			setSwipedGroupId(null);
+		}
+		
+		// Otherwise navigate normally
+		onNavigate("/bucket-list");
+	};
+
 	if (loading) {
 		return <div className="dashboard-container">Loading...</div>;
 	}
@@ -80,17 +230,46 @@ export default function DashboardPage() {
 			</div>
 
 			<div className="my-groups">
-				<h2 className="section-title">My Groups</h2>
+				<h2 className="section-title">My Groups (Swipe to delete)</h2>
 				<div className="button-spacing">
 					{groups.map((group) => (
-						<Button
+						<div
 							key={group._id}
-							img={group.icon || "https://placehold.co/48"}
-							buttonType="secondary"
-							text={group.name}
-							arrowType="forward"
-							onClick={() => onNavigate("/bucket-list")}
-						/>
+							className="group-item-wrapper"
+							onTouchStart={(e) => onTouchStart(e, group._id)}
+							onTouchMove={onTouchMove}
+							onTouchEnd={() => onTouchEnd(group._id)}
+							onMouseDown={(e) => onMouseDown(e, group._id)}
+							onMouseMove={onMouseMove}
+							onMouseUp={() => onMouseUp(group._id)}
+							onMouseLeave={() => {
+								if (touchStart !== null) {
+									setTouchStart(null);
+									setTouchEnd(null);
+								}
+							}}
+							onClick={(e) => handleGroupClick(group._id, e)}
+						>
+							<button
+								className="delete-group-button"
+								onClick={(e) => handleDeleteGroup(group._id, e)}
+								aria-label="Delete group"
+								title="Delete group"
+							>
+								<Trash2 size={18} />
+							</button>
+							<div
+								className={`group-item-container ${swipedGroupId === group._id ? "swiped" : ""}`}
+							>
+								<Button
+									img={group.icon || "https://placehold.co/48"}
+									buttonType="secondary"
+									text={group.name}
+									arrowType="forward"
+									onClick={(e) => handleGroupClick(group._id, e)}
+								/>
+							</div>
+						</div>
 					))}
 				</div>
 			</div>
