@@ -31,51 +31,51 @@ export default function MemoryBookPage() {
 			.catch((err) => console.error("Error fetching memories:", err));
 	}, []);
 
-  const handleAddMemory = async (newMemory) => {
-      try {
-        if (editingIndex !== null) {
-          // EDIT MEMORY
-          const memoryId = memories[editingIndex]._id;
+	const handleAddMemory = async (newMemory) => {
+		try {
+			if (editingIndex !== null) {
+				// EDIT MEMORY
+				const memoryId = memories[editingIndex]._id;
 
-          const res = await fetch(`${API_BASE}/${memoryId}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              images: newMemory.photos,
-              title: newMemory.title,
-            }),
-          });
+				const res = await fetch(`${API_BASE}/${memoryId}`, {
+					method: "PUT",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({
+						images: newMemory.photos,
+						title: newMemory.title,
+					}),
+				});
 
-          if (!res.ok) throw new Error("Failed to edit memory");
+				if (!res.ok) throw new Error("Failed to edit memory");
 
-          const updated = await res.json();
+				const updated = await res.json();
 
-          const updatedMemories = [...memories];
-          updatedMemories[editingIndex] = normalizeMemory(updated);
-          setMemories(updatedMemories);
-          setEditingIndex(null);
-        } else {
-          // ADD MEMORY
-          const res = await fetch(API_BASE, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              images: newMemory.photos,
-              title: newMemory.title,
-            }),
-          });
+				const updatedMemories = [...memories];
+				updatedMemories[editingIndex] = normalizeMemory(updated);
+				setMemories(updatedMemories);
+				setEditingIndex(null);
+			} else {
+				// ADD MEMORY
+				const res = await fetch(API_BASE, {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({
+						images: newMemory.photos,
+						title: newMemory.title,
+					}),
+				});
 
-          if (!res.ok) throw new Error("Failed to add memory");
+				if (!res.ok) throw new Error("Failed to add memory");
 
-          const created = await res.json();
-          setMemories((prev) => [...prev, normalizeMemory(created)]);
-        }
-      } catch (err) {
-        console.error(err);
-      }
+				const created = await res.json();
+				setMemories((prev) => [...prev, normalizeMemory(created)]);
+			}
+		} catch (err) {
+			console.error(err);
+		}
 
-      setShowPopup(false);
-    };
+		setShowPopup(false);
+	};
 
 	// Delete memory
 	const handleDeleteMemory = async (index) => {
