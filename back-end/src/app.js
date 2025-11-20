@@ -201,51 +201,72 @@ app.get("/api/bucketlist", (req, res) => {
 	}
 });
 
-app.get("/api/bucketlist/:id", (req, res) => {
-	try {
-		// Find bucket list item by ID
-		// For now, return 404
-		res.status(404).json({ error: "Item not found" });
-	} catch (error) {
-		res.status(500).json({ error: "Failed to fetch item" });
-	}
+app.get("/api/group/:id", (req, res) => {
+    try {
+        // Find bucket list item by ID
+        // For now, return 404
+        res.status(404).json({ error: "Item not found" });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to fetch item" });
+    }
 });
 
-app.put("/api/bucketlist/:id", (req, res) => {
-	try {
-		// Update bucket list item
-		// For now, return 404
-		res.status(404).json({ error: "Item not found" });
-	} catch (error) {
-		res.status(500).json({ error: "Failed to update item" });
-	}
+app.put("/api/group/:id", (req, res) => {
+    try {
+        // Update bucket list item
+        // For now, return 404
+        res.status(404).json({ error: "Item not found" });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to update item" });
+    }
 });
 
-app.delete("/api/bucketlist/:id", (req, res) => {
-	try {
-		// Delete bucket list item
-		// For now, return 404
-		res.status(404).json({ error: "Item not found" });
-	} catch (error) {
-		res.status(500).json({ error: "Failed to delete item" });
-	}
+app.delete("/api/group/:id/", (req, res) => {
+    try {
+        // Delete bucket list item
+        // For now, return 404
+        res.status(404).json({ error: "Item not found" });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to delete item" });
+    }
 });
 
 // Get bucket list for a group
-app.get("/api/group/:groupId/bucketlist", (req, res) => {
-	const group = groups.find((g) => g._id === req.params.groupId);
-	if (!group) {
-		return res.status(404).json({ error: "Group not found" });
-	}
-	res.json(group.bucketList || []);
+app.get("/api/group/:id/activities", (req, res) => {
+    const group = groups.find(g => g._id === req.params.groupId);
+    if (!group) {
+        return res.status(404).json({ error: "Group not found" });
+    }
+    res.json(group.bucketList || []);
 });
 
 // Add item to group bucket list
-app.post("/api/group/:groupId/bucketlist", (req, res) => {
-	const group = groups.find((g) => g._id === req.params.groupId);
-	if (!group) {
-		return res.status(404).json({ error: "Group not found" });
-	}
+app.post("/api/group/:id/activities", (req, res) => {
+    const group = groups.find(g => g._id === req.params.groupId);
+    if (!group) {
+        return res.status(404).json({ error: "Group not found" });
+    }
+
+    const { title, location, description, image } = req.body;
+    if (!title || !location) {
+        return res.status(400).json({ error: "Title and location are required" });
+    }
+
+    const newItem = {
+        id: crypto.randomUUID(),
+        title,
+        location,
+        description,
+        image: image || null,
+        completed: false,
+        createdAt: new Date().toISOString()
+    };
+
+    if (!group.bucketList) group.bucketList = [];
+    group.bucketList.push(newItem);
+
+    res.status(201).json(newItem);
+});
 
 	const { title, location, description, image } = req.body;
 	if (!title || !location) {
@@ -311,18 +332,18 @@ app.get("/api/users/:id", (req, res) => {
 });
 
 // Get a list of group ids user is invited to
-app.get("/api/invites", (req, res) => {
+app.get("/api/invites/:id", (req, res) => {
 	res.json(groups.filter((group) => group.invitedMembers.includes(req.user._id)).map((group) => group._id));
 });
 
 // Get a list of group ids user is a member of
-app.get("/api/groups", (req, res) => {
+app.get("/api/groups/:id", (req, res) => {
 	res.json(groups.filter((group) => group.members.includes(req.user._id)).map((group) => group._id));
 });
 
 // Create a new group
-app.post("/api/group/:id", (req, res) => {
-	// Ensure required fields are present
+app.post("/api/group/:id/activities", (req, res) => {
+	// Ensure requir	git push origin test/bucket-list-unit-testsed fields are present
 	if (!req.body?.name) {
 		return res.status(400).json({ error: "Missing required fields" });
 	}
@@ -474,6 +495,168 @@ app.delete("/api/groups/:groupId/activities/:activityId/memories/:memoryId", (re
 	group.updatedAt = new Date().toISOString();
 
 	res.sendStatus(204);
+// Update group details
+app.put("/api/groups/:id", (req, res) => {
+	const group = groups.find((group) => group._id === req.params.id);
+
+	// Error if group doesn't exist
+	if (!group) return res.status(404).json({ error: "Group not found" });
+
+	// Only members can update group details
+	if (!group.members.includes(req.user._id)) {
+		return res.status(403).json({ error: "Only members can update group details" });
+	}
+
+	// Update allowed fields
+	if (req.body.name !== undefined) {
+		if (!req.body.name.trim()) {
+			return res.status(400).json({ error: "Group name cannot be empty" });
+		}
+		group.name = req.body.name;
+	}
+
+	if (req.body.desc !== undefined) {
+		group.desc = req.body.desc;
+	}
+
+	if (req.body.icon !== undefined) {
+		group.icon = req.body.icon;
+	}
+
+	// Update timestamp
+	group.updatedAt = new Date().toISOString();
+
+	// Return updated group
+	res.json(group);
+});
+
+// Delete a group (only if user is the last member)
+app.delete("/api/groups/:id", (req, res) => {
+	const groupIndex = groups.findIndex((group) => group._id === req.params.id);
+
+	// Error if group doesn't exist
+	if (groupIndex === -1) return res.status(404).json({ error: "Group not found" });
+
+	const group = groups[groupIndex];
+
+	// Only members can delete
+	if (!group.members.includes(req.user._id)) {
+		return res.status(403).json({ error: "Only members can delete the group" });
+	}
+
+	// Can only delete if user is the last member
+	if (group.members.length > 1) {
+		return res.status(400).json({
+			error: "Cannot delete group with multiple members. Please leave the group instead.",
+		});
+	}
+
+	// Remove group from array
+	groups.splice(groupIndex, 1);
+
+	res.json({ message: "Group deleted successfully" });
+});
+
+// Leave a group
+app.post("/api/groups/:id/leave", (req, res) => {
+	const group = groups.find((group) => group._id === req.params.id);
+
+	// Error if group doesn't exist
+	if (!group) return res.status(404).json({ error: "Group not found" });
+
+	// Check if user is a member
+	if (!group.members.includes(req.user._id)) {
+		return res.status(400).json({ error: "User is not a member of this group" });
+	}
+
+	// Remove user from members
+	group.members = group.members.filter((id) => id !== req.user._id);
+	group.updatedAt = new Date().toISOString();
+
+	res.json({ message: "Left group successfully" });
+});
+
+// Invite users to a group
+app.post("/api/groups/:id/invite", (req, res) => {
+	const group = groups.find((group) => group._id === req.params.id);
+
+	// Error if group doesn't exist
+	if (!group) return res.status(404).json({ error: "Group not found" });
+
+	// Only members can invite
+	if (!group.members.includes(req.user._id)) {
+		return res.status(403).json({ error: "Only members can invite users" });
+	}
+
+	// Ensure userId is provided
+	if (!req.body?.userId) {
+		return res.status(400).json({ error: "Missing required field: userId" });
+	}
+
+	const userToInvite = users.find((user) => user._id === req.body.userId);
+
+	// Check if user exists
+	if (!userToInvite) {
+		return res.status(404).json({ error: "User not found" });
+	}
+
+	// Check if user is already a member
+	if (group.members.includes(req.body.userId)) {
+		return res.status(409).json({ error: "User is already a member" });
+	}
+
+	// Check if user is already invited
+	if (group.invitedMembers.includes(req.body.userId)) {
+		return res.status(409).json({ error: "User is already invited" });
+	}
+
+	// Add user to invited members
+	group.invitedMembers.push(req.body.userId);
+	group.updatedAt = new Date().toISOString();
+
+	res.json({ message: "User invited successfully", group });
+});
+
+// Get dashboard data - user's groups and recent activities
+app.get("/api/dashboard", (req, res) => {
+	// Get all groups user is a member of
+	const userGroups = groups.filter((group) => group.members.includes(req.user._id));
+
+	// Collect all activities from user's groups
+	const allActivities = [];
+	userGroups.forEach((group) => {
+		if (group.activities && group.activities.length > 0) {
+			group.activities.forEach((activity) => {
+				allActivities.push({
+					...activity,
+					groupId: group._id,
+					groupName: group.name,
+				});
+			});
+		}
+	});
+
+	// Sort activities by updatedAt (most recent first) and limit to 10
+	const recentActivities = allActivities
+		.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+		.slice(0, 10);
+
+	res.json({
+		groups: userGroups.map((g) => ({
+			_id: g._id,
+			name: g.name,
+			desc: g.desc,
+			icon: g.icon,
+			memberCount: g.members.length,
+			activityCount: g.activities?.length || 0,
+		})),
+		recentActivities,
+		stats: {
+			totalGroups: userGroups.length,
+			totalActivities: allActivities.length,
+			completedActivities: allActivities.filter((a) => a.done).length,
+		},
+	});
 });
 
 // Catchall for unspecified routes (Express sends 404 anyways, but changing HTML for JSON with error property)
@@ -485,3 +668,8 @@ app.use((req, res, next) => {
 app.listen(process.env.PORT || 8000, () => {
 	console.log(`Express app listening at http://localhost:${process.env.PORT || 8000}`);
 });
+
+
+// Solved a conflict
+
+// Made some changes
