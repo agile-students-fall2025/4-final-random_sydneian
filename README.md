@@ -55,3 +55,44 @@ Several sets of instructions are included in this repository. They should each b
 1. See the [Database Integration instructions](./instructions-3-database.md) for the requirements of integrating a database into the back-end.
 
 1. See the [Deployment instructions](./instructions-4-deployment.md) for the requirements of deploying an app.
+
+## How to Start
+
+### Prerequisites
+- Node.js (v18 or higher recommended)
+- npm
+
+### Front-End
+1. Navigate to the front-end directory:
+   ```bash
+   cd front-end
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
+   The app will be available at `http://localhost:3000` (or the port shown in the terminal).
+
+### Back-End
+1. Navigate to the back-end directory:
+   ```bash
+   cd back-end
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Create a `.env` file in the back-end directory with your environment variables (if needed).
+4. Start the development server:
+   ```bash
+   npm run dev
+   ```
+   Or to start without watch mode:
+   ```bash
+   npm start
+   ```
+   The backend will be available at `http://localhost:8000` (or the port shown in the terminal).
