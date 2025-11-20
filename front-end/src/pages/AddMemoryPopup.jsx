@@ -10,14 +10,33 @@ export default function AddMemoryPopup({ onClose, onAdd, memoryToEdit }) {
 	const [activities, setActivities] = useState([]);
 	const fileInputRef = useRef(null);
 
+  const BACKEND = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+
 	useEffect(() => {
-		fetch("http://localhost:8000/api/groups/group-syd-id")
-			.then((res) => res.json())
-			.then((data) => {
+		const fetchActivities = async () => {
+			try {
+				const res = await fetch(`${BACKEND}/api/groups/group-syd-id`, {
+					headers: {
+						// Include JWT
+						Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+						"Content-Type": "application/json",
+					},
+				});
+
+				if (!res.ok) {
+					throw new Error(`Failed to fetch activities. Status: ${res.status}`);
+				}
+
+				const data = await res.json();
 				if (data.activities) setActivities(data.activities);
-			})
-			.catch((err) => console.error("Failed to load activities:", err));
-	}, []);
+			} catch (err) {
+				console.error("Failed to load activities:", err);
+				setError("Could not load available places. Please try again.");
+			}
+		};
+
+		fetchActivities();
+	}, [BACKEND]);
 
 	const handleAddPhoto = () => {
 		fileInputRef.current?.click();
