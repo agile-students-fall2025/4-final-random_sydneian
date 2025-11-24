@@ -1,0 +1,34 @@
+.navbar {
+	display: flex;
+	align-items: center;
+	justify-content: space-evenly;
+
+	position: sticky; /* Sticky is a weird choice, but I couldn't get fixed (in this weird mobile webapp on desktop) to be the full width of the parent (without overflowing) instead of the viewport */
+	top: 95%;
+	margin-top: -64px;
+	border-top: 2px solid var(--color-primary);
+
+	a {
+		width: 100%;
+		text-align: center;
+		padding: 8px;
+		border-radius: 8px;
+		text-decoration: none; /* Remove underline from links */
+		color: var(--color-accent);
+		transition: all 100ms ease;
+
+		svg {
+			display: block;
+			margin: auto;
+		}
+
+		&:active {
+			scale: 0.75;
+		}
+
+		&.active {
+			color: var(--color-primary);
+		}
+	}
+	box-shadow: 0 -4px 4px rgba(0, 0, 0, 0.1);
+}

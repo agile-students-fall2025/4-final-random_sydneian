@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom";
+
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import EmailVerification from "./pages/EmailVerification";
@@ -12,6 +13,9 @@ import AddPlaceManually from "./pages/addPlaceManually";
 import AddPlaceThroughLink from "./pages/addPlaceThroughLink";
 import DecideActivity from "./pages/DecideActivity";
 import MemoryBookPage from "./pages/MemoryBookPage";
+
+import NavBar from "./components/NavBar";
+
 import "./App.css";
 
 function App() {
