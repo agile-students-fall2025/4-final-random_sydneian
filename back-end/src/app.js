@@ -46,7 +46,7 @@ app.post("/api/login", (req, res) => {
 	// Send JWT on successful authentication
 	res.json({
 		JWT: jwt.sign(
-			{ id: user._id, username: user.username, profilePicture: user.profilePicture },
+			{ subject: user._id, username: user.username, profilePicture: user.profilePicture },
 			process.env.JWT_SECRET,
 			{ expiresIn: "1d" },
 		),
@@ -120,7 +120,7 @@ app.post("/api/register/verify-email", (req, res) => {
 	// Send JWT on successful authentication
 	res.status(201).json({
 		JWT: jwt.sign(
-			{ id: user._id, username: user.username, profilePicture: user.profilePicture },
+			{ subject: user._id, username: user.username, profilePicture: user.profilePicture },
 			process.env.JWT_SECRET,
 			{ expiresIn: "1d" },
 		),
@@ -149,7 +149,7 @@ app.post("/api/register/renew-otp", (req, res) => {
 
 // Note: All APIs henceforth require authentication
 
-// Verify JWT & put user id into req.user (in actual usage, this will be handled in a Passport callback, after validating and verifying the JWT)
+// Verify JWT & put user id into req.user
 app.use((req, res, next) => {
 	const JWT = req.headers.authorization?.replace("Bearer ", "");
 	if (!JWT) return res.status(401).json();
