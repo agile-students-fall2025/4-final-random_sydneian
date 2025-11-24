@@ -15,7 +15,9 @@
 		"printWidth": 120
 	},
 	"dependencies": {
+		"bcryptjs": "^3.0.3",
 		"express": "^5.1.0",
+		"jsonwebtoken": "^9.0.2",
 		"mongoose": "^9.0.0"
 	},
 	"devDependencies": {
