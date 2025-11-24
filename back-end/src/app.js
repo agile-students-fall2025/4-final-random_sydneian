@@ -1,7 +1,8 @@
 import path from "node:path";
 import crypto from "node:crypto";
 import express from "express";
-import { users, groups } from "./mockData.js";
+import { users, groups } from "./mockData.js"; // Deprecated
+import { User, Memory, Activity, Group } from "./db.js";
 
 const app = express();
 
