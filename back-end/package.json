@@ -7,17 +7,16 @@
 		"dev": "node --env-file .env --watch src/app.js",
 		"fix-format-lint": "prettier . --write && eslint . --fix",
 		"start": "node --env-file .env src/app.js",
-    	"test": "NODE_OPTIONS='--experimental-vm-modules' c8 mocha 'test/**/*.test.js'",
-    	"test:coverage": "NODE_OPTIONS='--experimental-vm-modules' c8 --reporter=text --reporter=html mocha 'test/**/*.test.js'"
+		"test": "c8 mocha 'test/**/*.test.js'",
+		"test:coverage": "c8 --reporter=text --reporter=html mocha 'test/**/*.test.js'"
 	},
 	"prettier": {
 		"useTabs": true,
 		"printWidth": 120
 	},
 	"dependencies": {
-		"dotenv": "^17.2.3",
 		"express": "^5.1.0",
-		"nodemon": "^3.1.11"
+		"mongoose": "^9.0.0"
 	},
 	"devDependencies": {
 		"@eslint/js": "^9.39.1",
