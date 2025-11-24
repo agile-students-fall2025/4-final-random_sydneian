@@ -1,6 +1,7 @@
 import path from "node:path";
 import crypto from "node:crypto";
 import express from "express";
+import cors from "cors";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { users, groups } from "./mockData.js"; // Deprecated
@@ -10,20 +11,16 @@ const app = express();
 
 // --- Middleware ---
 
-// Enable CORS for frontend
-app.use((req, res, next) => {
-	res.header("Access-Control-Allow-Origin", "*");
-	res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-	res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-	if (req.method === "OPTIONS") {
-		return res.sendStatus(200);
-	}
-	next();
-});
-
 app.use(express.static(path.join(import.meta.dirname, "../public")));
 app.use(express.urlencoded({ limit: "10mb", extended: true }));
 app.use(express.json({ limit: "10mb" }));
+app.use(
+	cors({
+		origin: process.env.FRONTEND_ORIGIN,
+		allowedHeaders: "Origin,Content-Type,Authorization",
+		credentials: true,
+	}),
+);
 
 // --- Routes ---
 
