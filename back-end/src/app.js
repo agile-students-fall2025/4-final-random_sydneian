@@ -110,7 +110,7 @@ app.post("/api/register/verify-email", (req, res) => {
 
 	// Ensure OTP matches and is still valid (created <= 10 mins ago)
 	if (req.body.otp !== user.OTP || Date.now() - new Date(user.OTPTimestamp).getTime() > 10 * 60 * 1000) {
-		return res.status(401).json({ error: "OTP invalid or expired" });
+		return res.status(403).json({ error: "OTP invalid or expired" });
 	}
 
 	user.emailVerified = true;
