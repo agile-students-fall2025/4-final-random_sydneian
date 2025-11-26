@@ -7,7 +7,9 @@
 	bottom: 0;
 	left: 0;
 	right: 0;
+
 	border-top: 2px solid var(--color-primary);
+	background: white;
 
 	a {
 		width: 100%;
@@ -31,5 +33,5 @@
 			color: var(--color-primary);
 		}
 	}
-	box-shadow: 0 -4px 4px rgba(0, 0, 0, 0.1);
+	box-shadow: 0 -4px 4px rgba(0, 0, 0, 0.1); /* Shadow color following the CSS var (don't think the current primary colour is a good candidate): hsl(from var(--color-primary) h s l / 0.1); */
 }
