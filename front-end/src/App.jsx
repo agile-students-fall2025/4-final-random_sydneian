@@ -36,7 +36,7 @@ function App() {
 						<Route index element={<BucketList />} />
 						<Route path="add">
 							<Route index element={<AddPlace />} />
-							<Route path="manually" element={<AddPlaceManually />} />
+							<Route path="manual" element={<AddPlaceManually />} />
 							<Route path="link" element={<AddPlaceThroughLink />} />
 						</Route>
 					</Route>

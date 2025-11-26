@@ -5,6 +5,7 @@ import "./NavBar.css";
 export default function NavBar() {
 	return (
 		<>
+			<Outlet />
 			<nav className="navbar">
 				{/* <NavLink to="/">
 					<Home />
@@ -23,7 +24,6 @@ export default function NavBar() {
 					Memories
 				</NavLink>
 			</nav>
-			<Outlet />
 		</>
 	);
 }

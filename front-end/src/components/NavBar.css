@@ -3,9 +3,10 @@
 	align-items: center;
 	justify-content: space-evenly;
 
-	position: sticky; /* Sticky is a weird choice, but I couldn't get fixed (in this weird mobile webapp on desktop) to be the full width of the parent (without overflowing) instead of the viewport */
-	top: 95%;
-	margin-top: -64px;
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
 	border-top: 2px solid var(--color-primary);
 
 	a {
