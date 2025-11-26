@@ -33,7 +33,7 @@ export default function AddPlace() {
 	return (
 		<div className="add-place-container">
 			{/* Header */}
-			<Header backPath={"/dashboard"} title="Add Place" />
+			<Header backPath={"/"} title="Add Place" />
 
 			{/* Main Content */}
 			<div className="add-place-content">

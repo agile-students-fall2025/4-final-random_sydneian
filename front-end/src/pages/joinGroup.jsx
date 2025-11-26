@@ -103,7 +103,7 @@ export default function JoinGroupPage() {
 	if (loading) {
 		return (
 			<div className="join-container">
-				<Header title="Join Existing Group" backPath="/dashboard" />
+				<Header title="Join Existing Group" backPath="/" />
 				<div>Loading...</div>
 			</div>
 		);
@@ -112,7 +112,7 @@ export default function JoinGroupPage() {
 	if (error) {
 		return (
 			<div className="join-container">
-				<Header title="Join Existing Group" backPath="/dashboard" />
+				<Header title="Join Existing Group" backPath="/" />
 				<div>Error: {error}</div>
 			</div>
 		);
@@ -120,7 +120,7 @@ export default function JoinGroupPage() {
 
 	return (
 		<div className="join-container">
-			<Header title="Join Existing Group" backPath="/dashboard" />
+			<Header title="Join Existing Group" backPath="/" />
 
 			<div className="search-container">
 				<input

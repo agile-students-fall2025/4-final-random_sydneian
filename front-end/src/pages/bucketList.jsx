@@ -65,7 +65,7 @@ export default function BucketList() {
           <h1 className="bucket-list-title">Sydneian</h1>
           <div className="header-spacer"></div>
         </div> */}
-				<Header backPath={"/dashboard"} title="Bucket List" />
+				<Header backPath={"/"} title="Bucket List" />
 
 				{/* Search Bar */}
 				<div className="search-container">
