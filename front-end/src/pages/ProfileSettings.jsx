@@ -12,7 +12,7 @@ function ProfileSettings() {
 
 	return (
 		<>
-			<Header backPath={"/dashboard"} title="Profile & Settings" />
+			<Header backPath={"/"} title="Profile & Settings" />
 			<div className="profile-container">
 				{/* Account Info */}
 				<div className="account-section">

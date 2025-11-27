@@ -60,7 +60,7 @@ export default function CreateGroupPage() {
 			}
 
 			// Navigate back to dashboard
-			onNavigate("/dashboard");
+			onNavigate("/");
 		} catch (error) {
 			console.error("Error creating group:", error);
 			alert("Failed to create group. Please try again.");
@@ -69,7 +69,7 @@ export default function CreateGroupPage() {
 
 	return (
 		<div className="create-container">
-			<Header backPath={"/dashboard"} title="Create New Group" />
+			<Header backPath={"/"} title="Create New Group" />
 
 			<div className="create-content">
 				<input

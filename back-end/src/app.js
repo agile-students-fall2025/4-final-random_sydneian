@@ -1,26 +1,26 @@
 import path from "node:path";
 import crypto from "node:crypto";
 import express from "express";
-import { users, groups } from "./mockData.js";
+import cors from "cors";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import { users, groups } from "./mockData.js"; // Deprecated
+import { User, Memory, Activity, Group } from "./db.js";
 
 const app = express();
 
 // --- Middleware ---
 
-// Enable CORS for frontend
-app.use((req, res, next) => {
-	res.header("Access-Control-Allow-Origin", "*");
-	res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-	res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-	if (req.method === "OPTIONS") {
-		return res.sendStatus(200);
-	}
-	next();
-});
-
 app.use(express.static(path.join(import.meta.dirname, "../public")));
 app.use(express.urlencoded({ limit: "10mb", extended: true }));
 app.use(express.json({ limit: "10mb" }));
+app.use(
+	cors({
+		origin: process.env.FRONTEND_ORIGIN,
+		allowedHeaders: "Origin,Content-Type,Authorization",
+		credentials: true,
+	}),
+);
 
 // --- Routes ---
 
@@ -34,7 +34,7 @@ app.post("/api/login", (req, res) => {
 	const user = users.find((user) => user.username === req.body.username);
 
 	// Ensure user exists, and password matches
-	if (!user || user.password !== req.body.password) {
+	if (!user || !bcrypt.compareSync(req.body.password, user.password)) {
 		return res.status(404).json({ error: "Invalid username or password" });
 	}
 
@@ -45,16 +45,11 @@ app.post("/api/login", (req, res) => {
 
 	// Send JWT on successful authentication
 	res.json({
-		JWT:
-			"eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0." + // { "alg": "none", "typ": "JWT" }
-			Buffer.from(
-				JSON.stringify({
-					iat: Math.floor(Date.now() / 1000),
-					exp: Math.floor(Date.now() / 1000) + 15 * 60, // in 15 mins
-					sub: user._id,
-				}),
-			).toString("base64url") +
-			".",
+		JWT: jwt.sign(
+			{ id: user._id, username: user.username, profilePicture: user.profilePicture },
+			process.env.JWT_SECRET,
+			{ expiresIn: "1d" },
+		),
 	});
 });
 
@@ -77,7 +72,7 @@ app.post("/api/register", (req, res) => {
 	const newUser = {
 		_id: crypto.randomUUID(),
 		username: req.body.username,
-		password: req.body.password, // should be salted and hashed
+		password: bcrypt.hashSync(req.body.password),
 		email: req.body.email,
 		emailVerified: false,
 		OTP: "000000", // Store OTP and generation time temporarily (should this be an in memory obj instead?)
@@ -123,17 +118,12 @@ app.post("/api/register/verify-email", (req, res) => {
 	delete user.OTPTimestamp;
 
 	// Send JWT on successful authentication
-	res.json({
-		JWT:
-			"eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0." + // { "alg": "none", "typ": "JWT" }
-			Buffer.from(
-				JSON.stringify({
-					iat: Math.floor(Date.now() / 1000),
-					exp: Math.floor(Date.now() / 1000) + 15 * 60, // in 15 mins
-					sub: user._id,
-				}),
-			).toString("base64url") +
-			".",
+	res.status(201).json({
+		JWT: jwt.sign(
+			{ id: user._id, username: user.username, profilePicture: user.profilePicture },
+			process.env.JWT_SECRET,
+			{ expiresIn: "1d" },
+		),
 	});
 });
 
@@ -157,156 +147,18 @@ app.post("/api/register/renew-otp", (req, res) => {
 	res.send();
 });
 
-// Do the post request for the bucketlist
-
-app.post("/api/register/renew-otp", (req, res) => {
-	// ...existing code...
-	res.send();
-});
-
-// Bucket list routes
-app.post("/api/bucketlist", (req, res) => {
-	try {
-		const { title, location, description, image } = req.body;
-
-		if (!title || !location) {
-			return res.status(400).json({ error: "Title and location are required" });
-		}
-
-		const newItem = {
-			id: crypto.randomUUID(),
-			title,
-			location,
-			description,
-			image: image || null,
-			completed: false,
-			createdAt: new Date().toISOString(),
-		};
-
-		// Add to group's bucket list (assuming bucketList array exists in group)
-		// For now, just return the created item
-		res.status(201).json(newItem);
-	} catch (error) {
-		res.status(500).json({ error: "Failed to create item" });
-	}
-});
-
-app.get("/api/bucketlist", (req, res) => {
-	try {
-		// Return bucket list items (from group data)
-		// For now, return empty array
-		res.status(200).json([]);
-	} catch (error) {
-		res.status(500).json({ error: "Failed to fetch bucket list items" });
-	}
-});
-
-app.get("/api/group/:id", (req, res) => {
-    try {
-        // Find bucket list item by ID
-        // For now, return 404
-        res.status(404).json({ error: "Item not found" });
-    } catch (error) {
-        res.status(500).json({ error: "Failed to fetch item" });
-    }
-});
-
-app.put("/api/group/:id", (req, res) => {
-    try {
-        // Update bucket list item
-        // For now, return 404
-        res.status(404).json({ error: "Item not found" });
-    } catch (error) {
-        res.status(500).json({ error: "Failed to update item" });
-    }
-});
-
-app.delete("/api/group/:id/", (req, res) => {
-    try {
-        // Delete bucket list item
-        // For now, return 404
-        res.status(404).json({ error: "Item not found" });
-    } catch (error) {
-        res.status(500).json({ error: "Failed to delete item" });
-    }
-});
-
-// Get bucket list for a group
-app.get("/api/group/:id/activities", (req, res) => {
-    const group = groups.find(g => g._id === req.params.groupId);
-    if (!group) {
-        return res.status(404).json({ error: "Group not found" });
-    }
-    res.json(group.bucketList || []);
-});
-
-// Add item to group bucket list
-app.post("/api/group/:id/activities", (req, res) => {
-    const group = groups.find(g => g._id === req.params.groupId);
-    if (!group) {
-        return res.status(404).json({ error: "Group not found" });
-    }
-
-    const { title, location, description, image } = req.body;
-    if (!title || !location) {
-        return res.status(400).json({ error: "Title and location are required" });
-    }
-
-    const newItem = {
-        id: crypto.randomUUID(),
-        title,
-        location,
-        description,
-        image: image || null,
-        completed: false,
-        createdAt: new Date().toISOString()
-    };
-
-    if (!group.bucketList) group.bucketList = [];
-    group.bucketList.push(newItem);
-
-    res.status(201).json(newItem);
-});
-
-	const { title, location, description, image } = req.body;
-	if (!title || !location) {
-		return res.status(400).json({ error: "Title and location are required" });
-	}
-
-	const newItem = {
-		id: crypto.randomUUID(),
-		title,
-		location,
-		description,
-		image: image || null,
-		completed: false,
-		createdAt: new Date().toISOString(),
-	};
-
-	if (!group.bucketList) group.bucketList = [];
-	group.bucketList.push(newItem);
-
-	res.status(201).json(newItem);
-});
-
 // Note: All APIs henceforth require authentication
 
-// Mock: Put user id into req.user (in actual usage, this will be handled in a Passport callback, after validating and verifying the JWT)
+// Verify JWT & put user id into req.user (in actual usage, this will be handled in a Passport callback, after validating and verifying the JWT)
 app.use((req, res, next) => {
-	// Temporarily disabled for testing - using mock user
-	req.user = { _id: "user1-id" };
-	next();
+	const JWT = req.headers.authorization?.replace("Bearer ", "");
+	if (!JWT) return res.status(401).json();
 
-	// const JWT = req.headers.authorization?.replace("Bearer ", "");
-	// if (!JWT) return res.status(401).json({ redirect: "/login" });
-
-	// try {
-	// 	req.user = { _id: JSON.parse(Buffer.from(JWT.split(".")[1], "base64url").toString()).sub };
-	// } catch {
-	// 	return res.status(400).json({ error: "Malformed JWT" });
-	// }
-
-	// next();
+	jwt.verify(JWT, process.env.JWT_SECRET, (err, user) => {
+		if (err) return res.send(401).json();
+		req.user = user;
+		next();
+	});
 });
 
 // Get user details
@@ -342,8 +194,8 @@ app.get("/api/groups/:id", (req, res) => {
 });
 
 // Create a new group
-app.post("/api/group/:id/activities", (req, res) => {
-	// Ensure requir	git push origin test/bucket-list-unit-testsed fields are present
+app.post("/api/group", (req, res) => {
+	// Ensure required fields are present
 	if (!req.body?.name) {
 		return res.status(400).json({ error: "Missing required fields" });
 	}
@@ -393,6 +245,25 @@ app.post("/api/groups/:id/accept", (req, res) => {
 	res.json(group);
 });
 
+// Leave a group
+app.post("/api/groups/:id/leave", (req, res) => {
+	const group = groups.find((group) => group._id === req.params.id);
+
+	// Error if group doesn't exist
+	if (!group) return res.status(404).json({ error: "Group not found" });
+
+	// Check if user is a member
+	if (!group.members.includes(req.user._id)) {
+		return res.status(400).json({ error: "User is not a member of this group" });
+	}
+
+	// Remove user from members
+	group.members = group.members.filter((id) => id !== req.user._id);
+	group.updatedAt = new Date().toISOString();
+
+	res.json({ message: "Left group successfully" });
+});
+
 // Get group details
 app.get("/api/groups/:id", (req, res) => {
 	const group = groups.find((group) => group._id === req.params.id);
@@ -418,7 +289,135 @@ app.get("/api/groups/:id", (req, res) => {
 	} else res.status(403).json({ error: "User isn't a part of, nor invited to, this group" });
 });
 
-// --- MemoryBook routes ---
+// Add item to group bucket list
+app.post("/api/group/:groupId/activities", (req, res) => {
+	const group = groups.find((g) => g._id === req.params.groupId);
+	if (!group) {
+		return res.status(404).json({ error: "Group not found" });
+	}
+
+	const { title, location, description, image } = req.body;
+	if (!title) {
+		return res.status(400).json({ error: "Title is required" });
+	}
+
+	const newItem = {
+		id: crypto.randomUUID(),
+		title,
+		location,
+		description,
+		image,
+		done: false,
+		createdAt: new Date().toISOString(),
+	};
+
+	group.activities.push(newItem);
+
+	res.status(201).json(newItem);
+});
+
+// Update group details
+app.put("/api/groups/:id", (req, res) => {
+	const group = groups.find((group) => group._id === req.params.id);
+
+	// Error if group doesn't exist
+	if (!group) return res.status(404).json({ error: "Group not found" });
+
+	// Only members can update group details
+	if (!group.members.includes(req.user._id)) {
+		return res.status(403).json({ error: "Only members can update group details" });
+	}
+
+	// Update allowed fields
+	if (req.body.name !== undefined) {
+		if (!req.body.name.trim()) {
+			return res.status(400).json({ error: "Group name cannot be empty" });
+		}
+		group.name = req.body.name;
+	}
+
+	if (req.body.desc !== undefined) {
+		group.desc = req.body.desc;
+	}
+
+	if (req.body.icon !== undefined) {
+		group.icon = req.body.icon;
+	}
+
+	// Update timestamp
+	group.updatedAt = new Date().toISOString();
+
+	// Return updated group
+	res.json(group);
+});
+
+// Delete a group (only if user is the last member)
+app.delete("/api/groups/:id", (req, res) => {
+	const groupIndex = groups.findIndex((group) => group._id === req.params.id);
+
+	// Error if group doesn't exist
+	if (groupIndex === -1) return res.status(404).json({ error: "Group not found" });
+
+	const group = groups[groupIndex];
+
+	// Only members can delete
+	if (!group.members.includes(req.user._id)) {
+		return res.status(403).json({ error: "Only members can delete the group" });
+	}
+
+	// Can only delete if user is the last member
+	if (group.members.length > 1) {
+		return res.status(400).json({
+			error: "Cannot delete group with multiple members. Please leave the group instead.",
+		});
+	}
+
+	// Remove group from array
+	groups.splice(groupIndex, 1);
+
+	res.json({ message: "Group deleted successfully" });
+});
+
+// Invite users to a group
+app.post("/api/groups/:id/invite", (req, res) => {
+	const group = groups.find((group) => group._id === req.params.id);
+
+	// Error if group doesn't exist
+	if (!group) return res.status(404).json({ error: "Group not found" });
+
+	// Only members can invite
+	if (!group.members.includes(req.user._id)) {
+		return res.status(403).json({ error: "Only members can invite users" });
+	}
+
+	// Ensure userId is provided
+	if (!req.body?.userId) {
+		return res.status(400).json({ error: "Missing required field: userId" });
+	}
+
+	const userToInvite = users.find((user) => user._id === req.body.userId);
+
+	// Check if user exists
+	if (!userToInvite) {
+		return res.status(404).json({ error: "User not found" });
+	}
+
+	// Check if user is already a member
+	if (group.members.includes(req.body.userId)) {
+		return res.status(409).json({ error: "User is already a member" });
+	}
+
+	// Check if user is already invited
+	if (group.invitedMembers.includes(req.body.userId)) {
+		return res.status(409).json({ error: "User is already invited" });
+	}
+
+	// Add user to invited members
+	group.invitedMembers.push(req.body.userId);
+	group.updatedAt = new Date().toISOString();
+
+	res.json({ message: "User invited successfully", group });
+});
 
 app.get("/api/groups/:groupId/activities/:activityId/memories", (req, res) => {
 	const group = groups.find((g) => g._id === req.params.groupId);
@@ -495,168 +494,6 @@ app.delete("/api/groups/:groupId/activities/:activityId/memories/:memoryId", (re
 	group.updatedAt = new Date().toISOString();
 
 	res.sendStatus(204);
-// Update group details
-app.put("/api/groups/:id", (req, res) => {
-	const group = groups.find((group) => group._id === req.params.id);
-
-	// Error if group doesn't exist
-	if (!group) return res.status(404).json({ error: "Group not found" });
-
-	// Only members can update group details
-	if (!group.members.includes(req.user._id)) {
-		return res.status(403).json({ error: "Only members can update group details" });
-	}
-
-	// Update allowed fields
-	if (req.body.name !== undefined) {
-		if (!req.body.name.trim()) {
-			return res.status(400).json({ error: "Group name cannot be empty" });
-		}
-		group.name = req.body.name;
-	}
-
-	if (req.body.desc !== undefined) {
-		group.desc = req.body.desc;
-	}
-
-	if (req.body.icon !== undefined) {
-		group.icon = req.body.icon;
-	}
-
-	// Update timestamp
-	group.updatedAt = new Date().toISOString();
-
-	// Return updated group
-	res.json(group);
-});
-
-// Delete a group (only if user is the last member)
-app.delete("/api/groups/:id", (req, res) => {
-	const groupIndex = groups.findIndex((group) => group._id === req.params.id);
-
-	// Error if group doesn't exist
-	if (groupIndex === -1) return res.status(404).json({ error: "Group not found" });
-
-	const group = groups[groupIndex];
-
-	// Only members can delete
-	if (!group.members.includes(req.user._id)) {
-		return res.status(403).json({ error: "Only members can delete the group" });
-	}
-
-	// Can only delete if user is the last member
-	if (group.members.length > 1) {
-		return res.status(400).json({
-			error: "Cannot delete group with multiple members. Please leave the group instead.",
-		});
-	}
-
-	// Remove group from array
-	groups.splice(groupIndex, 1);
-
-	res.json({ message: "Group deleted successfully" });
-});
-
-// Leave a group
-app.post("/api/groups/:id/leave", (req, res) => {
-	const group = groups.find((group) => group._id === req.params.id);
-
-	// Error if group doesn't exist
-	if (!group) return res.status(404).json({ error: "Group not found" });
-
-	// Check if user is a member
-	if (!group.members.includes(req.user._id)) {
-		return res.status(400).json({ error: "User is not a member of this group" });
-	}
-
-	// Remove user from members
-	group.members = group.members.filter((id) => id !== req.user._id);
-	group.updatedAt = new Date().toISOString();
-
-	res.json({ message: "Left group successfully" });
-});
-
-// Invite users to a group
-app.post("/api/groups/:id/invite", (req, res) => {
-	const group = groups.find((group) => group._id === req.params.id);
-
-	// Error if group doesn't exist
-	if (!group) return res.status(404).json({ error: "Group not found" });
-
-	// Only members can invite
-	if (!group.members.includes(req.user._id)) {
-		return res.status(403).json({ error: "Only members can invite users" });
-	}
-
-	// Ensure userId is provided
-	if (!req.body?.userId) {
-		return res.status(400).json({ error: "Missing required field: userId" });
-	}
-
-	const userToInvite = users.find((user) => user._id === req.body.userId);
-
-	// Check if user exists
-	if (!userToInvite) {
-		return res.status(404).json({ error: "User not found" });
-	}
-
-	// Check if user is already a member
-	if (group.members.includes(req.body.userId)) {
-		return res.status(409).json({ error: "User is already a member" });
-	}
-
-	// Check if user is already invited
-	if (group.invitedMembers.includes(req.body.userId)) {
-		return res.status(409).json({ error: "User is already invited" });
-	}
-
-	// Add user to invited members
-	group.invitedMembers.push(req.body.userId);
-	group.updatedAt = new Date().toISOString();
-
-	res.json({ message: "User invited successfully", group });
-});
-
-// Get dashboard data - user's groups and recent activities
-app.get("/api/dashboard", (req, res) => {
-	// Get all groups user is a member of
-	const userGroups = groups.filter((group) => group.members.includes(req.user._id));
-
-	// Collect all activities from user's groups
-	const allActivities = [];
-	userGroups.forEach((group) => {
-		if (group.activities && group.activities.length > 0) {
-			group.activities.forEach((activity) => {
-				allActivities.push({
-					...activity,
-					groupId: group._id,
-					groupName: group.name,
-				});
-			});
-		}
-	});
-
-	// Sort activities by updatedAt (most recent first) and limit to 10
-	const recentActivities = allActivities
-		.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
-		.slice(0, 10);
-
-	res.json({
-		groups: userGroups.map((g) => ({
-			_id: g._id,
-			name: g.name,
-			desc: g.desc,
-			icon: g.icon,
-			memberCount: g.members.length,
-			activityCount: g.activities?.length || 0,
-		})),
-		recentActivities,
-		stats: {
-			totalGroups: userGroups.length,
-			totalActivities: allActivities.length,
-			completedActivities: allActivities.filter((a) => a.done).length,
-		},
-	});
 });
 
 // Catchall for unspecified routes (Express sends 404 anyways, but changing HTML for JSON with error property)
@@ -668,11 +505,3 @@ app.use((req, res, next) => {
 app.listen(process.env.PORT || 8000, () => {
 	console.log(`Express app listening at http://localhost:${process.env.PORT || 8000}`);
 });
-
-
-// Solved a conflict
-
-// Made some changes
-
-
-// Made the router buttons work
