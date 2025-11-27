@@ -1,26 +1,26 @@
 import path from "node:path";
 import crypto from "node:crypto";
 import express from "express";
-import { users, groups } from "./mockData.js";
+import cors from "cors";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import { users, groups } from "./mockData.js"; // Deprecated
+import { User, Memory, Activity, Group } from "./db.js";
 
 const app = express();
 
 // --- Middleware ---
 
-// Enable CORS for frontend
-app.use((req, res, next) => {
-	res.header("Access-Control-Allow-Origin", "*");
-	res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-	res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-	if (req.method === "OPTIONS") {
-		return res.sendStatus(200);
-	}
-	next();
-});
-
 app.use(express.static(path.join(import.meta.dirname, "../public")));
 app.use(express.urlencoded({ limit: "10mb", extended: true }));
 app.use(express.json({ limit: "10mb" }));
+app.use(
+	cors({
+		origin: process.env.FRONTEND_ORIGIN,
+		allowedHeaders: "Origin,Content-Type,Authorization",
+		credentials: true,
+	}),
+);
 
 // --- Routes ---
 
@@ -34,7 +34,7 @@ app.post("/api/login", (req, res) => {
 	const user = users.find((user) => user.username === req.body.username);
 
 	// Ensure user exists, and password matches
-	if (!user || user.password !== req.body.password) {
+	if (!user || !bcrypt.compareSync(req.body.password, user.password)) {
 		return res.status(404).json({ error: "Invalid username or password" });
 	}
 
@@ -45,16 +45,11 @@ app.post("/api/login", (req, res) => {
 
 	// Send JWT on successful authentication
 	res.json({
-		JWT:
-			"eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0." + // { "alg": "none", "typ": "JWT" }
-			Buffer.from(
-				JSON.stringify({
-					iat: Math.floor(Date.now() / 1000),
-					exp: Math.floor(Date.now() / 1000) + 15 * 60, // in 15 mins
-					sub: user._id,
-				}),
-			).toString("base64url") +
-			".",
+		JWT: jwt.sign(
+			{ id: user._id, username: user.username, profilePicture: user.profilePicture },
+			process.env.JWT_SECRET,
+			{ expiresIn: "1d" },
+		),
 	});
 });
 
@@ -77,7 +72,7 @@ app.post("/api/register", (req, res) => {
 	const newUser = {
 		_id: crypto.randomUUID(),
 		username: req.body.username,
-		password: req.body.password, // should be salted and hashed
+		password: bcrypt.hashSync(req.body.password),
 		email: req.body.email,
 		emailVerified: false,
 		OTP: "000000", // Store OTP and generation time temporarily (should this be an in memory obj instead?)
@@ -123,17 +118,12 @@ app.post("/api/register/verify-email", (req, res) => {
 	delete user.OTPTimestamp;
 
 	// Send JWT on successful authentication
-	res.json({
-		JWT:
-			"eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0." + // { "alg": "none", "typ": "JWT" }
-			Buffer.from(
-				JSON.stringify({
-					iat: Math.floor(Date.now() / 1000),
-					exp: Math.floor(Date.now() / 1000) + 15 * 60, // in 15 mins
-					sub: user._id,
-				}),
-			).toString("base64url") +
-			".",
+	res.status(201).json({
+		JWT: jwt.sign(
+			{ id: user._id, username: user.username, profilePicture: user.profilePicture },
+			process.env.JWT_SECRET,
+			{ expiresIn: "1d" },
+		),
 	});
 });
 
@@ -159,18 +149,16 @@ app.post("/api/register/renew-otp", (req, res) => {
 
 // Note: All APIs henceforth require authentication
 
-// Mock: Put user id into req.user (in actual usage, this will be handled in a Passport callback, after validating and verifying the JWT)
+// Verify JWT & put user id into req.user (in actual usage, this will be handled in a Passport callback, after validating and verifying the JWT)
 app.use((req, res, next) => {
 	const JWT = req.headers.authorization?.replace("Bearer ", "");
-	if (!JWT) return res.status(401).json({ redirect: "/login" });
+	if (!JWT) return res.status(401).json();
 
-	try {
-		req.user = { _id: JSON.parse(Buffer.from(JWT.split(".")[1], "base64url").toString()).sub };
-	} catch {
-		return res.status(400).json({ error: "Malformed JWT" });
-	}
-
-	next();
+	jwt.verify(JWT, process.env.JWT_SECRET, (err, user) => {
+		if (err) return res.send(401).json();
+		req.user = user;
+		next();
+	});
 });
 
 // Get user details

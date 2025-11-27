@@ -5,17 +5,17 @@
 	"type": "module",
 	"scripts": {
 		"dev": "node --env-file .env --watch src/app.js",
-		"fix-format-lint": "prettier . --write && eslint . --fix",
+		"lint-format-all": "eslint --fix . && prettier --write .",
+		"fix-format-lint": "npm run lint-format-all",
 		"start": "node --env-file .env src/app.js",
 		"test": "c8 mocha 'test/**/*.test.js'",
 		"test:coverage": "c8 --reporter=text --reporter=html mocha 'test/**/*.test.js'"
 	},
-	"prettier": {
-		"useTabs": true,
-		"printWidth": 120
-	},
 	"dependencies": {
+		"bcryptjs": "^3.0.3",
+		"cors": "^2.8.5",
 		"express": "^5.1.0",
+		"jsonwebtoken": "^9.0.2",
 		"mongoose": "^9.0.0"
 	},
 	"devDependencies": {

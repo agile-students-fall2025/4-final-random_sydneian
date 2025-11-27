@@ -8,12 +8,9 @@
 		"build": "vite build",
 		"preview": "vite preview",
 		"lint": "eslint .",
-		"format": "prettier . --check",
-		"fix-format-lint": "prettier . --write && eslint . --fix"
-	},
-	"prettier": {
-		"useTabs": true,
-		"printWidth": 120
+		"format": "prettier --check .",
+		"lint-format-all": "eslint --fix . && prettier --write .",
+		"fix-format-lint": "npm run lint-format-all"
 	},
 	"dependencies": {
 		"lucide-react": "^0.548.0",
