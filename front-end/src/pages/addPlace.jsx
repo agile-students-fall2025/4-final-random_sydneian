@@ -33,7 +33,7 @@ export default function AddPlace() {
 	return (
 		<div className="add-place-container">
 			{/* Header */}
-			<Header backPath={"/dashboard"} title="Add Place" />
+			<Header backPath={"/"} title="Add Place" />
 
 			{/* Main Content */}
 			<div className="add-place-content">
@@ -54,24 +54,6 @@ export default function AddPlace() {
 							</li>
 						))}
 					</ul>
-				</div>
-			</div>
-
-			{/* Bottom Navigation */}
-			<div className="bottom-nav">
-				<div className="bottom-nav-content">
-					<button className="nav-button" onClick={handleNavigateToBucketList}>
-						<div className="nav-icon"></div>
-						<span className="nav-label">List</span>
-					</button>
-					<button className="nav-button" onClick={handleNavigateToDecide}>
-						<div className="nav-icon-outlined"></div>
-						<span className="nav-label">Decide</span>
-					</button>
-					<button className="nav-button" onClick={handleNavigateToMemories}>
-						<div className="nav-icon-outlined"></div>
-						<span className="nav-label">Memories</span>
-					</button>
 				</div>
 			</div>
 		</div>

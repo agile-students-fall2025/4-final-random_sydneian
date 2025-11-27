@@ -35,7 +35,7 @@ function Login() {
 
 			localStorage.setItem("JWT", responseData.JWT);
 
-			navigate("/dashboard");
+			navigate("/");
 		} catch (err) {
 			setError(err.message);
 		}

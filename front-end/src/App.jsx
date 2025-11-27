@@ -1,37 +1,49 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import "./App.css";
-import Dashboard from "./pages/dashboard";
-import CreateGroup from "./pages/createGroup";
-import JoinGroup from "./pages/joinGroup";
-import MemoryBookPage from "./pages/MemoryBookPage";
+import { Routes, Route, Navigate } from "react-router-dom";
+
+import Login from "./pages/Login";
 import Register from "./pages/Register";
 import EmailVerification from "./pages/EmailVerification";
-import Login from "./pages/Login";
+import Dashboard from "./pages/dashboard";
 import ProfileSettings from "./pages/ProfileSettings";
-import DecideActivity from "./pages/DecideActivity";
-import Button from "./components/Button";
+import JoinGroup from "./pages/joinGroup";
+import CreateGroup from "./pages/createGroup";
 import BucketList from "./pages/bucketList";
 import AddPlace from "./pages/addPlace";
 import AddPlaceManually from "./pages/addPlaceManually";
 import AddPlaceThroughLink from "./pages/addPlaceThroughLink";
+import DecideActivity from "./pages/DecideActivity";
+import MemoryBookPage from "./pages/MemoryBookPage";
+
+import NavBar from "./components/NavBar";
+
+import "./App.css";
 
 function App() {
 	return (
 		<Routes>
-			<Route path="/" element={<Navigate to="/login" replace />} />
-			<Route path="/dashboard" element={<Dashboard />} />
-			<Route path="/group/create" element={<CreateGroup />} />
-			<Route path="/group/join" element={<JoinGroup />} />
-			<Route path="/memorybook" element={<MemoryBookPage />} />
-			<Route path="/bucket-list" element={<BucketList />} />
-			<Route path="/add-place" element={<AddPlace />} />
-			<Route path="/add-place/manually" element={<AddPlaceManually />} />
-			<Route path="/add-place/link" element={<AddPlaceThroughLink />} />
-			<Route path="/register" element={<Register />} />
+			<Route path="login" element={<Login />} />
+			<Route path="register" element={<Register />} />
 			<Route path="/verify-email" element={<EmailVerification />} />
-			<Route path="/login" element={<Login />} />
+			<Route path="/" element={<Dashboard />} />
 			<Route path="/profile-settings" element={<ProfileSettings />} />
-			<Route path="/decide" element={<DecideActivity />} />
+			<Route path="groups">
+				<Route index element={<Navigate to="/" />} />
+				<Route path="join" element={<JoinGroup />} />
+				<Route path="create" element={<CreateGroup />} />
+				<Route path=":groupId" element={<NavBar />}>
+					<Route index element={<Navigate to="activities" />} />
+					<Route path="activities">
+						<Route index element={<BucketList />} />
+						<Route path="add">
+							<Route index element={<AddPlace />} />
+							<Route path="manual" element={<AddPlaceManually />} />
+							<Route path="link" element={<AddPlaceThroughLink />} />
+						</Route>
+					</Route>
+					<Route path="decide" element={<DecideActivity />} />
+					<Route path="memories" element={<MemoryBookPage />} />
+				</Route>
+			</Route>
 		</Routes>
 	);
 }

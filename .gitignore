@@ -120,6 +120,8 @@ typings/
 # next.js build output
 .next
 
+# Vite build
+dist/
 
 ## Emacs artefacts ##
 *~
