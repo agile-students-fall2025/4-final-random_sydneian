@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { users, groups } from "./mockData.js"; // Deprecated
 import { User, Memory, Activity, Group } from "./db.js";
+import "./db.js"; // Initialize database connection
 
 const app = express();
 
@@ -155,7 +156,7 @@ app.use((req, res, next) => {
 	if (!JWT) return res.status(401).json();
 
 	jwt.verify(JWT, process.env.JWT_SECRET, (err, user) => {
-		if (err) return res.send(401).json();
+		if (err) return res.status(401).json();
 		req.user = user;
 		next();
 	});
@@ -183,14 +184,26 @@ app.get("/api/users/:id", (req, res) => {
 	} else res.status(404).json({ error: "User not found" });
 });
 
-// Get a list of group ids user is invited to
-app.get("/api/invites/:id", (req, res) => {
-	res.json(groups.filter((group) => group.invitedMembers.includes(req.user._id)).map((group) => group._id));
+// Get a list of group ids user is invited to (for dashboard)
+app.get("/api/invites", async (req, res) => {
+	try {
+		const groupsList = await Group.find({ invitedMembers: req.user.id }).select("_id").lean();
+		res.json(groupsList.map((group) => group._id.toString()));
+	} catch (error) {
+		console.error("Get invites error:", error);
+		res.status(500).json({ error: "Internal server error" });
+	}
 });
 
-// Get a list of group ids user is a member of
-app.get("/api/groups/:id", (req, res) => {
-	res.json(groups.filter((group) => group.members.includes(req.user._id)).map((group) => group._id));
+// Get a list of group ids user is a member of (for dashboard)
+app.get("/api/groups", async (req, res) => {
+	try {
+		const groupsList = await Group.find({ members: req.user.id }).select("_id").lean();
+		res.json(groupsList.map((group) => group._id.toString()));
+	} catch (error) {
+		console.error("Get groups error:", error);
+		res.status(500).json({ error: "Internal server error" });
+	}
 });
 
 // Create a new group
@@ -265,28 +278,51 @@ app.post("/api/groups/:id/leave", (req, res) => {
 });
 
 // Get group details
-app.get("/api/groups/:id", (req, res) => {
-	const group = groups.find((group) => group._id === req.params.id);
+app.get("/api/groups/:id", async (req, res) => {
+	try {
+		const group = await Group.findById(req.params.id)
+			.populate("members", "username profilePicture")
+			.populate("invitedMembers", "username profilePicture");
 
-	// Error if group doesn't exist
-	if (!group) return res.status(404).json({ error: "Group not found" });
+		// Error if group doesn't exist
+		if (!group) return res.status(404).json({ error: "Group not found" });
 
-	// Send full info if user is a member
-	if (group.members.includes(req.user._id)) {
-		res.json(group);
+		// Convert to plain object for easier manipulation
+		const groupObj = group.toObject();
+		const userId = req.user.id;
 
-		// Send basic details if user is invited
-	} else if (group.invitedMembers.includes(req.user._id)) {
-		res.json({
-			_id: group._id,
-			name: group.name,
-			desc: group.desc,
-			icon: group.icon,
-			members: group.members,
+		// Check if user is a member (compare as strings)
+		const isMember = group.members.some((member) => {
+			return member._id.toString() === userId;
 		});
 
-		// Disallow if user is neither a member nor invited
-	} else res.status(403).json({ error: "User isn't a part of, nor invited to, this group" });
+		if (isMember) {
+			// Send full info if user is a member
+			res.json(groupObj);
+		} else {
+			// Check if user is invited
+			const isInvited = group.invitedMembers.some((member) => {
+				return member._id.toString() === userId;
+			});
+
+			if (isInvited) {
+				// Send basic details if user is invited
+				res.json({
+					_id: groupObj._id,
+					name: groupObj.name,
+					desc: groupObj.desc,
+					icon: groupObj.icon,
+					members: groupObj.members,
+				});
+			} else {
+				// Disallow if user is neither a member nor invited
+				res.status(403).json({ error: "User isn't a part of, nor invited to, this group" });
+			}
+		}
+	} catch (error) {
+		console.error("Get group details error:", error);
+		res.status(500).json({ error: "Internal server error" });
+	}
 });
 
 // Add item to group bucket list
