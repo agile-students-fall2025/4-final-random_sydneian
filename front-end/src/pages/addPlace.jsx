@@ -18,15 +18,16 @@ export default function AddPlace() {
 		navigate("/add-place/manually");
 	};
 
-	const handleNavigateToDecide = () => {
+	// Navigation handlers (for future use)
+	const _handleNavigateToDecide = () => {
 		navigate("/decide");
 	};
 
-	const handleNavigateToMemories = () => {
+	const _handleNavigateToMemories = () => {
 		navigate("/memorybook");
 	};
 
-	const handleNavigateToBucketList = () => {
+	const _handleNavigateToBucketList = () => {
 		navigate("/bucket-list");
 	};
 

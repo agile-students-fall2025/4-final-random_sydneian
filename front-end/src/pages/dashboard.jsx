@@ -57,54 +57,16 @@ export default function DashboardPage() {
 		navigate(path);
 	};
 
-	const handleDeleteGroup = async (groupId, e) => {
-		if (e) {
-			e.stopPropagation(); // Prevent navigation when clicking delete
-		}
-
-		// Close swipe menu
-		setSwipedGroupId(null);
-
-		if (!window.confirm("Are you sure you want to delete this group?")) {
-			return;
-		}
-
-		try {
-			const response = await fetch(`http://localhost:8000/api/groups/${groupId}`, {
-				method: "DELETE",
-			});
-
-			if (!response.ok) {
-				const errorData = await response.json();
-				const errorMessage = errorData.error || "Failed to delete group";
-				
-				// If group has multiple members, offer to leave instead
-				if (errorMessage.includes("multiple members")) {
-					const leaveGroup = window.confirm(
-						"Cannot delete group with multiple members. Would you like to leave the group instead?"
-					);
-					if (leaveGroup) {
-						await handleLeaveGroup(groupId);
-					}
-					return;
-				}
-				
-				throw new Error(errorMessage);
-			}
-
-			// Remove the group from the local state
-			setGroups((prevGroups) => prevGroups.filter((group) => group._id !== groupId));
-		} catch (err) {
-			setError(err.message);
-			console.error("Error deleting group:", err);
-			alert(`Error: ${err.message}`);
-		}
-	};
-
 	const handleLeaveGroup = async (groupId) => {
 		try {
-			const response = await fetch(`http://localhost:8000/api/groups/${groupId}/leave`, {
+			const JWT = localStorage.getItem("JWT");
+			const backendURL = "http://localhost:8000";
+
+			const response = await fetch(`${backendURL}/api/groups/${groupId}/leave`, {
 				method: "POST",
+				headers: {
+					Authorization: `Bearer ${JWT}`,
+				},
 			});
 
 			if (!response.ok) {
@@ -121,9 +83,59 @@ export default function DashboardPage() {
 		}
 	};
 
+	const handleDeleteGroup = async (groupId, e) => {
+		if (e) {
+			e.stopPropagation(); // Prevent navigation when clicking delete
+		}
+
+		// Close swipe menu
+		setSwipedGroupId(null);
+
+		if (!window.confirm("Are you sure you want to delete this group?")) {
+			return;
+		}
+
+		try {
+			const JWT = localStorage.getItem("JWT");
+			const backendURL = "http://localhost:8000";
+
+			const response = await fetch(`${backendURL}/api/groups/${groupId}`, {
+				method: "DELETE",
+				headers: {
+					Authorization: `Bearer ${JWT}`,
+				},
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json();
+				const errorMessage = errorData.error || "Failed to delete group";
+
+				// If group has multiple members, offer to leave instead
+				if (errorMessage.includes("multiple members")) {
+					const leaveGroup = window.confirm(
+						"Cannot delete group with multiple members. Would you like to leave the group instead?",
+					);
+					if (leaveGroup) {
+						await handleLeaveGroup(groupId);
+					}
+					return;
+				}
+
+				throw new Error(errorMessage);
+			}
+
+			// Remove the group from the local state
+			setGroups((prevGroups) => prevGroups.filter((group) => group._id !== groupId));
+		} catch (err) {
+			setError(err.message);
+			console.error("Error deleting group:", err);
+			alert(`Error: ${err.message}`);
+		}
+	};
+
 	const minSwipeDistance = 50;
 
-	const onTouchStart = (e, groupId) => {
+	const onTouchStart = (e) => {
 		setTouchEnd(null);
 		setTouchStart(e.targetTouches[0].clientX);
 	};
@@ -144,13 +156,13 @@ export default function DashboardPage() {
 		} else if (isRightSwipe) {
 			setSwipedGroupId(null);
 		}
-		
+
 		// Reset touch positions
 		setTouchStart(null);
 		setTouchEnd(null);
 	};
 
-	const onMouseDown = (e, groupId) => {
+	const onMouseDown = (e) => {
 		setTouchEnd(null);
 		setTouchStart(e.clientX);
 	};
@@ -177,7 +189,7 @@ export default function DashboardPage() {
 		} else if (isRightSwipe) {
 			setSwipedGroupId(null);
 		}
-		
+
 		// Reset positions
 		setTouchStart(null);
 		setTouchEnd(null);
@@ -185,21 +197,21 @@ export default function DashboardPage() {
 
 	const handleGroupClick = (groupId, e) => {
 		// Don't close if clicking the delete button (it handles its own click)
-		if (e?.target?.closest('.delete-group-button')) {
+		if (e?.target?.closest(".delete-group-button")) {
 			return;
 		}
-		
+
 		// If swiped open, close it instead of navigating
 		if (swipedGroupId === groupId) {
 			setSwipedGroupId(null);
 			return;
 		}
-		
+
 		// Close any other swiped group
 		if (swipedGroupId && swipedGroupId !== groupId) {
 			setSwipedGroupId(null);
 		}
-		
+
 		// Otherwise navigate normally
 		onNavigate("/bucket-list");
 	};
@@ -236,10 +248,10 @@ export default function DashboardPage() {
 						<div
 							key={group._id}
 							className="group-item-wrapper"
-							onTouchStart={(e) => onTouchStart(e, group._id)}
+							onTouchStart={onTouchStart}
 							onTouchMove={onTouchMove}
 							onTouchEnd={() => onTouchEnd(group._id)}
-							onMouseDown={(e) => onMouseDown(e, group._id)}
+							onMouseDown={onMouseDown}
 							onMouseMove={onMouseMove}
 							onMouseUp={() => onMouseUp(group._id)}
 							onMouseLeave={() => {
@@ -258,9 +270,7 @@ export default function DashboardPage() {
 							>
 								<Trash2 size={18} />
 							</button>
-							<div
-								className={`group-item-container ${swipedGroupId === group._id ? "swiped" : ""}`}
-							>
+							<div className={`group-item-container ${swipedGroupId === group._id ? "swiped" : ""}`}>
 								<Button
 									img={group.icon || "https://placehold.co/48"}
 									buttonType="secondary"

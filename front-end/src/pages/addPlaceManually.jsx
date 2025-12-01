@@ -42,15 +42,16 @@ export default function AddPlaceManually() {
 		fileInputRef.current?.click();
 	};
 
-	const handleNavigateToDecide = () => {
+	// Navigation handlers (for future use)
+	const _handleNavigateToDecide = () => {
 		navigate("/decide");
 	};
 
-	const handleNavigateToMemories = () => {
+	const _handleNavigateToMemories = () => {
 		navigate("/memorybook");
 	};
 
-	const handleNavigateToBucketList = () => {
+	const _handleNavigateToBucketList = () => {
 		navigate("/bucket-list");
 	};
 

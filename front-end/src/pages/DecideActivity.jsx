@@ -192,7 +192,7 @@ export default function DecideActivity() {
 		return () => {
 			cancelAnimationFrame(animId.current);
 		};
-	}, []);
+	}, [navigate]);
 
 	return (
 		<>

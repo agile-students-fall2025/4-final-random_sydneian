@@ -40,12 +40,13 @@ export default function BucketList() {
 		navigate("/add-place");
 	};
 
-	const handleNavigateToDecide = () => {
+	// Navigation handlers (for future use)
+	const _handleNavigateToDecide = () => {
 		// Navigate to decide page when implemented
 		navigate("/decide");
 	};
 
-	const handleNavigateToMemories = () => {
+	const _handleNavigateToMemories = () => {
 		// Navigate to memories page
 		navigate("/memorybook");
 	};
