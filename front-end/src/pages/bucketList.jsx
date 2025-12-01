@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { ChevronLeft, Heart } from "lucide-react";
 import { getMockActivities, getCompletedActivities } from "../data/mockData";
 import "./bucketList.css";
@@ -7,11 +7,10 @@ import Header from "../components/Header";
 
 export default function BucketList() {
 	const navigate = useNavigate();
+	const params = useParams();
 	const [activeTab, setActiveTab] = useState("todo");
 	const [searchQuery, setSearchQuery] = useState("");
-
-	const allActivities = getMockActivities();
-	const completedActivities = getCompletedActivities();
+	const [activities, setActivities] = useState([]);
 
 	const getDaysAgoText = (days) => {
 		if (days === 1) return "1 day ago";
@@ -21,12 +20,14 @@ export default function BucketList() {
 		return `${days} days ago`;
 	};
 
+	/*
 	const filteredActivities = allActivities.filter(
 		(activity) =>
 			activity.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
 			activity.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
 			activity.location.toLowerCase().includes(searchQuery.toLowerCase()),
 	);
+	
 
 	const filteredCompletedActivities = completedActivities.filter(
 		(activity) =>
@@ -34,6 +35,7 @@ export default function BucketList() {
 			activity.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
 			activity.location.toLowerCase().includes(searchQuery.toLowerCase()),
 	);
+	*/
 
 	const handleAddPlace = () => {
 		// Navigate to add place page when implemented
@@ -49,6 +51,42 @@ export default function BucketList() {
 		// Navigate to memories page
 		navigate("/memorybook");
 	};
+	useEffect(() => {
+		(async () => {
+			let activities;
+			console.log("Fetching activities for group:", params.groupId);
+			// Fetch activities
+
+			const JWT = localStorage.getItem("JWT");
+			if (!JWT) {
+				console.log("Not authenticated, please login or register");
+				return navigate("/login");
+			}
+
+			try {
+				const response = await fetch(
+					`${import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000"}/api/groups/${params.groupId}`,
+					{ headers: { Authorization: `Bearer ${JWT}` } },
+				);
+
+				// Should probably consolidate and abstract normal fetch checks (JWT, .ok, JSON redirects and errors) into a wrapper
+				if (!response.ok) {
+					if (response.status >= 400 && response.status < 500) {
+						const responseData = await response.json();
+						if (responseData.redirect) navigate(responseData.redirect);
+						throw new Error(responseData.error || "Client side error");
+					} else throw new Error("Network error");
+				}
+
+				const act = (await response.json()).activities;
+				setActivities(act);
+				console.log("Fetched activities:", act);
+			} catch (err) {
+				console.error("Failed to get activities. Error:", err.message);
+				alert("Couldn't get activities :("); // Strongly dislike using alert, but there's no custom app-wide notification/toast system yet
+			}
+		})();
+	}, [params.groupId]);
 
 	return (
 		<div className="bucket-list-container">
@@ -101,12 +139,51 @@ export default function BucketList() {
 			<div className="content-area">
 				<div className="content-list">
 					{activeTab === "todo" ? (
-						filteredActivities.length > 0 ? (
-							filteredActivities.map((activity) => (
+						activities.filter((activity) => !activity.done).length > 0 ? (
+							activities
+								.filter((activity) => !activity.done)
+								.map((activity) => (
+									<div key={activity.id} className="activity-card">
+										{/* Title and Likes Row */}
+										<div className="card-header">
+											<h3 className="card-title">{activity.title}</h3>
+											<div className="likes-container">
+												<Heart size={16} fill="currentColor" />
+												<span className="likes-count">{activity.likes}</span>
+											</div>
+										</div>
+
+										{/* Type and Location */}
+										<p className="card-type-location">
+											{activity.type} - {activity.location}
+										</p>
+
+										{/* Added By Info */}
+										<p className="card-added-info">
+											Added {getDaysAgoText(activity.daysAgo)} by {activity.addedBy}
+										</p>
+
+										{/* Tags */}
+										<div className="card-tags">
+											{activity.tags.map((tag, index) => (
+												<span key={index} className="tag">
+													#{tag}
+												</span>
+											))}
+										</div>
+									</div>
+								))
+						) : (
+							<div className="empty-state">No activities found</div>
+						)
+					) : activities.filter((activity) => activity.done).length > 0 ? (
+						activities
+							.filter((activity) => activity.done)
+							.map((activity) => (
 								<div key={activity.id} className="activity-card">
 									{/* Title and Likes Row */}
 									<div className="card-header">
-										<h3 className="card-title">{activity.title}</h3>
+										<h3 className="card-title completed">{activity.title}</h3>
 										<div className="likes-container">
 											<Heart size={16} fill="currentColor" />
 											<span className="likes-count">{activity.likes}</span>
@@ -133,41 +210,6 @@ export default function BucketList() {
 									</div>
 								</div>
 							))
-						) : (
-							<div className="empty-state">No activities found</div>
-						)
-					) : filteredCompletedActivities.length > 0 ? (
-						filteredCompletedActivities.map((activity) => (
-							<div key={activity.id} className="activity-card">
-								{/* Title and Likes Row */}
-								<div className="card-header">
-									<h3 className="card-title completed">{activity.title}</h3>
-									<div className="likes-container">
-										<Heart size={16} fill="currentColor" />
-										<span className="likes-count">{activity.likes}</span>
-									</div>
-								</div>
-
-								{/* Type and Location */}
-								<p className="card-type-location">
-									{activity.type} - {activity.location}
-								</p>
-
-								{/* Added By Info */}
-								<p className="card-added-info">
-									Added {getDaysAgoText(activity.daysAgo)} by {activity.addedBy}
-								</p>
-
-								{/* Tags */}
-								<div className="card-tags">
-									{activity.tags.map((tag, index) => (
-										<span key={index} className="tag">
-											#{tag}
-										</span>
-									))}
-								</div>
-							</div>
-						))
 					) : (
 						<div className="empty-state">No completed activities found</div>
 					)}
