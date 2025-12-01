@@ -1,7 +1,4 @@
 import mongoose from "mongoose";
-import dotenv from "dotenv";
-
-dotenv.config();
 
 // Connect to MongoDB Atlas
 mongoose.connect(process.env.MONGODB_URI).catch((err) => {

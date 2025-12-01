@@ -6,7 +6,6 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { users, groups } from "./mockData.js"; // Deprecated
 import { User, Memory, Activity, Group } from "./db.js";
-import "./db.js"; // Initialize database connection
 
 const app = express();
 
@@ -156,7 +155,7 @@ app.use((req, res, next) => {
 	if (!JWT) return res.status(401).json();
 
 	jwt.verify(JWT, process.env.JWT_SECRET, (err, user) => {
-		if (err) return res.status(401).json();
+		if (err) return res.send(401).json();
 		req.user = user;
 		next();
 	});
