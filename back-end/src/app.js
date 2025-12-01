@@ -212,7 +212,6 @@ app.get("/api/users/:id", (req, res) => {
 	} else res.status(404).json({ error: "User not found" });
 });
 
-// Get a list of group ids user is invited to (for dashboard)
 app.get("/api/invites", async (req, res) => {
 	try {
 		const groupsList = await Group.find({ invitedMembers: req.user.id }).select("_id").lean();
@@ -223,7 +222,6 @@ app.get("/api/invites", async (req, res) => {
 	}
 });
 
-// Get a list of group ids user is a member of (for dashboard)
 app.get("/api/groups", async (req, res) => {
 	try {
 		const groupsList = await Group.find({ members: req.user.id }).select("_id").lean();
@@ -234,39 +232,32 @@ app.get("/api/groups", async (req, res) => {
 	}
 });
 
-// Create a new group
 app.post("/api/groups", async (req, res) => {
-	// Ensure required fields are present
 	if (!req.body?.name) {
 		return res.status(400).json({ error: "Missing required fields" });
 	}
 
 	try {
-		// Convert invited usernames to user IDs if provided
 		let invitedMemberIds = [];
 		if (req.body.invitedMembers && Array.isArray(req.body.invitedMembers) && req.body.invitedMembers.length > 0) {
-			// If invitedMembers are usernames, find their user IDs
 			const invitedUsers = await User.find({ username: { $in: req.body.invitedMembers } }).select("_id");
 			invitedMemberIds = invitedUsers.map((user) => user._id);
 		}
 
-		// Create new group in MongoDB
 		const newGroup = new Group({
 			name: req.body.name,
 			desc: req.body.desc || "",
 			icon: req.body.icon || undefined,
-			members: [req.user.id], // Use req.user.id from JWT (MongoDB ObjectId string)
+			members: [req.user.id],
 			invitedMembers: invitedMemberIds,
 			activities: [],
 		});
 
 		await newGroup.save();
 
-		// Populate members and invitedMembers for response
 		await newGroup.populate("members", "username profilePicture");
 		await newGroup.populate("invitedMembers", "username profilePicture");
 
-		// Return the created group
 		res.status(201).json(newGroup);
 	} catch (error) {
 		console.error("Create group error:", error);
@@ -274,34 +265,28 @@ app.post("/api/groups", async (req, res) => {
 	}
 });
 
-// Accept a group invite
 app.post("/api/groups/:id/accept", async (req, res) => {
 	try {
 		const group = await Group.findById(req.params.id);
 
-		// Error if group doesn't exist
 		if (!group) {
 			return res.status(404).json({ error: "Group not found" });
 		}
 
-		// Check if user is invited (compare as strings)
 		const isInvited = group.invitedMembers.some((memberId) => memberId.toString() === req.user.id);
 		if (!isInvited) {
 			return res.status(403).json({ error: "User not invited to this group" });
 		}
 
-		// Check if user is already a member
 		const isMember = group.members.some((memberId) => memberId.toString() === req.user.id);
 		if (isMember) {
 			return res.status(409).json({ error: "User already a member of this group" });
 		}
 
-		// Add user to members and remove from invited
 		group.members.push(req.user.id);
 		group.invitedMembers = group.invitedMembers.filter((memberId) => memberId.toString() !== req.user.id);
 		await group.save();
 
-		// Populate and return updated group
 		await group.populate("members", "username profilePicture");
 		await group.populate("invitedMembers", "username profilePicture");
 
@@ -379,31 +364,55 @@ app.get("/api/groups/:id", async (req, res) => {
 	}
 });
 
-// Add item to group bucket list
-app.post("/api/group/:groupId/activities", (req, res) => {
-	const group = groups.find((g) => g._id === req.params.groupId);
-	if (!group) {
-		return res.status(404).json({ error: "Group not found" });
+// Add item to group bucket list (MongoDB)
+app.post("/api/groups/:groupId/activities", async (req, res) => {
+	try {
+		const group = await Group.findById(req.params.groupId);
+		if (!group) {
+			return res.status(404).json({ error: "Group not found" });
+		}
+
+		// Only members can add activities
+		const isMember = group.members.some((memberId) => memberId.toString() === req.user.id);
+		if (!isMember) {
+			return res.status(403).json({ error: "Only group members can add activities" });
+		}
+
+		const { name, category, tags, locationDescription } = req.body;
+		if (!name) {
+			return res.status(400).json({ error: "Name is required" });
+		}
+
+		const newActivity = {
+			name,
+			category: category || "Uncategorised",
+			tags: Array.isArray(tags)
+				? tags
+				: typeof tags === "string"
+					? tags
+							.split(",")
+							.map((t) => t.trim())
+							.filter((t) => t.length > 0)
+					: [],
+			likes: [],
+			location: {
+				type: "Point",
+				coordinates: [0, 0], // Placeholder; can be updated later with real coordinates
+			},
+			memories: [],
+			done: false,
+		};
+
+		group.activities.push(newActivity);
+		await group.save();
+
+		// Return the last pushed activity (with _id and timestamps)
+		const createdActivity = group.activities[group.activities.length - 1];
+		res.status(201).json(createdActivity);
+	} catch (error) {
+		console.error("Add activity error:", error);
+		res.status(500).json({ error: "Internal server error" });
 	}
-
-	const { title, location, description, image } = req.body;
-	if (!title) {
-		return res.status(400).json({ error: "Title is required" });
-	}
-
-	const newItem = {
-		id: crypto.randomUUID(),
-		title,
-		location,
-		description,
-		image,
-		done: false,
-		createdAt: new Date().toISOString(),
-	};
-
-	group.activities.push(newItem);
-
-	res.status(201).json(newItem);
 });
 
 // Update group details
@@ -509,81 +518,138 @@ app.post("/api/groups/:id/invite", (req, res) => {
 	res.json({ message: "User invited successfully", group });
 });
 
-app.get("/api/groups/:groupId/activities/:activityId/memories", (req, res) => {
-	const group = groups.find((g) => g._id === req.params.groupId);
-	if (!group) return res.status(404).json({ error: "Group not found" });
 
-	const activity = group.activities.find((a) => a._id === req.params.activityId);
-	if (!activity) return res.status(404).json({ error: "Activity not found" });
+// Get all memories for a group (across all activities)
+app.get("/api/groups/:groupId/memories", async (req, res) => {
+	try {
+		const group = await Group.findById(req.params.groupId).select("activities");
+		if (!group) return res.status(404).json({ error: "Group not found" });
 
-	res.json(activity.memories || []);
+		const allMemories = [];
+		for (const activity of group.activities || []) {
+			for (const mem of activity.memories || []) {
+				const memObj = mem.toObject ? mem.toObject() : mem;
+				allMemories.push({
+					...memObj,
+					activityId: activity._id.toString(),
+				});
+			}
+		}
+
+		res.json(allMemories);
+	} catch (error) {
+		console.error("Get group memories error:", error);
+		res.status(500).json({ error: "Internal server error" });
+	}
 });
 
-app.post("/api/groups/:groupId/activities/:activityId/memories", (req, res) => {
-	const { images, title } = req.body;
+// Add a memory to a specific activity in a group
+app.post("/api/groups/:groupId/memories", async (req, res) => {
+	const { activityId, images, title } = req.body;
 
+	if (!activityId) {
+		return res.status(400).json({ error: "Missing required field: activityId" });
+	}
 	if (!images || !Array.isArray(images) || images.length === 0) {
 		return res.status(400).json({ error: "Missing images array" });
 	}
 
-	const group = groups.find((g) => g._id === req.params.groupId);
-	if (!group) return res.status(404).json({ error: "Group not found" });
+	try {
+		const group = await Group.findById(req.params.groupId);
+		if (!group) return res.status(404).json({ error: "Group not found" });
 
-	const activity = group.activities.find((a) => a._id === req.params.activityId);
-	if (!activity) return res.status(404).json({ error: "Activity not found" });
+		const activity = group.activities.id(activityId);
+		if (!activity) return res.status(404).json({ error: "Activity not found" });
 
-	const newMemory = {
-		_id: crypto.randomUUID(),
-		title: title || "Untitled Memory",
-		images,
-		createdAt: new Date().toISOString(),
-		updatedAt: new Date().toISOString(),
-	};
+		const newMemory = {
+			title: title || "Untitled Memory",
+			images,
+			createdAt: new Date(),
+			updatedAt: new Date(),
+		};
 
-	if (!activity.memories) activity.memories = [];
-	activity.memories.push(newMemory);
-	activity.updatedAt = new Date().toISOString();
-	group.updatedAt = new Date().toISOString();
+		activity.memories.push(newMemory);
+		await group.save();
 
-	res.status(201).json(newMemory);
+		const created = activity.memories[activity.memories.length - 1];
+		const createdObj = created.toObject ? created.toObject() : created;
+
+		res.status(201).json({
+			...createdObj,
+			activityId: activity._id.toString(),
+		});
+	} catch (error) {
+		console.error("Add memory error:", error);
+		res.status(500).json({ error: "Internal server error" });
+	}
 });
 
-app.put("/api/groups/:groupId/activities/:activityId/memories/:memoryId", (req, res) => {
-	const group = groups.find((g) => g._id === req.params.groupId);
-	if (!group) return res.status(404).json({ error: "Group not found" });
+// Update a memory (search across all activities within the group)
+app.put("/api/groups/:groupId/memories/:memoryId", async (req, res) => {
+	try {
+		const group = await Group.findById(req.params.groupId);
+		if (!group) return res.status(404).json({ error: "Group not found" });
 
-	const activity = group.activities.find((a) => a._id === req.params.activityId);
-	if (!activity) return res.status(404).json({ error: "Activity not found" });
+		let foundActivity = null;
+		let foundMemory = null;
 
-	const memory = activity.memories.find((m) => m._id === req.params.memoryId);
-	if (!memory) return res.status(404).json({ error: "Memory not found" });
+		for (const activity of group.activities || []) {
+			const mem = activity.memories.id(req.params.memoryId);
+			if (mem) {
+				foundActivity = activity;
+				foundMemory = mem;
+				break;
+			}
+		}
 
-	if (req.body.images && Array.isArray(req.body.images)) {
-		memory.images = req.body.images;
+		if (!foundMemory) return res.status(404).json({ error: "Memory not found" });
+
+		if (req.body.images && Array.isArray(req.body.images)) {
+			foundMemory.images = req.body.images;
+		}
+		if (req.body.title) {
+			foundMemory.title = req.body.title;
+		}
+		foundMemory.updatedAt = new Date();
+
+		await group.save();
+
+		const memObj = foundMemory.toObject ? foundMemory.toObject() : foundMemory;
+		res.json({
+			...memObj,
+			activityId: foundActivity._id.toString(),
+		});
+	} catch (error) {
+		console.error("Update memory error:", error);
+		res.status(500).json({ error: "Internal server error" });
 	}
-	if (req.body.title) {
-		memory.title = req.body.title;
-	}
-	memory.updatedAt = new Date().toISOString();
-
-	res.json(memory);
 });
 
-app.delete("/api/groups/:groupId/activities/:activityId/memories/:memoryId", (req, res) => {
-	const group = groups.find((g) => g._id === req.params.groupId);
-	if (!group) return res.status(404).json({ error: "Group not found" });
+// Delete a memory (search across all activities within the group)
+app.delete("/api/groups/:groupId/memories/:memoryId", async (req, res) => {
+	try {
+		const group = await Group.findById(req.params.groupId);
+		if (!group) return res.status(404).json({ error: "Group not found" });
 
-	const activity = group.activities.find((a) => a._id === req.params.activityId);
-	if (!activity) return res.status(404).json({ error: "Activity not found" });
+		let removed = false;
 
-	const index = activity.memories.findIndex((m) => m._id === req.params.memoryId);
-	if (index === -1) return res.status(404).json({ error: "Memory not found" });
+		for (const activity of group.activities || []) {
+			const mem = activity.memories.id(req.params.memoryId);
+			if (mem) {
+				mem.deleteOne();
+				removed = true;
+				break;
+			}
+		}
 
-	activity.memories.splice(index, 1);
-	activity.updatedAt = new Date().toISOString();
-	group.updatedAt = new Date().toISOString();
+		if (!removed) return res.status(404).json({ error: "Memory not found" });
 
-	res.sendStatus(204);
+		await group.save();
+		res.sendStatus(204);
+	} catch (error) {
+		console.error("Delete memory error:", error);
+		res.status(500).json({ error: "Internal server error" });
+	}
 });
 
 // Catchall for unspecified routes (Express sends 404 anyways, but changing HTML for JSON with error property)

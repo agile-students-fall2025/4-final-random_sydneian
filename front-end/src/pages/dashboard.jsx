@@ -251,8 +251,8 @@ export default function DashboardPage() {
 			setSwipedGroupId(null);
 		}
 
-		// Otherwise navigate normally
-		onNavigate("/bucket-list");
+		// Otherwise navigate to this group's bucket list page
+		onNavigate(`/groups/${groupId}/activities`);
 	};
 
 	if (loading) {

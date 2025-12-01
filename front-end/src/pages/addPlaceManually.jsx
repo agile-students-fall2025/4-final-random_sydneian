@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { ChevronLeft, ChevronDown } from "lucide-react";
 import Button from "../components/Button";
 import "./addPlaceManually.css";
@@ -7,6 +7,7 @@ import Header from "../components/Header";
 
 export default function AddPlaceManually() {
 	const navigate = useNavigate();
+	const { groupId } = useParams();
 	const [placeName, setPlaceName] = useState("");
 	const [location, setLocation] = useState("");
 	const [category, setCategory] = useState("");
@@ -16,10 +17,45 @@ export default function AddPlaceManually() {
 	const fileInputRef = useRef(null);
 
 	const handleSubmit = () => {
-		// Handle form submission
-		console.log({ placeName, location, category, description, tags, photos });
-		// Navigate back to bucket list or show success message
-		navigate("/bucket-list");
+		const JWT = localStorage.getItem("JWT");
+		if (!JWT) {
+			alert("Please login first");
+			return navigate("/login");
+		}
+
+		if (!groupId) {
+			alert("No group selected");
+			return navigate("/");
+		}
+
+		(async () => {
+			try {
+				const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+				const response = await fetch(`${backendURL}/api/groups/${groupId}/activities`, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${JWT}`,
+					},
+					body: JSON.stringify({
+						name: placeName,
+						category: category || "Uncategorised",
+						tags,
+					}),
+				});
+
+				if (!response.ok) {
+					const errorData = await response.json().catch(() => ({}));
+					throw new Error(errorData.error || "Failed to add activity");
+				}
+
+				// Navigate back to this group's bucket list
+				navigate(`/groups/${groupId}/activities`);
+			} catch (err) {
+				console.error("Error adding activity:", err);
+				alert(err.message || "Failed to add activity");
+			}
+		})();
 	};
 
 	const handleFileChange = (e) => {
@@ -52,13 +88,14 @@ export default function AddPlaceManually() {
 	};
 
 	const _handleNavigateToBucketList = () => {
-		navigate("/bucket-list");
+		if (!groupId) return navigate("/");
+		navigate(`/groups/${groupId}/activities`);
 	};
 
 	return (
 		<div className="add-place-manually-container">
 			{/* Header */}
-			<Header backPath={"/bucket-list"} title="Add Place Manually" />
+			<Header backPath={groupId ? `/groups/${groupId}/activities` : "/"} title="Add Place Manually" />
 
 			{/* Main Content */}
 			<div className="add-place-manually-content">

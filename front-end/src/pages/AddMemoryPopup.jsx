@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { ChevronDown } from "lucide-react";
 import Button from "../components/Button";
 import "./AddMemoryPopup.css";
+import { useParams, useNavigate } from "react-router-dom";
 
 export default function AddMemoryPopup({ onClose, onAdd, memoryToEdit }) {
 	const [selectedPlace, setSelectedPlace] = useState(memoryToEdit?.title || "");
@@ -10,21 +11,34 @@ export default function AddMemoryPopup({ onClose, onAdd, memoryToEdit }) {
 	const [activities, setActivities] = useState([]);
 	const fileInputRef = useRef(null);
 
+	const { groupId } = useParams();
+	const navigate = useNavigate();
 	const BACKEND = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
 
 	useEffect(() => {
 		const fetchActivities = async () => {
+			const JWT = localStorage.getItem("JWT");
+			if (!JWT) {
+				console.log("Not authenticated, please login or register");
+				navigate("/login");
+				return;
+			}
+
+			if (!groupId) {
+				setError("No group selected.");
+				return;
+			}
+
 			try {
-				const res = await fetch(`${BACKEND}/api/groups/group-syd-id`, {
+				const res = await fetch(`${BACKEND}/api/groups/${groupId}`, {
 					headers: {
-						// Include JWT
-						Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
-						"Content-Type": "application/json",
+						Authorization: `Bearer ${JWT}`,
 					},
 				});
 
 				if (!res.ok) {
-					throw new Error(`Failed to fetch activities. Status: ${res.status}`);
+					const responseData = await res.json().catch(() => ({}));
+					throw new Error(responseData.error || `Failed to fetch activities. Status: ${res.status}`);
 				}
 
 				const data = await res.json();
@@ -36,7 +50,7 @@ export default function AddMemoryPopup({ onClose, onAdd, memoryToEdit }) {
 		};
 
 		fetchActivities();
-	}, [BACKEND]);
+	}, [BACKEND, groupId, navigate]);
 
 	const handleAddPhoto = () => {
 		fileInputRef.current?.click();
@@ -51,7 +65,6 @@ export default function AddMemoryPopup({ onClose, onAdd, memoryToEdit }) {
 			};
 			reader.readAsDataURL(file);
 		});
-		// Reset file input so same file can be selected again
 		e.target.value = "";
 		setError("");
 	};
@@ -71,10 +84,17 @@ export default function AddMemoryPopup({ onClose, onAdd, memoryToEdit }) {
 			return;
 		}
 
+		const selectedActivity = activities.find((activity) => activity.name === selectedPlace);
+		if (!selectedActivity) {
+			setError("Selected place is invalid.");
+			return;
+		}
+
 		const newMemory = {
 			place: selectedPlace,
 			photos,
 			title: selectedPlace,
+			activityId: selectedActivity._id,
 		};
 		onAdd(newMemory);
 		setSelectedPlace("");
