@@ -16,7 +16,7 @@ app.use(express.urlencoded({ limit: "10mb", extended: true }));
 app.use(express.json({ limit: "10mb" }));
 app.use(
 	cors({
-		origin: process.env.FRONTEND_ORIGIN,
+		origin: process.env.FRONTEND_ORIGIN || "http://localhost:3000",
 		allowedHeaders: "Origin,Content-Type,Authorization",
 		credentials: true,
 	}),
@@ -24,127 +24,156 @@ app.use(
 
 // --- Routes ---
 
-app.post("/api/login", (req, res) => {
+app.post("/api/login", async (req, res) => {
 	// Ensure required fields are present
 	if (!req.body?.username || !req.body?.password) {
 		return res.status(400).json({ error: "Missing required fields" });
 	}
 
-	// Get user from db
-	const user = users.find((user) => user.username === req.body.username);
+	try {
+		// Get user from MongoDB
+		const user = await User.findOne({ username: req.body.username });
 
-	// Ensure user exists, and password matches
-	if (!user || !bcrypt.compareSync(req.body.password, user.password)) {
-		return res.status(404).json({ error: "Invalid username or password" });
+		// Ensure user exists, and password matches
+		if (!user || !bcrypt.compareSync(req.body.password, user.password)) {
+			return res.status(404).json({ error: "Invalid username or password" });
+		}
+
+		// Note: Email verification check removed - users can login after verifying once
+		// If you want to enforce email verification on every login, uncomment below:
+		// if (!user.emailVerified) {
+		// 	return res.json({ redirect: "/verify-email" });
+		// }
+
+		// Send JWT on successful authentication (using MongoDB ObjectId)
+		res.json({
+			JWT: jwt.sign(
+				{ id: user._id.toString(), username: user.username, profilePicture: user.profilePicture },
+				process.env.JWT_SECRET,
+				{ expiresIn: "1d" },
+			),
+		});
+	} catch (error) {
+		console.error("Login error:", error);
+		res.status(500).json({ error: "Internal server error" });
 	}
-
-	// Ensure email is verified
-	if (!user.emailVerified) {
-		return res.json({ redirect: "/verify-email" });
-	}
-
-	// Send JWT on successful authentication
-	res.json({
-		JWT: jwt.sign(
-			{ id: user._id, username: user.username, profilePicture: user.profilePicture },
-			process.env.JWT_SECRET,
-			{ expiresIn: "1d" },
-		),
-	});
 });
 
-app.post("/api/register", (req, res) => {
+app.post("/api/register", async (req, res) => {
 	// Ensure required fields are present
 	if (!req.body?.username || !req.body?.password || !req.body?.email) {
 		return res.status(400).json({ error: "Missing required fields" });
 	}
 
-	// Check if username already taken
-	if (users.find((user) => user.username === req.body.username)) {
-		return res.status(409).json({ error: "Username taken" });
-	}
+	try {
+		// Check if username already taken
+		const existingUsername = await User.findOne({ username: req.body.username });
+		if (existingUsername) {
+			return res.status(409).json({ error: "Username taken" });
+		}
 
-	// Check if email already used
-	if (users.find((user) => user.email === req.body.email)) {
-		return res.status(409).json({ error: "Email taken" });
-	}
+		// Check if email already used
+		const existingEmail = await User.findOne({ email: req.body.email });
+		if (existingEmail) {
+			return res.status(409).json({ error: "Email taken" });
+		}
 
-	const newUser = {
-		_id: crypto.randomUUID(),
-		username: req.body.username,
-		password: bcrypt.hashSync(req.body.password),
-		email: req.body.email,
-		emailVerified: false,
-		OTP: "000000", // Store OTP and generation time temporarily (should this be an in memory obj instead?)
-		OTPTimestamp: Date.now(),
-		profilePicture: undefined,
-		preferences: {
-			notifications: {
-				eventNextDay: true,
-				newEventAdded: true,
+		// Create new user in MongoDB
+		const newUser = new User({
+			username: req.body.username,
+			password: bcrypt.hashSync(req.body.password),
+			email: req.body.email,
+			emailVerified: false,
+			OTP: "000000",
+			OTPTimestamp: Date.now(),
+			profilePicture: undefined,
+			preferences: {
+				notifications: {
+					eventNextDay: true,
+					newEventAdded: true,
+				},
+				theme: "light",
 			},
-			theme: "light",
-		},
-	};
+		});
 
-	// Save new user to db
-	users.push(newUser);
+		await newUser.save();
 
-	// If no errors, send successful response, which indicates client should move onto OTP
-	res.status(201).json({ redirect: "/verify-email" });
 
-	// TODO: Send OTP over email
+		// If no errors, send successful response, which indicates client should move onto OTP
+		res.status(201).json({ redirect: "/verify-email" });
+	} catch (error) {
+		console.error("Register error:", error);
+		res.status(500).json({ error: "Internal server error" });
+	}
 });
 
-app.post("/api/register/verify-email", (req, res) => {
+app.post("/api/register/verify-email", async (req, res) => {
 	// Ensure required fields are present
 	if (!req.body?.username || !req.body?.otp) {
 		return res.status(400).json({ error: "Missing required fields" });
 	}
 
-	// Get user from db
-	const user = users.find((user) => user.username === req.body.username && !user.emailVerified);
+	try {
+		// Get user from MongoDB
+		const user = await User.findOne({ username: req.body.username, emailVerified: false });
 
-	// Ensure user exists
-	if (!user) return res.status(404).json({ error: "Invalid username" });
+		// Ensure user exists
+		if (!user) {
+			return res.status(404).json({ error: "Invalid username or already verified" });
+		}
 
-	// Ensure OTP matches and is still valid (created <= 10 mins ago)
-	if (req.body.otp !== user.OTP || Date.now() - new Date(user.OTPTimestamp).getTime() > 10 * 60 * 1000) {
-		return res.status(401).json({ error: "OTP invalid or expired" });
+		// Ensure OTP matches and is still valid (created <= 10 mins ago)
+		if (req.body.otp !== user.OTP || Date.now() - new Date(user.OTPTimestamp).getTime() > 10 * 60 * 1000) {
+			return res.status(401).json({ error: "OTP invalid or expired" });
+		}
+
+		// Update user to verified
+		user.emailVerified = true;
+		user.OTP = undefined;
+		user.OTPTimestamp = undefined;
+		await user.save();
+
+		// Send JWT on successful authentication (using MongoDB ObjectId)
+		res.status(201).json({
+			JWT: jwt.sign(
+				{ id: user._id.toString(), username: user.username, profilePicture: user.profilePicture },
+				process.env.JWT_SECRET,
+				{ expiresIn: "1d" },
+			),
+		});
+	} catch (error) {
+		console.error("Verify email error:", error);
+		res.status(500).json({ error: "Internal server error" });
 	}
-
-	user.emailVerified = true;
-	delete user.OTP;
-	delete user.OTPTimestamp;
-
-	// Send JWT on successful authentication
-	res.status(201).json({
-		JWT: jwt.sign(
-			{ id: user._id, username: user.username, profilePicture: user.profilePicture },
-			process.env.JWT_SECRET,
-			{ expiresIn: "1d" },
-		),
-	});
 });
 
-app.post("/api/register/renew-otp", (req, res) => {
+app.post("/api/register/renew-otp", async (req, res) => {
 	// Ensure required fields are present
 	if (!req.body?.username) {
 		return res.status(400).json({ error: "Missing required fields" });
 	}
 
-	// Get user from db
-	const user = users.find((user) => user.username === req.body.username && !user.emailVerified);
+	try {
+		// Get user from MongoDB
+		const user = await User.findOne({ username: req.body.username, emailVerified: false });
 
-	// Ensure user exists & email is unverified
-	if (!user || user.emailVerified) return res.status(404).json({ error: "Username invalid or already verified" });
+		// Ensure user exists & email is unverified
+		if (!user) {
+			return res.status(404).json({ error: "Username invalid or already verified" });
+		}
 
-	// Generate and save new OTP
-	user.OTP = "000000";
-	user.OTPTimestamp = Date.now();
+		// Generate and save new OTP
+		user.OTP = "000000";
+		user.OTPTimestamp = Date.now();
+		await user.save();
 
-	// Successful response, indicating OTP has been renewed
-	res.send();
+
+		// Successful response, indicating OTP has been renewed
+		res.send();
+	} catch (error) {
+		console.error("Renew OTP error:", error);
+		res.status(500).json({ error: "Internal server error" });
+	}
 });
 
 // Note: All APIs henceforth require authentication
@@ -155,7 +184,7 @@ app.use((req, res, next) => {
 	if (!JWT) return res.status(401).json();
 
 	jwt.verify(JWT, process.env.JWT_SECRET, (err, user) => {
-		if (err) return res.send(401).json();
+		if (err) return res.status(401).json();
 		req.user = user;
 		next();
 	});
@@ -206,55 +235,81 @@ app.get("/api/groups", async (req, res) => {
 });
 
 // Create a new group
-app.post("/api/groups", (req, res) => {
+app.post("/api/groups", async (req, res) => {
 	// Ensure required fields are present
 	if (!req.body?.name) {
 		return res.status(400).json({ error: "Missing required fields" });
 	}
 
-	const newGroup = {
-		_id: crypto.randomUUID(),
-		name: req.body.name,
-		desc: req.body.desc || "",
-		icon: req.body.icon || undefined,
-		members: [req.user._id],
-		invitedMembers: req.body.invitedMembers || [],
-		activities: [],
-		createdAt: new Date().toISOString(),
-		updatedAt: new Date().toISOString(),
-	};
+	try {
+		// Convert invited usernames to user IDs if provided
+		let invitedMemberIds = [];
+		if (req.body.invitedMembers && Array.isArray(req.body.invitedMembers) && req.body.invitedMembers.length > 0) {
+			// If invitedMembers are usernames, find their user IDs
+			const invitedUsers = await User.find({ username: { $in: req.body.invitedMembers } }).select("_id");
+			invitedMemberIds = invitedUsers.map((user) => user._id);
+		}
 
-	// Save new group to db
-	groups.push(newGroup);
+		// Create new group in MongoDB
+		const newGroup = new Group({
+			name: req.body.name,
+			desc: req.body.desc || "",
+			icon: req.body.icon || undefined,
+			members: [req.user.id], // Use req.user.id from JWT (MongoDB ObjectId string)
+			invitedMembers: invitedMemberIds,
+			activities: [],
+		});
 
-	// Return the created group
-	res.status(201).json(newGroup);
+		await newGroup.save();
+
+		// Populate members and invitedMembers for response
+		await newGroup.populate("members", "username profilePicture");
+		await newGroup.populate("invitedMembers", "username profilePicture");
+
+		// Return the created group
+		res.status(201).json(newGroup);
+	} catch (error) {
+		console.error("Create group error:", error);
+		res.status(500).json({ error: "Internal server error" });
+	}
 });
 
 // Accept a group invite
-app.post("/api/groups/:id/accept", (req, res) => {
-	const group = groups.find((group) => group._id === req.params.id);
+app.post("/api/groups/:id/accept", async (req, res) => {
+	try {
+		const group = await Group.findById(req.params.id);
 
-	// Error if group doesn't exist
-	if (!group) return res.status(404).json({ error: "Group not found" });
+		// Error if group doesn't exist
+		if (!group) {
+			return res.status(404).json({ error: "Group not found" });
+		}
 
-	// Check if user is invited
-	if (!group.invitedMembers.includes(req.user._id)) {
-		return res.status(403).json({ error: "User not invited to this group" });
+		// Check if user is invited (compare as strings)
+		const isInvited = group.invitedMembers.some((memberId) => memberId.toString() === req.user.id);
+		if (!isInvited) {
+			return res.status(403).json({ error: "User not invited to this group" });
+		}
+
+		// Check if user is already a member
+		const isMember = group.members.some((memberId) => memberId.toString() === req.user.id);
+		if (isMember) {
+			return res.status(409).json({ error: "User already a member of this group" });
+		}
+
+		// Add user to members and remove from invited
+		group.members.push(req.user.id);
+		group.invitedMembers = group.invitedMembers.filter((memberId) => memberId.toString() !== req.user.id);
+		await group.save();
+
+		// Populate and return updated group
+		await group.populate("members", "username profilePicture");
+		await group.populate("invitedMembers", "username profilePicture");
+
+		res.json(group);
+	} catch (error) {
+		console.error("Accept invite error:", error);
+		res.status(500).json({ error: "Internal server error" });
 	}
-
-	// Check if user is already a member
-	if (group.members.includes(req.user._id)) {
-		return res.status(409).json({ error: "User already a member of this group" });
-	}
-
-	// Add user to members and remove from invited
-	group.members.push(req.user._id);
-	group.invitedMembers = group.invitedMembers.filter((id) => id !== req.user._id);
-	group.updatedAt = new Date().toISOString();
-
-	// Return updated group
-	res.json(group);
 });
 
 // Leave a group
@@ -534,7 +589,7 @@ app.delete("/api/groups/:groupId/activities/:activityId/memories/:memoryId", (re
 // Catchall for unspecified routes (Express sends 404 anyways, but changing HTML for JSON with error property)
 app.use((req, res, next) => {
 	res.status(404).json({ error: "Path not found" });
-	next();
+	// next();
 });
 
 app.listen(process.env.PORT || 8000, () => {

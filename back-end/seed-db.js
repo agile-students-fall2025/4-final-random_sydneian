@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import "./src/db.js";
 import { User, Group } from "./src/db.js";
 import bcrypt from "bcryptjs";
@@ -16,15 +19,15 @@ async function seedDatabase() {
 
 		console.log("Connected to MongoDB");
 
-		// Create test user
-		const hashedPassword = bcrypt.hashSync("random_sydneian", 10);
+		// Create user "Nur"
+		const hashedPassword = bcrypt.hashSync("password123", 10);
 		
-		let user = await User.findOne({ username: "user" });
-		if (!user) {
-			user = new User({
-				username: "user",
+		let nur = await User.findOne({ username: "Nur" });
+		if (!nur) {
+			nur = new User({
+				username: "Nur",
 				password: hashedPassword,
-				email: "user@example.com",
+				email: "nur@example.com",
 				emailVerified: true,
 				profilePicture: "https://picsum.photos/64",
 				preferences: {
@@ -35,20 +38,20 @@ async function seedDatabase() {
 					theme: "light",
 				},
 			});
-			await user.save();
-			console.log("Created user:", user.username, "with ID:", user._id.toString());
+			await nur.save();
+			console.log("Created user:", nur.username, "with ID:", nur._id.toString());
 		} else {
-			console.log("User already exists:", user.username, "with ID:", user._id.toString());
+			console.log("User already exists:", nur.username, "with ID:", nur._id.toString());
 		}
 
-		// Create test groups with this user as a member
-		const group1 = await Group.findOne({ name: "Test Group 1" });
+		// Create groups with Nur as a member
+		const group1 = await Group.findOne({ name: "Nur's Group 1" });
 		if (!group1) {
 			const newGroup1 = new Group({
-				name: "Test Group 1",
-				desc: "A test group for user",
+				name: "Nur's Group 1",
+				desc: "First group for Nur",
 				icon: "https://picsum.photos/64",
-				members: [user._id],
+				members: [nur._id],
 				invitedMembers: [],
 				activities: [],
 			});
@@ -56,13 +59,13 @@ async function seedDatabase() {
 			console.log("Created group:", newGroup1.name, "with ID:", newGroup1._id.toString());
 		}
 
-		const group2 = await Group.findOne({ name: "Test Group 2" });
+		const group2 = await Group.findOne({ name: "Nur's Group 2" });
 		if (!group2) {
 			const newGroup2 = new Group({
-				name: "Test Group 2",
-				desc: "Another test group",
+				name: "Nur's Group 2",
+				desc: "Second group for Nur",
 				icon: "https://picsum.photos/64",
-				members: [user._id],
+				members: [nur._id],
 				invitedMembers: [],
 				activities: [],
 			});
@@ -70,15 +73,15 @@ async function seedDatabase() {
 			console.log("Created group:", newGroup2.name, "with ID:", newGroup2._id.toString());
 		}
 
-		// Create a group where user is invited
-		const invitedGroup = await Group.findOne({ name: "Invited Group" });
+		// Create a group where Nur is invited
+		const invitedGroup = await Group.findOne({ name: "Invited Group for Nur" });
 		if (!invitedGroup) {
 			const newInvitedGroup = new Group({
-				name: "Invited Group",
-				desc: "A group where user is invited",
+				name: "Invited Group for Nur",
+				desc: "A group where Nur is invited",
 				icon: "https://picsum.photos/64",
 				members: [],
-				invitedMembers: [user._id],
+				invitedMembers: [nur._id],
 				activities: [],
 			});
 			await newInvitedGroup.save();
@@ -87,8 +90,9 @@ async function seedDatabase() {
 
 		console.log("\n✅ Database seeded successfully!");
 		console.log("You can now login with:");
-		console.log("  Username: user");
-		console.log("  Password: random_sydneian");
+		console.log("  Username: Nur");
+		console.log("  Password: password123");
+		console.log("\nUser ID (for JWT):", nur._id.toString());
 		
 		process.exit(0);
 	} catch (error) {

@@ -39,10 +39,18 @@ export default function CreateGroupPage() {
 		}
 
 		try {
-			const response = await fetch("http://localhost:8000/api/groups", {
+			const JWT = localStorage.getItem("JWT");
+			if (!JWT) {
+				alert("Please login first");
+				return;
+			}
+
+			const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+			const response = await fetch(`${backendURL}/api/groups`, {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
+					Authorization: `Bearer ${JWT}`,
 				},
 				body: JSON.stringify({
 					name: groupName,

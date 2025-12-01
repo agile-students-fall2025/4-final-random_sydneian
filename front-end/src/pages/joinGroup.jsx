@@ -15,9 +15,28 @@ export default function JoinGroupPage() {
 	// Fetch invites from backend on mount
 	useEffect(() => {
 		const fetchInvites = async () => {
+			const JWT = localStorage.getItem("JWT");
+			if (!JWT) {
+				setError("Please login first");
+				setLoading(false);
+				return;
+			}
+
+			const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+
 			try {
 				// Get list of invite IDs
-				const inviteIdsResponse = await fetch("http://localhost:8000/api/invites");
+				const inviteIdsResponse = await fetch(`${backendURL}/api/invites`, {
+					headers: {
+						Authorization: `Bearer ${JWT}`,
+					},
+				});
+
+				if (inviteIdsResponse.status === 401) {
+					setError("Please login first");
+					setLoading(false);
+					return;
+				}
 
 				if (!inviteIdsResponse.ok) {
 					throw new Error("Failed to fetch invites");
@@ -28,7 +47,11 @@ export default function JoinGroupPage() {
 				// Fetch full details for each invite
 				const inviteDetails = await Promise.all(
 					inviteIds.map(async (id) => {
-						const response = await fetch(`http://localhost:8000/api/groups/${id}`);
+						const response = await fetch(`${backendURL}/api/groups/${id}`, {
+							headers: {
+								Authorization: `Bearer ${JWT}`,
+							},
+						});
 						if (response.ok) {
 							return response.json();
 						}
@@ -63,10 +86,18 @@ export default function JoinGroupPage() {
 	const handleAccept = async () => {
 		if (selectedGroup) {
 			try {
-				const response = await fetch(`http://localhost:8000/api/groups/${selectedGroup._id}/accept`, {
+				const JWT = localStorage.getItem("JWT");
+				if (!JWT) {
+					alert("Please login first");
+					return;
+				}
+
+				const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+				const response = await fetch(`${backendURL}/api/groups/${selectedGroup._id}/accept`, {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json",
+						Authorization: `Bearer ${JWT}`,
 					},
 				});
 

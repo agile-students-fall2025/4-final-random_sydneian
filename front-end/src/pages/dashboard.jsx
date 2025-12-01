@@ -16,9 +16,26 @@ export default function DashboardPage() {
 	// Fetch groups from backend on mount
 	useEffect(() => {
 		const fetchGroups = async () => {
+			const JWT = localStorage.getItem("JWT");
+			if (!JWT) {
+				navigate("/login");
+				return;
+			}
+
+			const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+
 			try {
-				// Get list of group IDs
-				const groupIdsResponse = await fetch("http://localhost:8000/api/groups");
+				// Get list of group IDs user is a member of
+				const groupIdsResponse = await fetch(`${backendURL}/api/groups`, {
+					headers: {
+						Authorization: `Bearer ${JWT}`,
+					},
+				});
+
+				if (groupIdsResponse.status === 401) {
+					navigate("/login");
+					return;
+				}
 
 				if (!groupIdsResponse.ok) {
 					throw new Error("Failed to fetch groups");
@@ -26,10 +43,32 @@ export default function DashboardPage() {
 
 				const groupIds = await groupIdsResponse.json();
 
-				// Fetch full details for each group
+				// Get list of group IDs user is invited to
+				const inviteIdsResponse = await fetch(`${backendURL}/api/invites`, {
+					headers: {
+						Authorization: `Bearer ${JWT}`,
+					},
+				});
+
+				if (inviteIdsResponse.status === 401) {
+					navigate("/login");
+					return;
+				}
+
+				if (!inviteIdsResponse.ok) {
+					throw new Error("Failed to fetch invites");
+				}
+
+				const inviteIds = await inviteIdsResponse.json();
+
+				// Fetch full details for each group and invite
 				const groupDetails = await Promise.all(
-					groupIds.map(async (id) => {
-						const response = await fetch(`http://localhost:8000/api/groups/${id}`);
+					[...groupIds, ...inviteIds].map(async (id) => {
+						const response = await fetch(`${backendURL}/api/groups/${id}`, {
+							headers: {
+								Authorization: `Bearer ${JWT}`,
+							},
+						});
 						if (response.ok) {
 							return response.json();
 						}
@@ -51,7 +90,7 @@ export default function DashboardPage() {
 		};
 
 		fetchGroups();
-	}, []);
+	}, [navigate]);
 
 	const onNavigate = (path) => {
 		navigate(path);
@@ -60,7 +99,7 @@ export default function DashboardPage() {
 	const handleLeaveGroup = async (groupId) => {
 		try {
 			const JWT = localStorage.getItem("JWT");
-			const backendURL = "http://localhost:8000";
+			const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
 
 			const response = await fetch(`${backendURL}/api/groups/${groupId}/leave`, {
 				method: "POST",
@@ -97,7 +136,7 @@ export default function DashboardPage() {
 
 		try {
 			const JWT = localStorage.getItem("JWT");
-			const backendURL = "http://localhost:8000";
+			const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
 
 			const response = await fetch(`${backendURL}/api/groups/${groupId}`, {
 				method: "DELETE",
@@ -236,8 +275,8 @@ export default function DashboardPage() {
 			<div className="quick-actions">
 				<h2 className="section-title">Quick Actions</h2>
 				<div className="button-spacing">
-					<Button text="Create New Group" buttonType="primary" onClick={() => onNavigate("/group/create")} />
-					<Button text="Join Existing Group" buttonType="secondary" onClick={() => onNavigate("/group/join")} />
+					<Button text="Create New Group" buttonType="primary" onClick={() => onNavigate("/groups/create")} />
+					<Button text="Join Existing Group" buttonType="secondary" onClick={() => onNavigate("/groups/join")} />
 				</div>
 			</div>
 
