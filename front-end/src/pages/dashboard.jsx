@@ -17,10 +17,28 @@ export default function DashboardPage() {
 	useEffect(() => {
 		const fetchGroups = async () => {
 			try {
+				const JWT = localStorage.getItem("JWT");
+				if (!JWT) {
+					setError("Not authenticated. Please login.");
+					setLoading(false);
+					return;
+				}
+
+				const backendURL = "http://localhost:8000";
+
 				// Get list of group IDs
-				const groupIdsResponse = await fetch("http://localhost:8000/api/groups");
+				const groupIdsResponse = await fetch(`${backendURL}/api/groups`, {
+					headers: {
+						Authorization: `Bearer ${JWT}`,
+					},
+				});
 
 				if (!groupIdsResponse.ok) {
+					if (groupIdsResponse.status === 401) {
+						setError("Authentication failed. Please login again.");
+						localStorage.removeItem("JWT");
+						return;
+					}
 					throw new Error("Failed to fetch groups");
 				}
 
@@ -29,7 +47,11 @@ export default function DashboardPage() {
 				// Fetch full details for each group
 				const groupDetails = await Promise.all(
 					groupIds.map(async (id) => {
-						const response = await fetch(`http://localhost:8000/api/groups/${id}`);
+						const response = await fetch(`${backendURL}/api/groups/${id}`, {
+							headers: {
+								Authorization: `Bearer ${JWT}`,
+							},
+						});
 						if (response.ok) {
 							return response.json();
 						}
@@ -70,8 +92,14 @@ export default function DashboardPage() {
 		}
 
 		try {
-			const response = await fetch(`http://localhost:8000/api/groups/${groupId}`, {
+			const JWT = localStorage.getItem("JWT");
+			const backendURL = "http://localhost:8000";
+			
+			const response = await fetch(`${backendURL}/api/groups/${groupId}`, {
 				method: "DELETE",
+				headers: {
+					Authorization: `Bearer ${JWT}`,
+				},
 			});
 
 			if (!response.ok) {
@@ -103,8 +131,14 @@ export default function DashboardPage() {
 
 	const handleLeaveGroup = async (groupId) => {
 		try {
-			const response = await fetch(`http://localhost:8000/api/groups/${groupId}/leave`, {
+			const JWT = localStorage.getItem("JWT");
+			const backendURL = "http://localhost:8000";
+			
+			const response = await fetch(`${backendURL}/api/groups/${groupId}/leave`, {
 				method: "POST",
+				headers: {
+					Authorization: `Bearer ${JWT}`,
+				},
 			});
 
 			if (!response.ok) {
