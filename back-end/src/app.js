@@ -194,7 +194,7 @@ app.get("/api/groups/:id", (req, res) => {
 });
 
 // Create a new group
-app.post("/api/group", (req, res) => {
+app.post("/api/groups", (req, res) => {
 	// Ensure required fields are present
 	if (!req.body?.name) {
 		return res.status(400).json({ error: "Missing required fields" });
