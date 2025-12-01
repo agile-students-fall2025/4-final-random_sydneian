@@ -1,7 +1,3 @@
-import dotenv from "dotenv";
-dotenv.config();
-
-import "./src/db.js";
 import { User, Group } from "./src/db.js";
 import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
