@@ -7,7 +7,7 @@ export const users = [
 	{
 		_id: "user1-id", // auto handled by MongoDB
 		username: "user1",
-		password: "password123", // Note: Will be salted and hashed once auth is properly implemented
+		password: "$2b$10$Amx2JwKGQSWgkhUPSmXvXeXvbCEJKbCDZHh1ameIdjEq/VCRChvay", // Note: Will be salted and hashed once auth is properly implemented
 		email: "user1@example.com",
 		emailVerified: true, // Note: If the email isn't verified, the user should not be able to do anything until it is.
 		profilePicture: "https://picsum.photos/64",
@@ -24,7 +24,7 @@ export const users = [
 	{
 		_id: "user2-id",
 		username: "user2",
-		password: "password123",
+		password: "$2b$10$Amx2JwKGQSWgkhUPSmXvXeXvbCEJKbCDZHh1ameIdjEq/VCRChvay",
 		email: "user2@example.com",
 		emailVerified: true,
 		profilePicture: "https://picsum.photos/64",
@@ -40,7 +40,7 @@ export const users = [
 		_id: "user3-id",
 		username: "user3",
 		email: "user3@example.com",
-		password: "password123",
+		password: "$2b$10$Amx2JwKGQSWgkhUPSmXvXeXvbCEJKbCDZHh1ameIdjEq/VCRChvay",
 		emailVerified: false,
 	},
 ];
