@@ -4,7 +4,7 @@ import "../components/Button.css";
 import AddMemoryPopup from "./AddMemoryPopup";
 import Header from "../components/Header";
 import Button from "../components/Button";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, Plus } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 
 const normalizeMemory = (m) => ({
@@ -237,7 +237,7 @@ export default function MemoryBookPage() {
 			)}
 
 			<button className="add-memory-btn" onClick={() => setShowPopup(true)} aria-label="Add memory">
-				+
+				<Plus size={24} />
 			</button>
 
 			{showPopup && (

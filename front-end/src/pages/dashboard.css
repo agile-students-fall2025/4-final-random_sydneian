@@ -13,46 +13,6 @@
 	position: relative;
 }
 
-/* Pulsing background orbs */
-.dashboard-container::before,
-.dashboard-container::after {
-	content: "";
-	position: absolute;
-	border-radius: 50%;
-	pointer-events: none;
-	z-index: -1;
-	opacity: 0.08;
-}
-
-.dashboard-container::before {
-	width: 340px;
-	height: 340px;
-	background: radial-gradient(circle, var(--color-accent) 0%, transparent 65%);
-	top: 5%;
-	right: -95px;
-	animation: pulse 2s ease-in-out infinite;
-}
-
-.dashboard-container::after {
-	width: 290px;
-	height: 290px;
-	background: radial-gradient(circle, var(--color-primary) 0%, transparent 65%);
-	bottom: 15%;
-	left: -75px;
-	animation: pulse 2.5s ease-in-out infinite 0.5s;
-}
-
-@keyframes pulse {
-	0%, 100% {
-		transform: scale(1);
-		opacity: 0.08;
-	}
-	50% {
-		transform: scale(1.15);
-		opacity: 0.18;
-	}
-}
-
 .dashboard-header {
 	position: relative;
 	display: flex;
@@ -74,7 +34,7 @@
 .menu-icon {
 	position: relative;
 	left: 96%;
-	transform: translateX(-50%);
+	transform: translateX(-55%);
 	cursor: pointer;
 	padding-top: 2px;
 	padding-left: 3.5px;
