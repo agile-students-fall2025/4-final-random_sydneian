@@ -70,25 +70,15 @@ export default function BucketList() {
 
 	const filteredActivities = toDoActivities.filter(
 		(activity) =>
-			(activity.name || "")
-				.toLowerCase()
-				.includes(searchQuery.toLowerCase()) ||
-			(activity.category || "")
-				.toLowerCase()
-				.includes(searchQuery.toLowerCase()),
+			(activity.name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+			(activity.category || "").toLowerCase().includes(searchQuery.toLowerCase()),
 	);
-	
 
 	const filteredCompletedActivities = doneActivities.filter(
 		(activity) =>
-			(activity.name || "")
-				.toLowerCase()
-				.includes(searchQuery.toLowerCase()) ||
-			(activity.category || "")
-				.toLowerCase()
-				.includes(searchQuery.toLowerCase()),
+			(activity.name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+			(activity.category || "").toLowerCase().includes(searchQuery.toLowerCase()),
 	);
-	*/
 
 	const handleAddPlace = () => {
 		if (!groupId) {
@@ -231,22 +221,22 @@ export default function BucketList() {
 									</div>
 
 									{/* Type and Location */}
-										<p className="card-type-location">{activity.category}</p>
+									<p className="card-type-location">{activity.category}</p>
 
 									{/* Added By Info */}
-										{/* Placeholder added-by info until we track creator */}
-										<p className="card-added-info">Added recently</p>
+									{/* Placeholder added-by info until we track creator */}
+									<p className="card-added-info">Added recently</p>
 
-										{/* Tags */}
-										<div className="card-tags">
-											{(activity.tags || []).map((tag, index) => (
-												<span key={index} className="tag">
-													#{tag}
-												</span>
-											))}
-										</div>
+									{/* Tags */}
+									<div className="card-tags">
+										{(activity.tags || []).map((tag, index) => (
+											<span key={index} className="tag">
+												#{tag}
+											</span>
+										))}
 									</div>
-								))
+								</div>
+							))
 						) : (
 							<div className="empty-state">No activities found</div>
 						)
@@ -264,11 +254,11 @@ export default function BucketList() {
 										</div>
 									</div>
 
-								{/* Type and Location */}
-								<p className="card-type-location">{activity.category}</p>
+									{/* Type and Location */}
+									<p className="card-type-location">{activity.category}</p>
 
-								{/* Added By Info */}
-								<p className="card-added-info">Added recently</p>
+									{/* Added By Info */}
+									<p className="card-added-info">Added recently</p>
 
 									{/* Tags */}
 									<div className="card-tags">
