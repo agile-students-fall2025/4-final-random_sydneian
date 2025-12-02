@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Heart } from "lucide-react";
+import { Heart, Plus } from "lucide-react";
 import "./bucketList.css";
 import Header from "../components/Header";
 
@@ -147,12 +147,12 @@ export default function BucketList() {
 				<Header
 					backPath={"/"}
 					title="Bucket List"
-					menuItems={[
-						{ text: "Add Place", action: () => navigate(`/groups/${groupId}/activities/add`) },
-						{ text: "Memory Book", action: () => navigate(`/groups/${groupId}/memories`) },
-						{ text: "Decide!", action: () => navigate(`/groups/${groupId}/decide`) },
-						{ text: "Group Settings", action: () => navigate(`/groups/${groupId}/settings`) },
-					]}
+					// menuItems={[
+					// 	{ text: "Add Place", action: () => navigate(`/groups/${groupId}/activities/add`) },
+					// 	{ text: "Memory Book", action: () => navigate(`/groups/${groupId}/memories`) },
+					// 	{ text: "Decide!", action: () => navigate(`/groups/${groupId}/decide`) },
+					// 	{ text: "Group Settings", action: () => navigate(`/groups/${groupId}/settings`) },
+					// ]}
 				/>
 
 				{/* Search Bar */}
@@ -257,7 +257,7 @@ export default function BucketList() {
 
 			{/* Floating Action Button */}
 			<button onClick={handleAddPlace} className="fab-button" aria-label="Add new item">
-				+
+				<Plus size={24} />
 			</button>
 		</div>
 	);
