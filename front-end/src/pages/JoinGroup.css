@@ -98,3 +98,63 @@
 	padding: 16px;
 	margin: 0 16px;
 }
+
+.join-code-section {
+	padding: 16px;
+	margin-bottom: 16px;
+}
+
+.section-title {
+	font-size: 18px;
+	font-weight: 700;
+	margin-bottom: 12px;
+}
+
+.code-input-group {
+	display: flex;
+	gap: 12px;
+	align-items: center;
+}
+
+.code-input {
+	flex: 1;
+	padding: 16px;
+	border-radius: 8px;
+	font-size: 16px;
+	font-family:
+		system-ui,
+		-apple-system,
+		sans-serif;
+	box-sizing: border-box;
+	text-transform: uppercase;
+	letter-spacing: 2px;
+	font-weight: 600;
+}
+
+.code-input::placeholder {
+	color: #999;
+	text-transform: none;
+	letter-spacing: normal;
+	font-weight: normal;
+}
+
+.divider {
+	display: flex;
+	align-items: center;
+	text-align: center;
+	margin: 24px 16px;
+	color: #999;
+}
+
+.divider::before,
+.divider::after {
+	content: "";
+	flex: 1;
+	border-bottom: 1px solid #ddd;
+}
+
+.divider span {
+	padding: 0 16px;
+	font-size: 14px;
+	font-weight: 600;
+}

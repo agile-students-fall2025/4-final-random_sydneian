@@ -34,6 +34,7 @@ function Login() {
 			}
 
 			localStorage.setItem("JWT", responseData.JWT);
+			localStorage.setItem("emailVerified", "true");
 
 			navigate("/");
 		} catch (err) {

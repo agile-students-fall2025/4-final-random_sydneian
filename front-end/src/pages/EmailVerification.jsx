@@ -19,13 +19,43 @@ function EmailVerification() {
 		}
 	};
 
-	const handleVerify = (e) => {
+	const handleVerify = async (e) => {
 		e.preventDefault();
 		const isComplete = otp.every((digit) => digit !== "");
-		if (isComplete) {
-			navigate("/login");
-		} else {
+		if (!isComplete) {
 			alert("Please enter all 6 digits.");
+			return;
+		}
+
+		const otpCode = otp.join("");
+		const username = sessionStorage.getItem("username");
+
+		if (!username) {
+			alert("Session expired. Please register again.");
+			navigate("/register");
+			return;
+		}
+
+		try {
+			const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+			const response = await fetch(`${backendURL}/api/register/verify-email`, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ username, otp: otpCode }),
+			});
+
+			const responseData = await response.json();
+
+			if (!response.ok) {
+				throw new Error(responseData.error || "Verification failed");
+			}
+
+			localStorage.setItem("JWT", responseData.JWT);
+			localStorage.setItem("emailVerified", "true");
+			sessionStorage.removeItem("username");
+			navigate("/");
+		} catch (error) {
+			alert(error.message || "Verification failed. Please try again.");
 		}
 	};
 

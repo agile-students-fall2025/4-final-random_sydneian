@@ -144,7 +144,16 @@ export default function BucketList() {
           <h1 className="bucket-list-title">Sydneian</h1>
           <div className="header-spacer"></div>
         </div> */}
-				<Header backPath={"/"} title="Bucket List" />
+				<Header
+					backPath={"/"}
+					title="Bucket List"
+					menuItems={[
+						{ text: "Add Place", action: () => navigate(`/groups/${groupId}/activities/add`) },
+						{ text: "Memory Book", action: () => navigate(`/groups/${groupId}/memories`) },
+						{ text: "Decide!", action: () => navigate(`/groups/${groupId}/decide`) },
+						{ text: "Group Settings", action: () => navigate(`/groups/${groupId}/settings`) },
+					]}
+				/>
 
 				{/* Search Bar */}
 				<div className="search-container">
@@ -182,13 +191,13 @@ export default function BucketList() {
 					{activeTab === "todo" ? (
 						filteredActivities.length > 0 ? (
 							filteredActivities.map((activity) => (
-								<div key={activity.id} className="activity-card">
+								<div key={activity._id} className="activity-card">
 									{/* Title and Likes Row */}
 									<div className="card-header">
 										<h3 className="card-title">{activity.name}</h3>
 										<div className="likes-container">
 											<Heart size={16} fill="currentColor" />
-											<span className="likes-count">{activity.likes}</span>
+											<span className="likes-count">{activity.likes?.length || 0}</span>
 										</div>
 									</div>
 
@@ -214,13 +223,13 @@ export default function BucketList() {
 						)
 					) : filteredCompletedActivities.length > 0 ? (
 						filteredCompletedActivities.map((activity) => (
-							<div key={activity.id} className="activity-card">
+							<div key={activity._id} className="activity-card">
 								{/* Title and Likes Row */}
 								<div className="card-header">
 									<h3 className="card-title completed">{activity.name}</h3>
 									<div className="likes-container">
 										<Heart size={16} fill="currentColor" />
-										<span className="likes-count">{activity.likes}</span>
+										<span className="likes-count">{activity.likes?.length || 0}</span>
 									</div>
 								</div>
 

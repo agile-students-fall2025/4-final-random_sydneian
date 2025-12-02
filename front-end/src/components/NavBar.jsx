@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from "react-router-dom";
-import { BookOpen, Home, List, LoaderPinwheel } from "lucide-react";
+import { BookOpen, Home, List, LoaderPinwheel, Settings } from "lucide-react";
 import "./NavBar.css";
 
 export default function NavBar() {
@@ -22,6 +22,10 @@ export default function NavBar() {
 				<NavLink to="memories">
 					<BookOpen />
 					Memories
+				</NavLink>
+				<NavLink to="settings">
+					<Settings />
+					Settings
 				</NavLink>
 			</nav>
 		</>

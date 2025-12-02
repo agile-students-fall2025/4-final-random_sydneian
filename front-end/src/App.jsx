@@ -13,8 +13,10 @@ import AddPlaceManually from "./pages/addPlaceManually";
 import AddPlaceThroughLink from "./pages/addPlaceThroughLink";
 import DecideActivity from "./pages/DecideActivity";
 import MemoryBookPage from "./pages/MemoryBookPage";
+import GroupSettings from "./pages/GroupSettings";
 
 import NavBar from "./components/NavBar";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 import "./App.css";
 
@@ -24,13 +26,48 @@ function App() {
 			<Route path="login" element={<Login />} />
 			<Route path="register" element={<Register />} />
 			<Route path="/verify-email" element={<EmailVerification />} />
-			<Route path="/" element={<Dashboard />} />
-			<Route path="/profile-settings" element={<ProfileSettings />} />
+			<Route
+				path="/"
+				element={
+					<ProtectedRoute requireEmailVerification={true}>
+						<Dashboard />
+					</ProtectedRoute>
+				}
+			/>
+			<Route
+				path="/profile-settings"
+				element={
+					<ProtectedRoute>
+						<ProfileSettings />
+					</ProtectedRoute>
+				}
+			/>
 			<Route path="groups">
 				<Route index element={<Navigate to="/" />} />
-				<Route path="join" element={<JoinGroup />} />
-				<Route path="create" element={<CreateGroup />} />
-				<Route path=":groupId" element={<NavBar />}>
+				<Route
+					path="join"
+					element={
+						<ProtectedRoute>
+							<JoinGroup />
+						</ProtectedRoute>
+					}
+				/>
+				<Route
+					path="create"
+					element={
+						<ProtectedRoute>
+							<CreateGroup />
+						</ProtectedRoute>
+					}
+				/>
+				<Route
+					path=":groupId"
+					element={
+						<ProtectedRoute>
+							<NavBar />
+						</ProtectedRoute>
+					}
+				>
 					<Route index element={<Navigate to="activities" />} />
 					<Route path="activities">
 						<Route index element={<BucketList />} />
@@ -42,6 +79,7 @@ function App() {
 					</Route>
 					<Route path="decide" element={<DecideActivity />} />
 					<Route path="memories" element={<MemoryBookPage />} />
+					<Route path="settings" element={<GroupSettings />} />
 				</Route>
 			</Route>
 		</Routes>

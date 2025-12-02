@@ -9,6 +9,47 @@
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
+	position: relative;
+}
+
+/* Pulsing background orbs */
+.decision-container::before,
+.decision-container::after {
+	content: "";
+	position: absolute;
+	border-radius: 50%;
+	pointer-events: none;
+	z-index: -1;
+	opacity: 0.08;
+}
+
+.decision-container::before {
+	width: 325px;
+	height: 325px;
+	background: radial-gradient(circle, var(--color-accent) 0%, transparent 65%);
+	top: 8%;
+	right: -88px;
+	animation: pulse 2.4s ease-in-out infinite;
+}
+
+.decision-container::after {
+	width: 275px;
+	height: 275px;
+	background: radial-gradient(circle, var(--color-primary) 0%, transparent 65%);
+	bottom: 18%;
+	left: -68px;
+	animation: pulse 2.6s ease-in-out infinite 0.5s;
+}
+
+@keyframes pulse {
+	0%, 100% {
+		transform: scale(1);
+		opacity: 0.08;
+	}
+	50% {
+		transform: scale(1.15);
+		opacity: 0.18;
+	}
 }
 
 .decision-wheel-button {

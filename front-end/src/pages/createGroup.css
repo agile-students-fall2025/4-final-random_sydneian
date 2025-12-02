@@ -33,3 +33,83 @@
 	border-color: var(--color-accent);
 	background-color: rgba(154, 210, 242, 0.05);
 }
+
+.invite-section {
+	margin-bottom: 14px;
+}
+
+.selected-users {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-bottom: 8px;
+}
+
+.selected-user-tag {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	background-color: var(--color-primary);
+	color: white;
+	padding: 6px 10px;
+	border-radius: 16px;
+	font-size: 14px;
+}
+
+.remove-user-btn {
+	background: none;
+	border: none;
+	color: white;
+	font-size: 20px;
+	line-height: 1;
+	cursor: pointer;
+	padding: 0;
+	width: 16px;
+	height: 16px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.remove-user-btn:hover {
+	opacity: 0.8;
+}
+
+.autocomplete-wrapper {
+	position: relative;
+}
+
+.suggestions-dropdown {
+	position: absolute;
+	top: 100%;
+	left: 0;
+	right: 0;
+	background: white;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	max-height: 200px;
+	overflow-y: auto;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+	z-index: 1000;
+	margin-top: 4px;
+}
+
+.suggestion-item {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 10px 16px;
+	cursor: pointer;
+	transition: background-color 0.2s ease;
+}
+
+.suggestion-item:hover {
+	background-color: #f5f5f5;
+}
+
+.suggestion-avatar {
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	object-fit: cover;
+}
