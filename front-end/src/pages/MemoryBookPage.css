@@ -28,6 +28,46 @@
 	position: relative;
 	background: #fff;
 	min-height: 100vh;
+}
+
+/* Pulsing background orbs */
+.memory-container::before,
+.memory-container::after {
+	content: "";
+	position: absolute;
+	border-radius: 50%;
+	pointer-events: none;
+	z-index: -1;
+	opacity: 0.08;
+}
+
+.memory-container::before {
+	width: 330px;
+	height: 330px;
+	background: radial-gradient(circle, var(--color-accent) 0%, transparent 65%);
+	top: 12%;
+	right: -92px;
+	animation: pulse 2.3s ease-in-out infinite;
+}
+
+.memory-container::after {
+	width: 285px;
+	height: 285px;
+	background: radial-gradient(circle, var(--color-primary) 0%, transparent 65%);
+	bottom: 18%;
+	left: -72px;
+	animation: pulse 2.7s ease-in-out infinite 0.4s;
+}
+
+@keyframes pulse {
+	0%, 100% {
+		transform: scale(1);
+		opacity: 0.08;
+	}
+	50% {
+		transform: scale(1.15);
+		opacity: 0.18;
+	}
 	padding: 8px 0;
 }
 

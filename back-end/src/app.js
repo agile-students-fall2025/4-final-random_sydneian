@@ -4,7 +4,7 @@ import express from "express";
 import cors from "cors";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { users, groups } from "./mockData.js"; // Deprecated
+
 import { User, Memory, Activity, Group } from "./db.js";
 
 const app = express();
@@ -191,16 +191,18 @@ app.use((req, res, next) => {
 });
 
 // Get user details
-app.get("/api/users/:id", (req, res) => {
-	// Get user from db
-	const userDb = users.find((user) => user._id === req.params.id);
+app.get("/api/users/:id", async (req, res) => {
+	try {
+		const userDb = await User.findById(req.params.id).lean();
 
-	// If user exists/found
-	if (userDb) {
-		// Send full details for same user, otherwise only basic details
-		if (req.user._id === req.params.id) {
-			delete userDb.password; // Password, though salted and hashed, should never be sent to the client
-			res.json(userDb);
+		if (!userDb) {
+			return res.status(404).json({ error: "User not found" });
+		}
+
+		if (req.user.id === req.params.id) {
+			const userObj = { ...userDb };
+			delete userObj.password;
+			res.json(userObj);
 		} else {
 			res.json({
 				_id: userDb._id,
@@ -209,7 +211,31 @@ app.get("/api/users/:id", (req, res) => {
 				profilePicture: userDb.profilePicture,
 			});
 		}
-	} else res.status(404).json({ error: "User not found" });
+	} catch (error) {
+		console.error("Get user error:", error);
+		res.status(500).json({ error: "Internal server error" });
+	}
+});
+
+app.get("/api/users/search/:query", async (req, res) => {
+	try {
+		const query = req.params.query.trim();
+		if (query.length < 2) {
+			return res.json([]);
+		}
+
+		const users = await User.find({
+			username: { $regex: query, $options: "i" },
+		})
+			.select("username profilePicture")
+			.limit(10)
+			.lean();
+
+		res.json(users);
+	} catch (error) {
+		console.error("Search users error:", error);
+		res.status(500).json({ error: "Internal server error" });
+	}
 });
 
 // Get a list of group ids user is invited to (for dashboard)
@@ -300,22 +326,27 @@ app.post("/api/groups/:id/accept", async (req, res) => {
 });
 
 // Leave a group
-app.post("/api/groups/:id/leave", (req, res) => {
-	const group = groups.find((group) => group._id === req.params.id);
+app.post("/api/groups/:id/leave", async (req, res) => {
+	try {
+		const group = await Group.findById(req.params.id);
 
-	// Error if group doesn't exist
-	if (!group) return res.status(404).json({ error: "Group not found" });
+		if (!group) {
+			return res.status(404).json({ error: "Group not found" });
+		}
 
-	// Check if user is a member
-	if (!group.members.includes(req.user._id)) {
-		return res.status(400).json({ error: "User is not a member of this group" });
+		const isMember = group.members.some((memberId) => memberId.toString() === req.user.id);
+		if (!isMember) {
+			return res.status(400).json({ error: "User is not a member of this group" });
+		}
+
+		group.members = group.members.filter((memberId) => memberId.toString() !== req.user.id);
+		await group.save();
+
+		res.json({ message: "Left group successfully" });
+	} catch (error) {
+		console.error("Leave group error:", error);
+		res.status(500).json({ error: "Internal server error" });
 	}
-
-	// Remove user from members
-	group.members = group.members.filter((id) => id !== req.user._id);
-	group.updatedAt = new Date().toISOString();
-
-	res.json({ message: "Left group successfully" });
 });
 
 // Get group details
@@ -374,7 +405,6 @@ app.post("/api/groups/:groupId/activities", async (req, res) => {
 			return res.status(404).json({ error: "Group not found" });
 		}
 
-		// Only members can add activities
 		const isMember = group.members.some((memberId) => memberId.toString() === req.user.id);
 		if (!isMember) {
 			return res.status(403).json({ error: "Only group members can add activities" });
@@ -399,7 +429,7 @@ app.post("/api/groups/:groupId/activities", async (req, res) => {
 			likes: [],
 			location: {
 				type: "Point",
-				coordinates: [0, 0], // Placeholder; can be updated later with real coordinates
+				coordinates: [0, 0],
 			},
 			memories: [],
 			done: false,
@@ -408,7 +438,6 @@ app.post("/api/groups/:groupId/activities", async (req, res) => {
 		group.activities.push(newActivity);
 		await group.save();
 
-		// Return the last pushed activity (with _id and timestamps)
 		const createdActivity = group.activities[group.activities.length - 1];
 		res.status(201).json(createdActivity);
 	} catch (error) {
@@ -418,108 +447,176 @@ app.post("/api/groups/:groupId/activities", async (req, res) => {
 });
 
 // Update group details
-app.put("/api/groups/:id", (req, res) => {
-	const group = groups.find((group) => group._id === req.params.id);
+app.put("/api/groups/:id", async (req, res) => {
+	try {
+		const group = await Group.findById(req.params.id);
 
-	// Error if group doesn't exist
-	if (!group) return res.status(404).json({ error: "Group not found" });
-
-	// Only members can update group details
-	if (!group.members.includes(req.user._id)) {
-		return res.status(403).json({ error: "Only members can update group details" });
-	}
-
-	// Update allowed fields
-	if (req.body.name !== undefined) {
-		if (!req.body.name.trim()) {
-			return res.status(400).json({ error: "Group name cannot be empty" });
+		if (!group) {
+			return res.status(404).json({ error: "Group not found" });
 		}
-		group.name = req.body.name;
+
+		const isMember = group.members.some((memberId) => memberId.toString() === req.user.id);
+		if (!isMember) {
+			return res.status(403).json({ error: "Only members can update group details" });
+		}
+
+		if (req.body.name !== undefined) {
+			if (!req.body.name.trim()) {
+				return res.status(400).json({ error: "Group name cannot be empty" });
+			}
+			group.name = req.body.name;
+		}
+
+		if (req.body.desc !== undefined) {
+			group.desc = req.body.desc;
+		}
+
+		if (req.body.icon !== undefined) {
+			group.icon = req.body.icon;
+		}
+
+		await group.save();
+
+		await group.populate("members", "username profilePicture");
+		await group.populate("invitedMembers", "username profilePicture");
+
+		res.json(group);
+	} catch (error) {
+		console.error("Update group error:", error);
+		res.status(500).json({ error: "Internal server error" });
 	}
-
-	if (req.body.desc !== undefined) {
-		group.desc = req.body.desc;
-	}
-
-	if (req.body.icon !== undefined) {
-		group.icon = req.body.icon;
-	}
-
-	// Update timestamp
-	group.updatedAt = new Date().toISOString();
-
-	// Return updated group
-	res.json(group);
 });
 
 // Delete a group (only if user is the last member)
-app.delete("/api/groups/:id", (req, res) => {
-	const groupIndex = groups.findIndex((group) => group._id === req.params.id);
+app.delete("/api/groups/:id", async (req, res) => {
+	try {
+		const group = await Group.findById(req.params.id);
 
-	// Error if group doesn't exist
-	if (groupIndex === -1) return res.status(404).json({ error: "Group not found" });
+		if (!group) {
+			return res.status(404).json({ error: "Group not found" });
+		}
 
-	const group = groups[groupIndex];
+		const isMember = group.members.some((memberId) => memberId.toString() === req.user.id);
+		if (!isMember) {
+			return res.status(403).json({ error: "Only members can delete the group" });
+		}
 
-	// Only members can delete
-	if (!group.members.includes(req.user._id)) {
-		return res.status(403).json({ error: "Only members can delete the group" });
+		if (group.members.length > 1) {
+			return res.status(400).json({
+				error: "Cannot delete group with multiple members. Please leave the group instead.",
+			});
+		}
+
+		await Group.findByIdAndDelete(req.params.id);
+
+		res.json({ message: "Group deleted successfully" });
+	} catch (error) {
+		console.error("Delete group error:", error);
+		res.status(500).json({ error: "Internal server error" });
 	}
-
-	// Can only delete if user is the last member
-	if (group.members.length > 1) {
-		return res.status(400).json({
-			error: "Cannot delete group with multiple members. Please leave the group instead.",
-		});
-	}
-
-	// Remove group from array
-	groups.splice(groupIndex, 1);
-
-	res.json({ message: "Group deleted successfully" });
 });
 
 // Invite users to a group
-app.post("/api/groups/:id/invite", (req, res) => {
-	const group = groups.find((group) => group._id === req.params.id);
+app.post("/api/groups/:id/invite", async (req, res) => {
+	try {
+		const group = await Group.findById(req.params.id);
 
-	// Error if group doesn't exist
-	if (!group) return res.status(404).json({ error: "Group not found" });
+		if (!group) {
+			return res.status(404).json({ error: "Group not found" });
+		}
 
-	// Only members can invite
-	if (!group.members.includes(req.user._id)) {
-		return res.status(403).json({ error: "Only members can invite users" });
+		const isMember = group.members.some((memberId) => memberId.toString() === req.user.id);
+		if (!isMember) {
+			return res.status(403).json({ error: "Only members can invite users" });
+		}
+
+		if (!req.body?.userId) {
+			return res.status(400).json({ error: "Missing required field: userId" });
+		}
+
+		const userToInvite = await User.findById(req.body.userId);
+
+		if (!userToInvite) {
+			return res.status(404).json({ error: "User not found" });
+		}
+
+		const isAlreadyMember = group.members.some((memberId) => memberId.toString() === req.body.userId);
+		if (isAlreadyMember) {
+			return res.status(409).json({ error: "User is already a member" });
+		}
+
+		const isAlreadyInvited = group.invitedMembers.some((memberId) => memberId.toString() === req.body.userId);
+		if (isAlreadyInvited) {
+			return res.status(409).json({ error: "User is already invited" });
+		}
+
+		group.invitedMembers.push(req.body.userId);
+		await group.save();
+
+		await group.populate("members", "username profilePicture");
+		await group.populate("invitedMembers", "username profilePicture");
+
+		res.json({ message: "User invited successfully", group });
+	} catch (error) {
+		console.error("Invite user error:", error);
+		res.status(500).json({ error: "Internal server error" });
 	}
-
-	// Ensure userId is provided
-	if (!req.body?.userId) {
-		return res.status(400).json({ error: "Missing required field: userId" });
-	}
-
-	const userToInvite = users.find((user) => user._id === req.body.userId);
-
-	// Check if user exists
-	if (!userToInvite) {
-		return res.status(404).json({ error: "User not found" });
-	}
-
-	// Check if user is already a member
-	if (group.members.includes(req.body.userId)) {
-		return res.status(409).json({ error: "User is already a member" });
-	}
-
-	// Check if user is already invited
-	if (group.invitedMembers.includes(req.body.userId)) {
-		return res.status(409).json({ error: "User is already invited" });
-	}
-
-	// Add user to invited members
-	group.invitedMembers.push(req.body.userId);
-	group.updatedAt = new Date().toISOString();
-
-	res.json({ message: "User invited successfully", group });
 });
 
+app.post("/api/groups/:id/invite-code/generate", async (req, res) => {
+	try {
+		const group = await Group.findById(req.params.id);
+
+		if (!group) {
+			return res.status(404).json({ error: "Group not found" });
+		}
+
+		const isMember = group.members.some((memberId) => memberId.toString() === req.user.id);
+		if (!isMember) {
+			return res.status(403).json({ error: "Only members can generate invite codes" });
+		}
+
+		const code = crypto.randomBytes(4).toString("hex").toUpperCase();
+		group.inviteCode = code;
+		await group.save();
+
+		res.json({ inviteCode: code });
+	} catch (error) {
+		console.error("Generate invite code error:", error);
+		res.status(500).json({ error: "Internal server error" });
+	}
+});
+
+app.post("/api/groups/join-by-code", async (req, res) => {
+	try {
+		if (!req.body?.inviteCode) {
+			return res.status(400).json({ error: "Missing required field: inviteCode" });
+		}
+
+		const group = await Group.findOne({ inviteCode: req.body.inviteCode.toUpperCase() });
+
+		if (!group) {
+			return res.status(404).json({ error: "Invalid invite code" });
+		}
+
+		const isMember = group.members.some((memberId) => memberId.toString() === req.user.id);
+		if (isMember) {
+			return res.status(409).json({ error: "Already a member of this group" });
+		}
+
+		group.members.push(req.user.id);
+		group.invitedMembers = group.invitedMembers.filter((memberId) => memberId.toString() !== req.user.id);
+		await group.save();
+
+		await group.populate("members", "username profilePicture");
+		await group.populate("invitedMembers", "username profilePicture");
+
+		res.json(group);
+	} catch (error) {
+		console.error("Join by code error:", error);
+		res.status(500).json({ error: "Internal server error" });
+	}
+});
 
 // Get all memories for a group (across all activities)
 app.get("/api/groups/:groupId/memories", async (req, res) => {
@@ -657,7 +754,6 @@ app.delete("/api/groups/:groupId/memories/:memoryId", async (req, res) => {
 // Catchall for unspecified routes (Express sends 404 anyways, but changing HTML for JSON with error property)
 app.use((req, res, next) => {
 	res.status(404).json({ error: "Path not found" });
-	// next();
 });
 
 app.listen(process.env.PORT || 8000, () => {
