@@ -15,6 +15,7 @@ export default function AddPlaceManually() {
 	const [tags, setTags] = useState("");
 	const [photos, setPhotos] = useState([]);
 	const fileInputRef = useRef(null);
+	const [isCategoryOpen, setIsCategoryOpen] = useState(false);
 
 	const handleSubmit = () => {
 		const JWT = localStorage.getItem("JWT");
@@ -124,15 +125,31 @@ export default function AddPlaceManually() {
 				/>
 
 				<div className="select-container">
-					<input
-						type="text"
-						placeholder="Select category"
-						value={category}
-						onChange={(e) => setCategory(e.target.value)}
+					<select
 						className="form-input select-input"
-						readOnly
+						value={category}
+						onChange={(e) => {
+							setCategory(e.target.value);
+							setIsCategoryOpen(false);
+						}}
+						onFocus={() => setIsCategoryOpen(true)}
+						onBlur={() => setIsCategoryOpen(false)}
+					>
+						<option value="">Select category</option>
+						<option value="Food & Drinks">Food &amp; Drinks</option>
+						<option value="Coffee & Desserts">Coffee &amp; Desserts</option>
+						<option value="Outdoors">Outdoors</option>
+						<option value="Arts & Culture">Arts &amp; Culture</option>
+						<option value="Nightlife">Nightlife</option>
+						<option value="Other">Other</option>
+					</select>
+					<ChevronDown
+						className="select-chevron"
+						size={20}
+						style={{
+							transform: isCategoryOpen ? "translateY(-50%) rotate(180deg)" : "translateY(-50%)",
+						}}
 					/>
-					<ChevronDown className="select-chevron" size={20} />
 				</div>
 
 				<div className="form-section">

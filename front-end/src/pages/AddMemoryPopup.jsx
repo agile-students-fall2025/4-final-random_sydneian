@@ -117,14 +117,14 @@ export default function AddMemoryPopup({ onClose, onAdd, memoryToEdit }) {
 				{/* Select place dropdown */}
 				<div className="select-place-container">
 					<select
-						className="select-place-dropdown"
+						className="select-place-dropdown form-input"
 						value={selectedPlace}
 						onChange={(e) => {
 							setSelectedPlace(e.target.value);
 							setError("");
 						}}
 					>
-						<option value="">Select place</option>
+						<option value="">Select activity</option>
 						{activities.map((activity) => (
 							<option key={activity._id} value={activity.name}>
 								{activity.name}

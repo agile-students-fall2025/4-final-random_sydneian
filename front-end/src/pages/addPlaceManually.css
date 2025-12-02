@@ -98,20 +98,23 @@
 
 .select-container {
 	position: relative;
-	margin-bottom: 16px;
+	margin: 8px 0 16px;
 }
 
 .select-input {
 	padding-right: 48px;
+	appearance: none;
+	background-color: #fff;
 }
 
 .select-chevron {
 	position: absolute;
 	right: 16px;
-	top: 50%;
+	top: 40%;
 	transform: translateY(-50%);
 	pointer-events: none;
 	color: #000;
+	transition: transform 0.15s ease-in-out;
 }
 
 .form-section {
