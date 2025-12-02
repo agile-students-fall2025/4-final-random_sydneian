@@ -16,20 +16,68 @@ export default function DashboardPage() {
 	// Fetch groups from backend on mount
 	useEffect(() => {
 		const fetchGroups = async () => {
+			const JWT = localStorage.getItem("JWT");
+			if (!JWT) {
+				navigate("/login");
+				return;
+			}
+
+			const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+
 			try {
+				const JWT = localStorage.getItem("JWT");
+				if (!JWT) {
+					setError("Not authenticated. Please login.");
+					setLoading(false);
+					return;
+				}
+
+				const backendURL = "http://localhost:8000";
+
 				// Get list of group IDs
-				const groupIdsResponse = await fetch("http://localhost:8000/api/groups");
+				const groupIdsResponse = await fetch(`${backendURL}/api/groups`, {
+					headers: {
+						Authorization: `Bearer ${JWT}`,
+					},
+				});
 
 				if (!groupIdsResponse.ok) {
+					if (groupIdsResponse.status === 401) {
+						setError("Authentication failed. Please login again.");
+						localStorage.removeItem("JWT");
+						return;
+					}
 					throw new Error("Failed to fetch groups");
 				}
 
 				const groupIds = await groupIdsResponse.json();
 
-				// Fetch full details for each group
+				// Get list of group IDs user is invited to
+				const inviteIdsResponse = await fetch(`${backendURL}/api/invites`, {
+					headers: {
+						Authorization: `Bearer ${JWT}`,
+					},
+				});
+
+				if (inviteIdsResponse.status === 401) {
+					navigate("/login");
+					return;
+				}
+
+				if (!inviteIdsResponse.ok) {
+					throw new Error("Failed to fetch invites");
+				}
+
+				const inviteIds = await inviteIdsResponse.json();
+
+				// Fetch full details for each group and invite
 				const groupDetails = await Promise.all(
 					groupIds.map(async (id) => {
-						const response = await fetch(`http://localhost:8000/api/groups/${id}`);
+						const response = await fetch(`${backendURL}/api/groups/${id}`, {
+							headers: {
+								Authorization: `Bearer ${JWT}`,
+							},
+						});
 						if (response.ok) {
 							return response.json();
 						}
@@ -51,60 +99,22 @@ export default function DashboardPage() {
 		};
 
 		fetchGroups();
-	}, []);
+	}, [navigate]);
 
 	const onNavigate = (path) => {
 		navigate(path);
 	};
 
-	const handleDeleteGroup = async (groupId, e) => {
-		if (e) {
-			e.stopPropagation(); // Prevent navigation when clicking delete
-		}
-
-		// Close swipe menu
-		setSwipedGroupId(null);
-
-		if (!window.confirm("Are you sure you want to delete this group?")) {
-			return;
-		}
-
-		try {
-			const response = await fetch(`http://localhost:8000/api/groups/${groupId}`, {
-				method: "DELETE",
-			});
-
-			if (!response.ok) {
-				const errorData = await response.json();
-				const errorMessage = errorData.error || "Failed to delete group";
-				
-				// If group has multiple members, offer to leave instead
-				if (errorMessage.includes("multiple members")) {
-					const leaveGroup = window.confirm(
-						"Cannot delete group with multiple members. Would you like to leave the group instead?"
-					);
-					if (leaveGroup) {
-						await handleLeaveGroup(groupId);
-					}
-					return;
-				}
-				
-				throw new Error(errorMessage);
-			}
-
-			// Remove the group from the local state
-			setGroups((prevGroups) => prevGroups.filter((group) => group._id !== groupId));
-		} catch (err) {
-			setError(err.message);
-			console.error("Error deleting group:", err);
-			alert(`Error: ${err.message}`);
-		}
-	};
-
 	const handleLeaveGroup = async (groupId) => {
 		try {
-			const response = await fetch(`http://localhost:8000/api/groups/${groupId}/leave`, {
+			const JWT = localStorage.getItem("JWT");
+			const backendURL = "http://localhost:8000";
+			
+			const response = await fetch(`${backendURL}/api/groups/${groupId}/leave`, {
 				method: "POST",
+				headers: {
+					Authorization: `Bearer ${JWT}`,
+				},
 			});
 
 			if (!response.ok) {
@@ -121,9 +131,59 @@ export default function DashboardPage() {
 		}
 	};
 
+	const handleDeleteGroup = async (groupId, e) => {
+		if (e) {
+			e.stopPropagation(); // Prevent navigation when clicking delete
+		}
+
+		// Close swipe menu
+		setSwipedGroupId(null);
+
+		if (!window.confirm("Are you sure you want to delete this group?")) {
+			return;
+		}
+
+		try {
+			const JWT = localStorage.getItem("JWT");
+			const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+
+			const response = await fetch(`${backendURL}/api/groups/${groupId}`, {
+				method: "DELETE",
+				headers: {
+					Authorization: `Bearer ${JWT}`,
+				},
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json();
+				const errorMessage = errorData.error || "Failed to delete group";
+
+				// If group has multiple members, offer to leave instead
+				if (errorMessage.includes("multiple members")) {
+					const leaveGroup = window.confirm(
+						"Cannot delete group with multiple members. Would you like to leave the group instead?",
+					);
+					if (leaveGroup) {
+						await handleLeaveGroup(groupId);
+					}
+					return;
+				}
+
+				throw new Error(errorMessage);
+			}
+
+			// Remove the group from the local state
+			setGroups((prevGroups) => prevGroups.filter((group) => group._id !== groupId));
+		} catch (err) {
+			setError(err.message);
+			console.error("Error deleting group:", err);
+			alert(`Error: ${err.message}`);
+		}
+	};
+
 	const minSwipeDistance = 50;
 
-	const onTouchStart = (e, groupId) => {
+	const onTouchStart = (e) => {
 		setTouchEnd(null);
 		setTouchStart(e.targetTouches[0].clientX);
 	};
@@ -144,13 +204,13 @@ export default function DashboardPage() {
 		} else if (isRightSwipe) {
 			setSwipedGroupId(null);
 		}
-		
+
 		// Reset touch positions
 		setTouchStart(null);
 		setTouchEnd(null);
 	};
 
-	const onMouseDown = (e, groupId) => {
+	const onMouseDown = (e) => {
 		setTouchEnd(null);
 		setTouchStart(e.clientX);
 	};
@@ -177,7 +237,7 @@ export default function DashboardPage() {
 		} else if (isRightSwipe) {
 			setSwipedGroupId(null);
 		}
-		
+
 		// Reset positions
 		setTouchStart(null);
 		setTouchEnd(null);
@@ -185,23 +245,23 @@ export default function DashboardPage() {
 
 	const handleGroupClick = (groupId, e) => {
 		// Don't close if clicking the delete button (it handles its own click)
-		if (e?.target?.closest('.delete-group-button')) {
+		if (e?.target?.closest(".delete-group-button")) {
 			return;
 		}
-		
+
 		// If swiped open, close it instead of navigating
 		if (swipedGroupId === groupId) {
 			setSwipedGroupId(null);
 			return;
 		}
-		
+
 		// Close any other swiped group
 		if (swipedGroupId && swipedGroupId !== groupId) {
 			setSwipedGroupId(null);
 		}
-		
-		// Otherwise navigate normally
-		onNavigate("/bucket-list");
+
+		// Otherwise navigate to this group's bucket list page
+		onNavigate(`/groups/${groupId}/activities`);
 	};
 
 	if (loading) {
@@ -224,8 +284,8 @@ export default function DashboardPage() {
 			<div className="quick-actions">
 				<h2 className="section-title">Quick Actions</h2>
 				<div className="button-spacing">
-					<Button text="Create New Group" buttonType="primary" onClick={() => onNavigate("/group/create")} />
-					<Button text="Join Existing Group" buttonType="secondary" onClick={() => onNavigate("/group/join")} />
+					<Button text="Create New Group" buttonType="primary" onClick={() => onNavigate("/groups/create")} />
+					<Button text="Join Existing Group" buttonType="secondary" onClick={() => onNavigate("/groups/join")} />
 				</div>
 			</div>
 
@@ -236,10 +296,10 @@ export default function DashboardPage() {
 						<div
 							key={group._id}
 							className="group-item-wrapper"
-							onTouchStart={(e) => onTouchStart(e, group._id)}
+							onTouchStart={onTouchStart}
 							onTouchMove={onTouchMove}
 							onTouchEnd={() => onTouchEnd(group._id)}
-							onMouseDown={(e) => onMouseDown(e, group._id)}
+							onMouseDown={onMouseDown}
 							onMouseMove={onMouseMove}
 							onMouseUp={() => onMouseUp(group._id)}
 							onMouseLeave={() => {
@@ -258,9 +318,7 @@ export default function DashboardPage() {
 							>
 								<Trash2 size={18} />
 							</button>
-							<div
-								className={`group-item-container ${swipedGroupId === group._id ? "swiped" : ""}`}
-							>
+							<div className={`group-item-container ${swipedGroupId === group._id ? "swiped" : ""}`}>
 								<Button
 									img={group.icon || "https://placehold.co/48"}
 									buttonType="secondary"

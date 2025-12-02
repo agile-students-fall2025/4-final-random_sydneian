@@ -8,6 +8,10 @@
 	z-index: 1000;
 }
 
+.select-place-dropdown {
+	appearance: none;
+}
+
 .popup-content {
 	background: #fff;
 	border-radius: 12px;

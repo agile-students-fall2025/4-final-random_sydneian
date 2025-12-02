@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import Button from "../components/Button";
 import { getRecentAdditions } from "../data/mockData";
@@ -8,32 +8,39 @@ import Header from "../components/Header";
 
 export default function AddPlace() {
 	const navigate = useNavigate();
+	const { groupId } = useParams();
 	const recentAdditions = getRecentAdditions();
 
 	const handleNavigateToLink = () => {
-		navigate("/add-place/link");
+		if (!groupId) return navigate("/");
+		navigate(`/groups/${groupId}/activities/add/link`);
 	};
 
 	const handleNavigateToManually = () => {
-		navigate("/add-place/manually");
+		if (!groupId) return navigate("/");
+		navigate(`/groups/${groupId}/activities/add/manual`);
 	};
 
-	const handleNavigateToDecide = () => {
-		navigate("/decide");
+	// Navigation handlers (for future use)
+	const _handleNavigateToDecide = () => {
+		if (!groupId) return;
+		navigate(`/groups/${groupId}/decide`);
 	};
 
-	const handleNavigateToMemories = () => {
-		navigate("/memorybook");
+	const _handleNavigateToMemories = () => {
+		if (!groupId) return;
+		navigate(`/groups/${groupId}/memories`);
 	};
 
-	const handleNavigateToBucketList = () => {
-		navigate("/bucket-list");
+	const _handleNavigateToBucketList = () => {
+		if (!groupId) return navigate("/");
+		navigate(`/groups/${groupId}/activities`);
 	};
 
 	return (
 		<div className="add-place-container">
 			{/* Header */}
-			<Header backPath={"/"} title="Add Place" />
+			<Header backPath={groupId ? `/groups/${groupId}/activities` : "/"} title="Add Place" />
 
 			{/* Main Content */}
 			<div className="add-place-content">

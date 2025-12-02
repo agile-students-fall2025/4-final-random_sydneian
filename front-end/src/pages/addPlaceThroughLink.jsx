@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { ChevronLeft } from "lucide-react";
+import { useNavigate, useParams } from "react-router-dom";
 import Button from "../components/Button";
 import "./addPlaceThroughLink.css";
 import Header from "../components/Header";
 
 export default function AddPlaceThroughLink() {
 	const navigate = useNavigate();
+	const { groupId } = useParams();
 	const [link, setLink] = useState("https://tiktok.com/@rickastleyofficial/vide...");
 	const [tags, setTags] = useState("#aesthetic, #matcha, #brunch");
 
@@ -16,21 +16,60 @@ export default function AddPlaceThroughLink() {
 	};
 
 	const handleAddToBucketList = () => {
-		// Handle adding to bucket list
-		console.log("Adding to bucket list with tags:", tags);
-		navigate("/bucket-list");
+		const JWT = localStorage.getItem("JWT");
+		if (!JWT) {
+			alert("Please login first");
+			return navigate("/login");
+		}
+
+		if (!groupId) {
+			alert("No group selected");
+			return navigate("/");
+		}
+
+		(async () => {
+			try {
+				const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+				const response = await fetch(`${backendURL}/api/groups/${groupId}/activities`, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${JWT}`,
+					},
+					body: JSON.stringify({
+						name: link || "New place from link",
+						category: "Uncategorised",
+						tags,
+					}),
+				});
+
+				if (!response.ok) {
+					const errorData = await response.json().catch(() => ({}));
+					throw new Error(errorData.error || "Failed to add activity from link");
+				}
+
+				navigate(`/groups/${groupId}/activities`);
+			} catch (err) {
+				console.error("Error adding activity from link:", err);
+				alert(err.message || "Failed to add activity");
+			}
+		})();
 	};
 
-	const handleNavigateToDecide = () => {
-		navigate("/decide");
+	// Navigation handlers (for future use)
+	const _handleNavigateToDecide = () => {
+		if (!groupId) return;
+		navigate(`/groups/${groupId}/decide`);
 	};
 
-	const handleNavigateToMemories = () => {
-		navigate("/memorybook");
+	const _handleNavigateToMemories = () => {
+		if (!groupId) return;
+		navigate(`/groups/${groupId}/memories`);
 	};
 
-	const handleNavigateToBucketList = () => {
-		navigate("/bucket-list");
+	const _handleNavigateToBucketList = () => {
+		if (!groupId) return navigate("/");
+		navigate(`/groups/${groupId}/activities`);
 	};
 
 	return (
