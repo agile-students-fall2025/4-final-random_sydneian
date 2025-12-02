@@ -74,7 +74,7 @@ export default function AddPlaceThroughLink() {
 
 	return (
 		<div className="add-place-link-container">
-			<Header backPath={"/add-place"} title="Import From Link" />
+			<Header backPath={`/groups/${groupId}/activities/add`} title="Import From Link" />
 
 			{/* Main Content */}
 			<div className="add-place-link-content">
