@@ -212,6 +212,7 @@ app.get("/api/users/:id", (req, res) => {
 	} else res.status(404).json({ error: "User not found" });
 });
 
+// Get a list of group ids user is invited to (for dashboard)
 app.get("/api/invites", async (req, res) => {
 	try {
 		const groupsList = await Group.find({ invitedMembers: req.user.id }).select("_id").lean();
@@ -222,6 +223,7 @@ app.get("/api/invites", async (req, res) => {
 	}
 });
 
+// Get a list of group ids user is a member of (for dashboard)
 app.get("/api/groups", async (req, res) => {
 	try {
 		const groupsList = await Group.find({ members: req.user.id }).select("_id").lean();

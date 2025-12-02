@@ -25,19 +25,28 @@ export default function DashboardPage() {
 			const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
 
 			try {
-				// Get list of group IDs user is a member of
+				const JWT = localStorage.getItem("JWT");
+				if (!JWT) {
+					setError("Not authenticated. Please login.");
+					setLoading(false);
+					return;
+				}
+
+				const backendURL = "http://localhost:8000";
+
+				// Get list of group IDs
 				const groupIdsResponse = await fetch(`${backendURL}/api/groups`, {
 					headers: {
 						Authorization: `Bearer ${JWT}`,
 					},
 				});
 
-				if (groupIdsResponse.status === 401) {
-					navigate("/login");
-					return;
-				}
-
 				if (!groupIdsResponse.ok) {
+					if (groupIdsResponse.status === 401) {
+						setError("Authentication failed. Please login again.");
+						localStorage.removeItem("JWT");
+						return;
+					}
 					throw new Error("Failed to fetch groups");
 				}
 
@@ -63,7 +72,7 @@ export default function DashboardPage() {
 
 				// Fetch full details for each group and invite
 				const groupDetails = await Promise.all(
-					[...groupIds, ...inviteIds].map(async (id) => {
+					groupIds.map(async (id) => {
 						const response = await fetch(`${backendURL}/api/groups/${id}`, {
 							headers: {
 								Authorization: `Bearer ${JWT}`,
@@ -99,8 +108,8 @@ export default function DashboardPage() {
 	const handleLeaveGroup = async (groupId) => {
 		try {
 			const JWT = localStorage.getItem("JWT");
-			const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
-
+			const backendURL = "http://localhost:8000";
+			
 			const response = await fetch(`${backendURL}/api/groups/${groupId}/leave`, {
 				method: "POST",
 				headers: {
