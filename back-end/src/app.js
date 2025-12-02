@@ -98,7 +98,6 @@ app.post("/api/register", async (req, res) => {
 
 		await newUser.save();
 
-
 		// If no errors, send successful response, which indicates client should move onto OTP
 		res.status(201).json({ redirect: "/verify-email" });
 	} catch (error) {
@@ -166,7 +165,6 @@ app.post("/api/register/renew-otp", async (req, res) => {
 		user.OTP = "000000";
 		user.OTPTimestamp = Date.now();
 		await user.save();
-
 
 		// Successful response, indicating OTP has been renewed
 		res.send();
@@ -519,7 +517,6 @@ app.post("/api/groups/:id/invite", (req, res) => {
 
 	res.json({ message: "User invited successfully", group });
 });
-
 
 // Get all memories for a group (across all activities)
 app.get("/api/groups/:groupId/memories", async (req, res) => {
