@@ -4,8 +4,8 @@ import "./EmailVerification.css";
 import Button from "../components/Button";
 
 function EmailVerification() {
-const [otp, setOtp] = useState(["", "", "", "", "", ""]);
-const navigate = useNavigate();
+	const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+	const navigate = useNavigate();
 
 	const handleChange = (value, index) => {
 		const newOtp = [...otp];
@@ -19,21 +19,21 @@ const navigate = useNavigate();
 		}
 	};
 
-const handleVerify = (e) => {
-    e.preventDefault();
-    const isComplete = otp.every((digit) => digit !== "");
-    if (isComplete) {
-        navigate("/login");
-    } else {
-        alert("Please enter all 6 digits.");
-    }
-};
+	const handleVerify = (e) => {
+		e.preventDefault();
+		const isComplete = otp.every((digit) => digit !== "");
+		if (isComplete) {
+			navigate("/login");
+		} else {
+			alert("Please enter all 6 digits.");
+		}
+	};
 
-return (
-    <div className="verify-container">
-    <div className="verify-box">
-        <h2>Email Verification</h2>
-        <p>Please enter the OTP code sent to your email</p>
+	return (
+		<div className="verify-container">
+			<div className="verify-box">
+				<h2>Email Verification</h2>
+				<p>Please enter the OTP code sent to your email</p>
 
 				<div className="otp-inputs">
 					{otp.map((digit, index) => (
@@ -50,14 +50,12 @@ return (
 
 				<Button text="Verify" buttonType="primary" onClick={handleVerify} />
 
-        <p className="resend-text">
-        Didn’t receive it? Check spam, otherwise{" "}
-        <span className="resend-link">click to resend</span>
-        </p>
-    </div>
-    </div>
-    
-);
+				<p className="resend-text">
+					Didn’t receive it? Check spam, otherwise <span className="resend-link">click to resend</span>
+				</p>
+			</div>
+		</div>
+	);
 }
 
 export default EmailVerification;

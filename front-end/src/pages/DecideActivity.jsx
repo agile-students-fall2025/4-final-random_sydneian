@@ -1,13 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Header from "../components/Header";
 import Button from "../components/Button";
 import "./DecideActivity.css";
 import { ImageIcon } from "lucide-react";
 
-const activityChosenPhrases = ["The wheel has spoken, the universe has chosen..."]; // I might need a better name for this. It's the message that displays in the pop up after you spin the wheel
+const activityChosenPhrases = ["The wheel has spoken, the universe has chosen..."];
 
-// From p5js
 function mapRange(n, start1, stop1, start2, stop2, withinBounds) {
 	const newval = ((n - start1) / (stop1 - start1)) * (stop2 - start2) + start2;
 	if (!withinBounds) {
@@ -41,11 +40,9 @@ class Wheel {
 	}
 
 	update() {
-		// If wheel has spun and (nearly) stopped
 		if (0 < this.speed && this.speed < 0.00025) {
 			this.speed = 0;
 
-			// Normalize angle to be within 0 - 2 PI, adjusting for clockwise rotation. Also, offset by -90 deg, as 0 deg is horizontal instead of vertical (E vs N)
 			const normalizedAngle = (3.5 * Math.PI - (this.angle % (2 * Math.PI))) % (2 * Math.PI);
 			this.activitySelectedCb(this.activities[Math.floor(normalizedAngle / ((2 * Math.PI) / this.activities.length))]);
 		} else this.speed *= 0.995;
@@ -57,7 +54,6 @@ class Wheel {
 		this.ctx.globalAlpha = mapRange(this.speed, 0.05, 0, 0.1, 0.5, true);
 		this.ctx.translate(this.center.x, this.center.y);
 
-		// Background circle
 		this.ctx.beginPath();
 		this.ctx.arc(0, 0, this.radius + 8, 0, 2 * Math.PI);
 		this.ctx.strokeStyle = "#0072B2"; // --color-primary
@@ -69,7 +65,6 @@ class Wheel {
 		this.ctx.rotate(this.angle);
 		// Draw each segment
 		for (let i = 0; i < this.activities.length; i++) {
-			// Background
 			this.ctx.beginPath();
 			this.ctx.moveTo(0, 0);
 			this.ctx.arc(0, 0, this.radius, 0, 2 * Math.PI * (1 / this.activities.length));
@@ -81,7 +76,6 @@ class Wheel {
 				];
 			this.ctx.fill();
 
-			// Text
 			this.ctx.save();
 			this.ctx.rotate(Math.PI / this.activities.length);
 			this.ctx.fillStyle = "black";
@@ -94,7 +88,6 @@ class Wheel {
 		}
 		this.ctx.restore();
 
-		// Center parts
 		this.ctx.globalAlpha = 1;
 
 		this.ctx.beginPath();
@@ -121,6 +114,7 @@ class Wheel {
 
 export default function DecideActivity() {
 	const navigate = useNavigate();
+	const { groupId } = useParams();
 	const canvasRef = useRef();
 	const dialogRef = useRef();
 	const drawables = useRef([]);
@@ -131,36 +125,45 @@ export default function DecideActivity() {
 		(async () => {
 			let activities;
 
-			// Fetch activities
-
 			const JWT = localStorage.getItem("JWT");
 			if (!JWT) {
 				console.log("Not authenticated, please login or register");
 				return navigate("/login");
 			}
 
-			try {
-				const response = await fetch(
-					`${import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000"}/api/groups/group-syd-id`,
-					{ headers: { Authorization: `Bearer ${JWT}` } },
-				);
+			if (!groupId) {
+				console.error("No groupId present in route params");
+				alert("No group selected.");
+				return navigate("/");
+			}
 
-				// Should probably consolidate and abstract normal fetch checks (JWT, .ok, JSON redirects and errors) into a wrapper
+			try {
+				const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+				const response = await fetch(`${backendURL}/api/groups/${groupId}`, {
+					headers: { Authorization: `Bearer ${JWT}` },
+				});
+
 				if (!response.ok) {
 					if (response.status >= 400 && response.status < 500) {
 						const responseData = await response.json();
 						if (responseData.redirect) navigate(responseData.redirect);
 						throw new Error(responseData.error || "Client side error");
-					} else throw new Error("Network error");
+					}
+					throw new Error("Network error");
 				}
 
-				activities = (await response.json()).activities.filter((activity) => !activity.done);
+				const group = await response.json();
+				activities = (group.activities || []).filter((activity) => !activity.done);
+
+				if (!activities.length) {
+					alert("No activities to decide between yet. Try adding some first.");
+					return;
+				}
 			} catch (err) {
 				console.error("Failed to get activities. Error:", err.message);
 				alert("Couldn't get activities :("); // Strongly dislike using alert, but there's no custom app-wide notification/toast system yet
+				return;
 			}
-
-			// Initialise objects to draw, and start update loop
 
 			drawables.current = [
 				new Wheel(
@@ -192,12 +195,12 @@ export default function DecideActivity() {
 		return () => {
 			cancelAnimationFrame(animId.current);
 		};
-	}, []);
+	}, [navigate, groupId]);
 
 	return (
 		<>
 			<div className="decision-container">
-				<Header backPath={"/bucket-list"} title="Decision Wheel" />
+				<Header backPath={`/groups/${groupId}/activities`} title="Decision Wheel" />
 				<canvas width="600" height="600" ref={canvasRef} className="decision-wheel">
 					A spinning wheel to get a random activity {/* Alt text */}
 				</canvas>

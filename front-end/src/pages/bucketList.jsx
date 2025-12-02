@@ -1,17 +1,61 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { ChevronLeft, Heart } from "lucide-react";
-import { getMockActivities, getCompletedActivities } from "../data/mockData";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { Heart } from "lucide-react";
 import "./bucketList.css";
 import Header from "../components/Header";
 
 export default function BucketList() {
 	const navigate = useNavigate();
+	const { groupId } = useParams();
 	const [activeTab, setActiveTab] = useState("todo");
 	const [searchQuery, setSearchQuery] = useState("");
+	const [activities, setActivities] = useState([]);
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState(null);
 
-	const allActivities = getMockActivities();
-	const completedActivities = getCompletedActivities();
+	useEffect(() => {
+		const fetchActivities = async () => {
+			const JWT = localStorage.getItem("JWT");
+			if (!JWT) {
+				console.log("Not authenticated, please login or register");
+				navigate("/login");
+				return;
+			}
+
+			if (!groupId) {
+				console.error("No groupId present in route params");
+				setError("No group selected.");
+				setLoading(false);
+				return;
+			}
+
+			try {
+				const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+				const response = await fetch(`${backendURL}/api/groups/${groupId}`, {
+					headers: { Authorization: `Bearer ${JWT}` },
+				});
+
+				if (!response.ok) {
+					if (response.status >= 400 && response.status < 500) {
+						const responseData = await response.json();
+						if (responseData.redirect) navigate(responseData.redirect);
+						throw new Error(responseData.error || "Client side error");
+					}
+					throw new Error("Network error");
+				}
+
+				const group = await response.json();
+				setActivities(group.activities || []);
+			} catch (err) {
+				console.error("Failed to get activities. Error:", err.message);
+				setError("Couldn't get activities :(");
+			} finally {
+				setLoading(false);
+			}
+		};
+
+		fetchActivities();
+	}, [navigate, groupId]);
 
 	const getDaysAgoText = (days) => {
 		if (days === 1) return "1 day ago";
@@ -21,34 +65,69 @@ export default function BucketList() {
 		return `${days} days ago`;
 	};
 
-	const filteredActivities = allActivities.filter(
+	const toDoActivities = activities.filter((activity) => !activity.done);
+	const doneActivities = activities.filter((activity) => activity.done);
+
+	const filteredActivities = toDoActivities.filter(
 		(activity) =>
-			activity.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-			activity.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
-			activity.location.toLowerCase().includes(searchQuery.toLowerCase()),
+			(activity.name || "")
+				.toLowerCase()
+				.includes(searchQuery.toLowerCase()) ||
+			(activity.category || "")
+				.toLowerCase()
+				.includes(searchQuery.toLowerCase()),
 	);
 
-	const filteredCompletedActivities = completedActivities.filter(
+	const filteredCompletedActivities = doneActivities.filter(
 		(activity) =>
-			activity.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-			activity.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
-			activity.location.toLowerCase().includes(searchQuery.toLowerCase()),
+			(activity.name || "")
+				.toLowerCase()
+				.includes(searchQuery.toLowerCase()) ||
+			(activity.category || "")
+				.toLowerCase()
+				.includes(searchQuery.toLowerCase()),
 	);
 
 	const handleAddPlace = () => {
-		// Navigate to add place page when implemented
-		navigate("/add-place");
+		if (!groupId) {
+			navigate("/");
+			return;
+		}
+		navigate(`/groups/${groupId}/activities/add`);
 	};
 
-	const handleNavigateToDecide = () => {
-		// Navigate to decide page when implemented
-		navigate("/decide");
+	// Navigation handlers (for future use)
+	const _handleNavigateToDecide = () => {
+		if (!groupId) return;
+		navigate(`/groups/${groupId}/decide`);
 	};
 
-	const handleNavigateToMemories = () => {
-		// Navigate to memories page
-		navigate("/memorybook");
+	const _handleNavigateToMemories = () => {
+		if (!groupId) return;
+		navigate(`/groups/${groupId}/memories`);
 	};
+
+	if (loading) {
+		return (
+			<div className="bucket-list-container">
+				<Header backPath={"/"} title="Bucket List" />
+				<div className="content-area">
+					<div className="content-list">Loading...</div>
+				</div>
+			</div>
+		);
+	}
+
+	if (error) {
+		return (
+			<div className="bucket-list-container">
+				<Header backPath={"/"} title="Bucket List" />
+				<div className="content-area">
+					<div className="content-list">Error: {error}</div>
+				</div>
+			</div>
+		);
+	}
 
 	return (
 		<div className="bucket-list-container">
@@ -106,7 +185,7 @@ export default function BucketList() {
 								<div key={activity.id} className="activity-card">
 									{/* Title and Likes Row */}
 									<div className="card-header">
-										<h3 className="card-title">{activity.title}</h3>
+										<h3 className="card-title">{activity.name}</h3>
 										<div className="likes-container">
 											<Heart size={16} fill="currentColor" />
 											<span className="likes-count">{activity.likes}</span>
@@ -114,18 +193,15 @@ export default function BucketList() {
 									</div>
 
 									{/* Type and Location */}
-									<p className="card-type-location">
-										{activity.type} - {activity.location}
-									</p>
+										<p className="card-type-location">{activity.category}</p>
 
 									{/* Added By Info */}
-									<p className="card-added-info">
-										Added {getDaysAgoText(activity.daysAgo)} by {activity.addedBy}
-									</p>
+										{/* Placeholder added-by info until we track creator */}
+										<p className="card-added-info">Added recently</p>
 
 									{/* Tags */}
 									<div className="card-tags">
-										{activity.tags.map((tag, index) => (
+										{(activity.tags || []).map((tag, index) => (
 											<span key={index} className="tag">
 												#{tag}
 											</span>
@@ -141,7 +217,7 @@ export default function BucketList() {
 							<div key={activity.id} className="activity-card">
 								{/* Title and Likes Row */}
 								<div className="card-header">
-									<h3 className="card-title completed">{activity.title}</h3>
+									<h3 className="card-title completed">{activity.name}</h3>
 									<div className="likes-container">
 										<Heart size={16} fill="currentColor" />
 										<span className="likes-count">{activity.likes}</span>
@@ -149,18 +225,14 @@ export default function BucketList() {
 								</div>
 
 								{/* Type and Location */}
-								<p className="card-type-location">
-									{activity.type} - {activity.location}
-								</p>
+								<p className="card-type-location">{activity.category}</p>
 
 								{/* Added By Info */}
-								<p className="card-added-info">
-									Added {getDaysAgoText(activity.daysAgo)} by {activity.addedBy}
-								</p>
+								<p className="card-added-info">Added recently</p>
 
 								{/* Tags */}
 								<div className="card-tags">
-									{activity.tags.map((tag, index) => (
+									{(activity.tags || []).map((tag, index) => (
 										<span key={index} className="tag">
 											#{tag}
 										</span>

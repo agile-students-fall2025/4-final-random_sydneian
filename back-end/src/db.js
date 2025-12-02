@@ -1,6 +1,22 @@
 import mongoose from "mongoose";
 
-// mongoose.connect(process.env.DSN);
+// Connect to MongoDB Atlas
+mongoose.connect(process.env.MONGODB_URI).catch((err) => {
+	console.error("MongoDB connection error:", err);
+	process.exit(1);
+});
+
+mongoose.connection.on("connected", () => {
+	console.log("Connected to MongoDB Atlas");
+});
+
+mongoose.connection.on("error", (err) => {
+	console.error("MongoDB connection error:", err);
+});
+
+mongoose.connection.on("disconnected", () => {
+	console.log("Disconnected from MongoDB");
+});
 
 const UserSchema = new mongoose.Schema(
 	{

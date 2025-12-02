@@ -101,7 +101,7 @@
 /* Floating + button — inside iPhone layout */
 .add-memory-btn {
 	position: absolute;
-	bottom: 24px;
+	bottom: 80px;
 	right: 24px;
 	width: 56px;
 	height: 56px;

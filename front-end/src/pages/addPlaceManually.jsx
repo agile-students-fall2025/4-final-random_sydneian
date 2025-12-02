@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { ChevronLeft, ChevronDown } from "lucide-react";
 import Button from "../components/Button";
 import "./addPlaceManually.css";
@@ -7,6 +7,7 @@ import Header from "../components/Header";
 
 export default function AddPlaceManually() {
 	const navigate = useNavigate();
+	const { groupId } = useParams();
 	const [placeName, setPlaceName] = useState("");
 	const [location, setLocation] = useState("");
 	const [category, setCategory] = useState("");
@@ -14,12 +15,48 @@ export default function AddPlaceManually() {
 	const [tags, setTags] = useState("");
 	const [photos, setPhotos] = useState([]);
 	const fileInputRef = useRef(null);
+	const [isCategoryOpen, setIsCategoryOpen] = useState(false);
 
 	const handleSubmit = () => {
-		// Handle form submission
-		console.log({ placeName, location, category, description, tags, photos });
-		// Navigate back to bucket list or show success message
-		navigate("/bucket-list");
+		const JWT = localStorage.getItem("JWT");
+		if (!JWT) {
+			alert("Please login first");
+			return navigate("/login");
+		}
+
+		if (!groupId) {
+			alert("No group selected");
+			return navigate("/");
+		}
+
+		(async () => {
+			try {
+				const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+				const response = await fetch(`${backendURL}/api/groups/${groupId}/activities`, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${JWT}`,
+					},
+					body: JSON.stringify({
+						name: placeName,
+						category: category || "Uncategorised",
+						tags,
+					}),
+				});
+
+				if (!response.ok) {
+					const errorData = await response.json().catch(() => ({}));
+					throw new Error(errorData.error || "Failed to add activity");
+				}
+
+				// Navigate back to this group's bucket list
+				navigate(`/groups/${groupId}/activities`);
+			} catch (err) {
+				console.error("Error adding activity:", err);
+				alert(err.message || "Failed to add activity");
+			}
+		})();
 	};
 
 	const handleFileChange = (e) => {
@@ -42,22 +79,24 @@ export default function AddPlaceManually() {
 		fileInputRef.current?.click();
 	};
 
-	const handleNavigateToDecide = () => {
+	// Navigation handlers (for future use)
+	const _handleNavigateToDecide = () => {
 		navigate("/decide");
 	};
 
-	const handleNavigateToMemories = () => {
+	const _handleNavigateToMemories = () => {
 		navigate("/memorybook");
 	};
 
-	const handleNavigateToBucketList = () => {
-		navigate("/bucket-list");
+	const _handleNavigateToBucketList = () => {
+		if (!groupId) return navigate("/");
+		navigate(`/groups/${groupId}/activities`);
 	};
 
 	return (
 		<div className="add-place-manually-container">
 			{/* Header */}
-			<Header backPath={"/bucket-list"} title="Add Place Manually" />
+			<Header backPath={groupId ? `/groups/${groupId}/activities` : "/"} title="Add Place Manually" />
 
 			{/* Main Content */}
 			<div className="add-place-manually-content">
@@ -86,15 +125,31 @@ export default function AddPlaceManually() {
 				/>
 
 				<div className="select-container">
-					<input
-						type="text"
-						placeholder="Select category"
-						value={category}
-						onChange={(e) => setCategory(e.target.value)}
+					<select
 						className="form-input select-input"
-						readOnly
+						value={category}
+						onChange={(e) => {
+							setCategory(e.target.value);
+							setIsCategoryOpen(false);
+						}}
+						onFocus={() => setIsCategoryOpen(true)}
+						onBlur={() => setIsCategoryOpen(false)}
+					>
+						<option value="">Select category</option>
+						<option value="Food & Drinks">Food &amp; Drinks</option>
+						<option value="Coffee & Desserts">Coffee &amp; Desserts</option>
+						<option value="Outdoors">Outdoors</option>
+						<option value="Arts & Culture">Arts &amp; Culture</option>
+						<option value="Nightlife">Nightlife</option>
+						<option value="Other">Other</option>
+					</select>
+					<ChevronDown
+						className="select-chevron"
+						size={20}
+						style={{
+							transform: isCategoryOpen ? "translateY(-50%) rotate(180deg)" : "translateY(-50%)",
+						}}
 					/>
-					<ChevronDown className="select-chevron" size={20} />
 				</div>
 
 				<div className="form-section">
