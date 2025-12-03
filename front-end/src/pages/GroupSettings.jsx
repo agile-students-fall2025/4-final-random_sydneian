@@ -84,9 +84,7 @@ export default function GroupSettings() {
 					const users = await response.json();
 					const memberIds = group?.members?.map((m) => m._id) || [];
 					const invitedIds = group?.invitedMembers?.map((m) => m._id) || [];
-					const filteredUsers = users.filter(
-						(user) => !memberIds.includes(user._id) && !invitedIds.includes(user._id),
-					);
+					const filteredUsers = users.filter((user) => !memberIds.includes(user._id) && !invitedIds.includes(user._id));
 					setUserSuggestions(filteredUsers);
 				}
 			} catch (error) {
@@ -228,11 +226,7 @@ export default function GroupSettings() {
 						{showSuggestions && userSuggestions.length > 0 && (
 							<div className="suggestions-dropdown">
 								{userSuggestions.map((user) => (
-									<div
-										key={user._id}
-										className="suggestion-item"
-										onClick={() => handleInviteUser(user._id)}
-									>
+									<div key={user._id} className="suggestion-item" onClick={() => handleInviteUser(user._id)}>
 										<img
 											src={user.profilePicture || "https://placehold.co/32"}
 											alt={user.username}
@@ -284,4 +278,3 @@ export default function GroupSettings() {
 		</div>
 	);
 }
-

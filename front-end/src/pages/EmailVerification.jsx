@@ -88,35 +88,35 @@ function EmailVerification() {
 	};
 
 	return (
-    <div className="verify-container">
-        <div className="verify-box">
-            <h2>Email Verification</h2>
-            <p>Please enter the OTP code sent to your email</p>
+		<div className="verify-container">
+			<div className="verify-box">
+				<h2>Email Verification</h2>
+				<p>Please enter the OTP code sent to your email</p>
 
-            <div className="otp-inputs">
-                {otp.map((digit, index) => (
-                    <input
-                        key={index}
-                        id={`otp-${index}`}
-                        type="text"
-                        maxLength="1"
-                        value={digit}
-                        onChange={(e) => handleChange(e.target.value, index)}
-                    />
-                ))}
-            </div>
+				<div className="otp-inputs">
+					{otp.map((digit, index) => (
+						<input
+							key={index}
+							id={`otp-${index}`}
+							type="text"
+							maxLength="1"
+							value={digit}
+							onChange={(e) => handleChange(e.target.value, index)}
+						/>
+					))}
+				</div>
 
-            <Button text="Verify" buttonType="primary" onClick={handleVerify} />
+				<Button text="Verify" buttonType="primary" onClick={handleVerify} />
 
-            <p className="resend-text">
-                Didn’t receive it? Check spam, otherwise{" "}
-                <span className="resend-link" onClick={handleResend}>
-                    click to resend
-                </span>
-            </p>
-        </div>
-    </div>
-);
+				<p className="resend-text">
+					Didn’t receive it? Check spam, otherwise{" "}
+					<span className="resend-link" onClick={handleResend}>
+						click to resend
+					</span>
+				</p>
+			</div>
+		</div>
+	);
 }
 
 export default EmailVerification;

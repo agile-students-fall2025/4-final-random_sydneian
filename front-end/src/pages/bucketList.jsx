@@ -72,22 +72,14 @@ export default function BucketList() {
 
 	const filteredActivities = toDoActivities.filter(
 		(activity) =>
-			(activity.name || "")
-				.toLowerCase()
-				.includes(searchQuery.toLowerCase()) ||
-			(activity.category || "")
-				.toLowerCase()
-				.includes(searchQuery.toLowerCase()),
+			(activity.name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+			(activity.category || "").toLowerCase().includes(searchQuery.toLowerCase()),
 	);
 
 	const filteredCompletedActivities = doneActivities.filter(
 		(activity) =>
-			(activity.name || "")
-				.toLowerCase()
-				.includes(searchQuery.toLowerCase()) ||
-			(activity.category || "")
-				.toLowerCase()
-				.includes(searchQuery.toLowerCase()),
+			(activity.name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+			(activity.category || "").toLowerCase().includes(searchQuery.toLowerCase()),
 	);
 
 	const handleAddPlace = () => {
@@ -135,17 +127,6 @@ export default function BucketList() {
 		<div className="bucket-list-container">
 			{/* Header */}
 			<div className="bucket-list-header">
-				{/* <div className="bucket-list-header-content">
-          <button 
-            className="back-button"
-            onClick={() => navigate(-1)}
-            aria-label="Back"
-          >
-            <ChevronLeft size={20} />
-          </button>
-          <h1 className="bucket-list-title">Sydneian</h1>
-          <div className="header-spacer"></div>
-        </div> */}
 				<Header
 					backPath={"/"}
 					title="Bucket List"
@@ -190,45 +171,12 @@ export default function BucketList() {
 			{/* Content Area */}
 			<div className="content-area">
 				<div className="content-list">
-					{activeTab === "todo" ? (
-						filteredActivities.length > 0 ? (
-							filteredActivities.map((activity) => (
-								<div key={activity._id} className="activity-card">
-									{/* Title and Likes Row */}
-									<div className="card-header">
-										<h3 className="card-title">{activity.name}</h3>
-										<div className="likes-container">
-											<Heart size={16} fill="currentColor" />
-											<span className="likes-count">{activity.likes?.length || 0}</span>
-										</div>
-									</div>
-
-									{/* Type and Location */}
-										<p className="card-type-location">{activity.category}</p>
-
-									{/* Added By Info */}
-										{/* Placeholder added-by info until we track creator */}
-										<p className="card-added-info">Added recently</p>
-
-									{/* Tags */}
-									<div className="card-tags">
-										{(activity.tags || []).map((tag, index) => (
-											<span key={index} className="tag">
-												#{tag}
-											</span>
-										))}
-									</div>
-								</div>
-							))
-						) : (
-							<div className="empty-state">No activities found</div>
-						)
-					) : filteredCompletedActivities.length > 0 ? (
-						filteredCompletedActivities.map((activity) => (
+					{(activeTab === "todo" ? filteredActivities : filteredCompletedActivities).length > 0 ? (
+						(activeTab === "todo" ? filteredActivities : filteredCompletedActivities).map((activity) => (
 							<div key={activity._id} className="activity-card">
 								{/* Title and Likes Row */}
 								<div className="card-header">
-									<h3 className="card-title completed">{activity.name}</h3>
+									<h3 className={"card-title" + (activeTab === "done" ? " completed" : "")}>{activity.name}</h3>
 									<div className="likes-container">
 										<Heart size={16} fill="currentColor" />
 										<span className="likes-count">{activity.likes?.length || 0}</span>
@@ -239,6 +187,7 @@ export default function BucketList() {
 								<p className="card-type-location">{activity.category}</p>
 
 								{/* Added By Info */}
+								{/* Placeholder added-by info until we track creator */}
 								<p className="card-added-info">Added recently</p>
 
 								{/* Tags */}
@@ -252,7 +201,7 @@ export default function BucketList() {
 							</div>
 						))
 					) : (
-						<div className="empty-state">No completed activities found</div>
+						<div className="empty-state">No activities found</div>
 					)}
 				</div>
 			</div>
@@ -262,40 +211,54 @@ export default function BucketList() {
 				<Plus size={24} />
 			</button>
 
-						{/* Add Activity Popup */}
-						{showAddPopup && (
-				<div className="modal-overlay" style={{
-					position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-					backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', 
-					justifyContent: 'center', alignItems: 'center', zIndex: 2000
-				}} onClick={() => setShowAddPopup(false)}>
-					<div className="modal-content" style={{
-						backgroundColor: 'white', padding: '20px', borderRadius: '15px',
-						width: '85%', maxWidth: '350px', display: 'flex', flexDirection: 'column', gap: '15px'
-					}} onClick={e => e.stopPropagation()}>
-						
-						<h3 style={{textAlign: 'center', margin: '0 0 10px 0'}}>Add New Activity</h3>
+			{/* Add Activity Popup */}
+			{showAddPopup && (
+				<div
+					className="modal-overlay"
+					style={{
+						position: "fixed",
+						top: 0,
+						left: 0,
+						right: 0,
+						bottom: 0,
+						backgroundColor: "rgba(0,0,0,0.5)",
+						display: "flex",
+						justifyContent: "center",
+						alignItems: "center",
+						zIndex: 2000,
+					}}
+					onClick={() => setShowAddPopup(false)}
+				>
+					<div
+						className="modal-content"
+						style={{
+							backgroundColor: "white",
+							padding: "20px",
+							borderRadius: "15px",
+							width: "85%",
+							maxWidth: "350px",
+							display: "flex",
+							flexDirection: "column",
+							gap: "15px",
+						}}
+						onClick={(e) => e.stopPropagation()}
+					>
+						<h3 style={{ textAlign: "center", margin: "0 0 10px 0" }}>Add New Activity</h3>
 
-						<Button 
-							text="Paste Link" 
-							buttonType="primary" 
+						<Button
+							text="Paste Link"
+							buttonType="primary"
 							onClick={() => navigate(`/groups/${groupId}/activities/add/link`)}
 						/>
-						
-						<Button 
-							text="Add Manually" 
-							buttonType="secondary" 
+
+						<Button
+							text="Add Manually"
+							buttonType="secondary"
 							onClick={() => navigate(`/groups/${groupId}/activities/add/manual`)}
 						/>
 
-						
-
-						<div style={{marginTop: '10px'}}>
-							<Button 
-								text="Cancel" 
-								buttonType="danger" 
-								onClick={() => setShowAddPopup(false)} 
-							/>
+						<div style={{ marginTop: "10px" }}>
+							<Button text="Cancel" buttonType="danger" onClick={() => setShowAddPopup(false)} />
 						</div>
 					</div>
 				</div>
