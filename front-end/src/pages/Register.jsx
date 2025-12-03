@@ -49,8 +49,18 @@ function Register() {
 
 	return (
 		<div className="register-container">
-			<h1 className="register-title">Rendezvous</h1>
-			<p className="register-subtitle">Plan together, decide faster</p>
+			<div className="auth-header-row">
+			<img 
+				src="/src/assets/logo.png"
+				alt="Rendezvous logo"
+				className="auth-logo-large"
+			/>
+
+			<div className="auth-text-group">
+				<h1 className="auth-title">rendezvous</h1>
+				<p className="auth-subtitle">plan together, decide faster</p>
+			</div>
+		</div>
 
 			{error && <p className="error-text">{error}</p>}
 
