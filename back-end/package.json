@@ -12,13 +12,17 @@
 		"test:coverage": "c8 --reporter=text --reporter=html mocha 'test/**/*.test.js'"
 	},
 	"dependencies": {
+		"@anthropic-ai/sdk": "^0.71.0",
+		"@google/generative-ai": "^0.24.1",
 		"bcryptjs": "^3.0.3",
 		"cors": "^2.8.5",
 		"dotenv": "^17.2.3",
 		"express": "^5.1.0",
 		"express-validator": "^7.3.1",
 		"jsonwebtoken": "^9.0.2",
-		"mongoose": "^9.0.0"
+		"mongoose": "^9.0.0",
+		"openai": "^6.9.1",
+		"puppeteer": "^24.31.0"
 	},
 	"devDependencies": {
 		"@eslint/js": "^9.39.1",
