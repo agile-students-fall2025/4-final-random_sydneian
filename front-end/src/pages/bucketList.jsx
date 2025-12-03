@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Heart, Plus } from "lucide-react";
 import "./bucketList.css";
 import Header from "../components/Header";
+import Button from "../components/Button";
 
 export default function BucketList() {
 	const navigate = useNavigate();
@@ -12,6 +13,7 @@ export default function BucketList() {
 	const [activities, setActivities] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
+	const [showAddPopup, setShowAddPopup] = useState(false);
 
 	useEffect(() => {
 		const fetchActivities = async () => {
@@ -93,7 +95,7 @@ export default function BucketList() {
 			navigate("/");
 			return;
 		}
-		navigate(`/groups/${groupId}/activities/add`);
+		setShowAddPopup(true);
 	};
 
 	// Navigation handlers (for future use)
@@ -259,6 +261,45 @@ export default function BucketList() {
 			<button onClick={handleAddPlace} className="fab-button" aria-label="Add new item">
 				<Plus size={24} />
 			</button>
+
+						{/* Add Activity Popup */}
+						{showAddPopup && (
+				<div className="modal-overlay" style={{
+					position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+					backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', 
+					justifyContent: 'center', alignItems: 'center', zIndex: 2000
+				}} onClick={() => setShowAddPopup(false)}>
+					<div className="modal-content" style={{
+						backgroundColor: 'white', padding: '20px', borderRadius: '15px',
+						width: '85%', maxWidth: '350px', display: 'flex', flexDirection: 'column', gap: '15px'
+					}} onClick={e => e.stopPropagation()}>
+						
+						<h3 style={{textAlign: 'center', margin: '0 0 10px 0'}}>Add New Activity</h3>
+
+						<Button 
+							text="Paste Link" 
+							buttonType="primary" 
+							onClick={() => navigate(`/groups/${groupId}/activities/add/link`)}
+						/>
+						
+						<Button 
+							text="Add Manually" 
+							buttonType="secondary" 
+							onClick={() => navigate(`/groups/${groupId}/activities/add/manual`)}
+						/>
+
+						
+
+						<div style={{marginTop: '10px'}}>
+							<Button 
+								text="Cancel" 
+								buttonType="danger" 
+								onClick={() => setShowAddPopup(false)} 
+							/>
+						</div>
+					</div>
+				</div>
+			)}
 		</div>
 	);
 }
