@@ -19,7 +19,7 @@ function Register() {
 		}
 
 		try {
-			const backendURL = "http://localhost:8000";
+			const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
 
 			console.log("Registering user... at " + backendURL + "/api/register");
 
