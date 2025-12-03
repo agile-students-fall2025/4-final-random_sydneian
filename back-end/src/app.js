@@ -50,7 +50,7 @@ app.post("/api/login", async (req, res) => {
 		// Send JWT on successful authentication (using MongoDB ObjectId)
 		res.json({
 			JWT: jwt.sign(
-				{ id: user._id.toString(), username: user.username, profilePicture: user.profilePicture },
+				{ id: user._id.toString(), username: user.username },
 				process.env.JWT_SECRET,
 				{ expiresIn: "1d" },
 			),
@@ -138,7 +138,7 @@ app.post("/api/register/verify-email", async (req, res) => {
 		// Send JWT on successful authentication (using MongoDB ObjectId)
 		res.status(201).json({
 			JWT: jwt.sign(
-				{ id: user._id.toString(), username: user.username, profilePicture: user.profilePicture },
+				{ id: user._id.toString(), username: user.username },
 				process.env.JWT_SECRET,
 				{ expiresIn: "1d" },
 			),
@@ -215,6 +215,41 @@ app.get("/api/users/:id", async (req, res) => {
 		}
 	} catch (error) {
 		console.error("Get user error:", error);
+		res.status(500).json({ error: "Internal server error" });
+	}
+});
+
+app.put("/api/users/:id", async (req, res) => {
+	try {
+		const userId = req.params.id;
+
+		// Verify user is updating their own profile
+		if (req.user.id !== userId) {
+			return res.status(403).json({ error: "You can only update your own profile" });
+		}
+
+		const { username, email, profilePicture } = req.body;
+		const updateData = {};
+
+		if (username) updateData.username = username;
+		if (email) updateData.email = email;
+		if (profilePicture !== undefined) updateData.profilePicture = profilePicture;
+
+		const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
+			new: true,
+			runValidators: true,
+		}).select("-password -OTP -OTPTimestamp");
+
+		if (!updatedUser) {
+			return res.status(404).json({ error: "User not found" });
+		}
+
+		res.json(updatedUser);
+	} catch (error) {
+		console.error("Update user error:", error);
+		if (error.code === 11000) {
+			return res.status(409).json({ error: "Username or email already exists" });
+		}
 		res.status(500).json({ error: "Internal server error" });
 	}
 });
