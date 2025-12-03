@@ -11,46 +11,6 @@
 	position: relative;
 }
 
-/* Pulsing background orbs */
-.group-settings-container::before,
-.group-settings-container::after {
-	content: "";
-	position: absolute;
-	border-radius: 50%;
-	pointer-events: none;
-	z-index: -1;
-	opacity: 0.08;
-}
-
-.group-settings-container::before {
-	width: 320px;
-	height: 320px;
-	background: radial-gradient(circle, var(--color-accent) 0%, transparent 65%);
-	top: 15%;
-	right: -90px;
-	animation: pulse 2.2s ease-in-out infinite;
-}
-
-.group-settings-container::after {
-	width: 280px;
-	height: 280px;
-	background: radial-gradient(circle, var(--color-primary) 0%, transparent 65%);
-	bottom: 10%;
-	left: -70px;
-	animation: pulse 2.8s ease-in-out infinite 0.6s;
-}
-
-@keyframes pulse {
-	0%, 100% {
-		transform: scale(1);
-		opacity: 0.08;
-	}
-	50% {
-		transform: scale(1.15);
-		opacity: 0.18;
-	}
-}
-
 .settings-content {
 	padding: 16px;
 	position: relative;
