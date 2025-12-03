@@ -1,228 +1,231 @@
 .popup-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.4);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.4);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	z-index: 1000;
 }
 
 .popup-content {
-    background: #fff;
-    border-radius: 12px;
-    padding: 20px;
-    width: 90%;
-    max-width: 380px;
-    max-height: 90vh;
-    overflow-y: auto;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    display: flex;
-    flex-direction: column;
+	background: #fff;
+	border-radius: 12px;
+	padding: 20px;
+	width: 90%;
+	max-width: 380px;
+	max-height: 90vh;
+	overflow-y: auto;
+	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+	display: flex;
+	flex-direction: column;
 }
 
 /* --- Dropdown Styling --- */
 .select-place-container {
-    position: relative;
-    margin-bottom: 24px;
+	position: relative;
+	margin-bottom: 24px;
 }
 
 .select-place-dropdown {
-    width: 100%;
-    padding: 16px;
-    padding-right: 48px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    font-size: 16px;
-    box-sizing: border-box;
-    font-family: system-ui, -apple-system, sans-serif;
-    cursor: pointer;
-    appearance: none;
-    background-color: white;
+	width: 100%;
+	padding: 16px;
+	padding-right: 48px;
+	border: 1px solid #ccc;
+	border-radius: 8px;
+	font-size: 16px;
+	box-sizing: border-box;
+	font-family:
+		system-ui,
+		-apple-system,
+		sans-serif;
+	cursor: pointer;
+	appearance: none;
+	background-color: white;
 }
 
 .select-place-dropdown:focus {
-    outline: none;
-    border-color: #000;
+	outline: none;
+	border-color: #000;
 }
 
 .select-place-chevron {
-    position: absolute;
-    right: 16px;
-    top: 50%;
-    transform: translateY(-50%);
-    pointer-events: none;
-    color: #000;
+	position: absolute;
+	right: 16px;
+	top: 50%;
+	transform: translateY(-50%);
+	pointer-events: none;
+	color: #000;
 }
 
 /* --- Error Text --- */
 .error-text {
-    color: #d32f2f;
-    font-size: 14px;
-    margin-top: -10px;
-    margin-bottom: 16px;
-    text-align: center;
+	color: #d32f2f;
+	font-size: 14px;
+	margin-top: -10px;
+	margin-bottom: 16px;
+	text-align: center;
 }
 
 /* --- Photos Container --- */
 .add-photos-container {
-    border: 2px dashed #000;
-    border-radius: 8px;
-    padding: 48px 16px;
-    margin-bottom: 24px;
-    min-height: 200px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
+	border: 2px dashed #000;
+	border-radius: 8px;
+	padding: 48px 16px;
+	margin-bottom: 24px;
+	min-height: 200px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: all 0.3s ease;
 }
 
 /* When photos exist, remove the big padding and dashed border so it looks like a clean grid */
 .add-photos-container.has-photos {
-    border: none;
-    padding: 0;
-    min-height: auto;
-    margin-bottom: 24px;
-    display: flex;
-    flex-direction: column;
+	border: none;
+	padding: 0;
+	min-height: auto;
+	margin-bottom: 24px;
+	display: flex;
+	flex-direction: column;
 }
 
 /* --- Empty State Placeholder --- */
 .add-photos-placeholder {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    gap: 8px;
-    width: 100%;
-    height: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	gap: 8px;
+	width: 100%;
+	height: 100%;
 }
 
 .add-photos-plus {
-    font-size: 48px;
-    color: #999;
-    line-height: 1;
+	font-size: 48px;
+	color: #999;
+	line-height: 1;
 }
 
 .add-photos-text {
-    font-size: 16px;
-    color: #999;
+	font-size: 16px;
+	color: #999;
 }
 
 /* --- Grid Layout for Photos --- */
 .photos-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-    width: 100%;
-    padding-right: 4px;
-    /* removed max-height + overflow */
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 12px;
+	width: 100%;
+	padding-right: 4px;
+	/* removed max-height + overflow */
 }
 
 .photo-item {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 1 / 1; /* Perfect square */
-    border-radius: 8px;
-    overflow: hidden;
-    background: #f0f0f0;
+	position: relative;
+	width: 100%;
+	aspect-ratio: 1 / 1; /* Perfect square */
+	border-radius: 8px;
+	overflow: hidden;
+	background: #f0f0f0;
 }
 
 .photo-item img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
 }
 
 /* --- X Delete Button --- */
 .remove-btn {
-    position: absolute;
-    top: 6px;
-    right: 6px;
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background: rgba(0, 0, 0, 0.6);
-    color: white;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    font-weight: bold;
-    z-index: 10;
-    transition: background 0.2s;
-    padding: 0;
-    line-height: 1;
+	position: absolute;
+	top: 6px;
+	right: 6px;
+	width: 24px;
+	height: 24px;
+	border-radius: 50%;
+	background: rgba(0, 0, 0, 0.6);
+	color: white;
+	border: none;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 14px;
+	font-weight: bold;
+	z-index: 10;
+	transition: background 0.2s;
+	padding: 0;
+	line-height: 1;
 }
 
 .remove-btn:hover {
-    background: rgba(211, 47, 47, 0.9);
+	background: rgba(211, 47, 47, 0.9);
 }
 
 /* --- Small Add Tile (Grid Item) --- */
 .add-more-photos-tile {
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    border: 2px dashed #ccc;
-    border-radius: 8px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    background: #fafafa;
-    transition: border-color 0.2s;
-    box-sizing: border-box; /* Ensure border is included in width */
+	width: 100%;
+	aspect-ratio: 1 / 1;
+	border: 2px dashed #ccc;
+	border-radius: 8px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	background: #fafafa;
+	transition: border-color 0.2s;
+	box-sizing: border-box; /* Ensure border is included in width */
 }
 
 .add-more-photos-tile:hover {
-    border-color: #666;
+	border-color: #666;
 }
 
 .add-photos-plus.small {
-    font-size: 28px;
-    color: #888;
+	font-size: 28px;
+	color: #888;
 }
 
 .add-photos-text.small {
-    font-size: 12px;
-    color: #888;
+	font-size: 12px;
+	color: #888;
 }
 
 /* --- Action Buttons --- */
 .popup-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
 }
 
 /* --- Inline Button Styles (Fallback) --- */
 .btn-base {
-    padding: 12px;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    border: none;
-    width: 100%;
-    transition: opacity 0.2s;
+	padding: 12px;
+	border-radius: 8px;
+	font-size: 16px;
+	font-weight: 600;
+	cursor: pointer;
+	border: none;
+	width: 100%;
+	transition: opacity 0.2s;
 }
 
 .btn-primary {
-    background-color: #1976d2; /* Default blue */
-    color: white;
+	background-color: #1976d2; /* Default blue */
+	color: white;
 }
 
 .btn-secondary {
-    background-color: transparent;
-    color: #1976d2;
-    border: 1px solid #1976d2;
+	background-color: transparent;
+	color: #1976d2;
+	border: 1px solid #1976d2;
 }
 
 .btn-base:hover {
-    opacity: 0.9;
+	opacity: 0.9;
 }
