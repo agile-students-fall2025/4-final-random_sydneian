@@ -1,6 +1,3 @@
-import dotenv from "dotenv";
-dotenv.config();
-
 import { User, Group } from "./src/db.js";
 import bcrypt from "bcryptjs";
 import crypto from "node:crypto";
