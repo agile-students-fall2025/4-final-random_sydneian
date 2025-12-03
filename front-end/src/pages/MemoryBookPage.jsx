@@ -61,14 +61,76 @@ export default function MemoryBookPage() {
             }
         })();
     }, [API_BASE, groupId, navigate]);
-
-    // ... (handleAddMemory and handleDeleteMemory logic remains exactly the same) ... 
-    // I am omitting them here to save space, but keep your existing functions!
-    // Just ensure handleAddMemory and handleDeleteMemory are still in your file.
     
-    // Placeholder for your existing functions so code doesn't break if you copy-paste
-    const handleAddMemory = async (newMemory) => { /* Your existing logic */ };
-    const handleDeleteMemory = async (index) => { /* Your existing logic */ };
+    const handleAddMemory = async (newMemory) => {
+    const JWT = localStorage.getItem("JWT");
+    if (!JWT) {
+        navigate("/login");
+        return;
+    }
+
+    try {
+        const res = await fetch(API_BASE, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${JWT}`,
+            },
+            body: JSON.stringify(newMemory),
+        });
+
+        if (!res.ok) {
+            const data = await res.json().catch(() => ({}));
+            console.error("Add memory error:", data.error);
+            return;
+        }
+
+        const createdMemory = await res.json();
+
+        // Normalize it the same way fetch API does
+        const normalized = normalizeMemory(createdMemory);
+
+        setMemories((prev) => [...prev, normalized]);
+    } catch (err) {
+        console.error("Add memory request failed:", err);
+    }
+};
+
+    const handleDeleteMemory = async (index) => {
+    const target = memories[index];
+    if (!target || !target._id) {
+        console.error("Memory not found or missing ID.");
+        return;
+    }
+
+    if (!window.confirm("Are you sure you want to delete this memory?")) return;
+
+    const JWT = localStorage.getItem("JWT");
+    if (!JWT) return navigate("/login");
+
+    try {
+        const res = await fetch(
+            `${API_BASE}/${target._id}`,
+            {
+                method: "DELETE",
+                headers: {
+                    Authorization: `Bearer ${JWT}`,
+                },
+            }
+        );
+
+        if (!res.ok) {
+            console.error("Delete failed", await res.json().catch(() => ({})));
+            return;
+        }
+
+        // Remove from React state
+        setMemories((prev) => prev.filter((_, i) => i !== index));
+
+    } catch (err) {
+        console.error("Delete memory request failed:", err);
+    }
+};
     
     const handleEditMemory = (index) => {
         setEditingIndex(index);

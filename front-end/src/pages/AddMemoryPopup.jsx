@@ -104,9 +104,8 @@ export default function AddMemoryPopup({ onClose, onAdd, memoryToEdit }) {
         }
 
         const newMemory = {
-            place: selectedPlace,
-            photos,
             title: selectedPlace,
+			images: photos,
             activityId: selectedActivity._id,
         };
         onAdd(newMemory);
