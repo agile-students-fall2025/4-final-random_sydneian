@@ -96,7 +96,7 @@ export default function AddPlaceManually() {
 	return (
 		<div className="add-place-manually-container">
 			{/* Header */}
-			<Header backPath={groupId ? `/groups/${groupId}/activities/add` : "/"} title="Add Place Manually" />
+			<Header backPath={groupId ? `/groups/${groupId}/activities` : "/"} title="Add Place Manually" />
 
 			{/* Main Content */}
 			<div className="add-place-manually-content">
