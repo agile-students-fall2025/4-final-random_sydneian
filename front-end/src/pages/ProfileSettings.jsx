@@ -25,9 +25,9 @@ function ProfileSettings() {
 
 			try {
 				const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
-				
+
 				// Decode JWT to get user ID
-				const payload = JSON.parse(atob(JWT.split('.')[1]));
+				const payload = JSON.parse(atob(JWT.split(".")[1]));
 				const userId = payload.id;
 
 				const response = await fetch(`${backendURL}/api/users/${userId}`, {
@@ -81,9 +81,9 @@ function ProfileSettings() {
 
 		try {
 			const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
-			
+
 			// Decode JWT to get user ID
-			const payload = JSON.parse(atob(JWT.split('.')[1]));
+			const payload = JSON.parse(atob(JWT.split(".")[1]));
 			const userId = payload.id;
 
 			const response = await fetch(`${backendURL}/api/users/${userId}`, {
@@ -133,21 +133,13 @@ function ProfileSettings() {
 				<div className="account-section">
 					<div className="profile-pic-container">
 						{profilePicture ? (
-							<img 
-								src={profilePicture} 
-								alt="Profile" 
-								className="profile-pic"
-							/>
+							<img src={profilePicture} alt="Profile" className="profile-pic" />
 						) : (
 							<div className="profile-pic profile-pic-empty">
 								<span>No Image</span>
 							</div>
 						)}
-						<button 
-							className="edit-pic-button" 
-							onClick={handleEditClick}
-							aria-label="Edit profile picture"
-						>
+						<button className="edit-pic-button" onClick={handleEditClick} aria-label="Edit profile picture">
 							<Edit2 size={20} />
 						</button>
 						<input
@@ -155,7 +147,7 @@ function ProfileSettings() {
 							type="file"
 							accept="image/*"
 							onChange={handleFileChange}
-							style={{ display: 'none' }}
+							style={{ display: "none" }}
 						/>
 					</div>
 					<div className="profile-info">
@@ -183,17 +175,20 @@ function ProfileSettings() {
 				</div>
 
 				<Button
-					text={message? `${message}`: saving ? "Saving..." : "Save Changes"}
-					buttonType={message? "success" : "primary"}
+					text={message ? `${message}` : saving ? "Saving..." : "Save Changes"}
+					buttonType={message ? "success" : "primary"}
 					onClick={handleSave}
 					disabled={saving}
 				/>
-				
-				<button className="sign-out-button" onClick={() => {
-					localStorage.removeItem("JWT");
-					localStorage.removeItem("emailVerified");
-					navigate("/login");
-				}}>
+
+				<button
+					className="sign-out-button"
+					onClick={() => {
+						localStorage.removeItem("JWT");
+						localStorage.removeItem("emailVerified");
+						navigate("/login");
+					}}
+				>
 					Sign Out
 				</button>
 			</div>

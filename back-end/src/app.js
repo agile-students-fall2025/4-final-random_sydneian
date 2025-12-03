@@ -50,11 +50,7 @@ app.post("/api/login", async (req, res) => {
 
 		// Send JWT on successful authentication (using MongoDB ObjectId)
 		res.json({
-			JWT: jwt.sign(
-				{ id: user._id.toString(), username: user.username },
-				process.env.JWT_SECRET,
-				{ expiresIn: "1d" },
-			),
+			JWT: jwt.sign({ id: user._id.toString(), username: user.username }, process.env.JWT_SECRET, { expiresIn: "1d" }),
 		});
 	} catch (error) {
 		console.error("Login error:", error);
@@ -90,7 +86,7 @@ app.post("/api/register", async (req, res) => {
 			email: req.body.email,
 			emailVerified: false,
 			OTP: otp,
-    		OTPTimestamp: Date.now(),
+			OTPTimestamp: Date.now(),
 			profilePicture: undefined,
 			preferences: {
 				notifications: {
@@ -108,7 +104,7 @@ app.post("/api/register", async (req, res) => {
 		await sendEmail(
 			newUser.email,
 			"Your Rendezvous OTP",
-			`Your verification code is: ${otp}\n\nThis code expires in 10 minutes.`
+			`Your verification code is: ${otp}\n\nThis code expires in 10 minutes.`,
 		);
 
 		// If no errors, send successful response, which indicates client should move onto OTP
@@ -147,11 +143,7 @@ app.post("/api/register/verify-email", async (req, res) => {
 
 		// Send JWT on successful authentication (using MongoDB ObjectId)
 		res.status(201).json({
-			JWT: jwt.sign(
-				{ id: user._id.toString(), username: user.username },
-				process.env.JWT_SECRET,
-				{ expiresIn: "1d" },
-			),
+			JWT: jwt.sign({ id: user._id.toString(), username: user.username }, process.env.JWT_SECRET, { expiresIn: "1d" }),
 		});
 	} catch (error) {
 		console.error("Verify email error:", error);
@@ -175,18 +167,18 @@ app.post("/api/register/renew-otp", async (req, res) => {
 		}
 
 		// Generate new OTP
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+		const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-        user.OTP = otp;
-        user.OTPTimestamp = Date.now();
-        await user.save();
+		user.OTP = otp;
+		user.OTPTimestamp = Date.now();
+		await user.save();
 
-        // Send email
-        await sendEmail(
-            user.email,
-            "Your new Rendezvous OTP",
-            `Your new verification code is: ${otp}\n\nThis code expires in 10 minutes.`
-        );
+		// Send email
+		await sendEmail(
+			user.email,
+			"Your new Rendezvous OTP",
+			`Your new verification code is: ${otp}\n\nThis code expires in 10 minutes.`,
+		);
 
 		// Successful response, indicating OTP has been renewed
 		res.send();
@@ -812,41 +804,43 @@ app.use((req, res, next) => {
 });
 */
 app.post("/api/extract-link-details", async (req, res) => {
-    const { link } = req.body;
-    if (!link) return res.status(400).json({ error: "Link is required" });
+	const { link } = req.body;
+	if (!link) return res.status(400).json({ error: "Link is required" });
 
-    let browser = null;
-    try {
-        // 1. Launch Browser
-        browser = await puppeteer.launch({ headless: "new" });
-        const page = await browser.newPage();
-        
-        // Set timeout to 15s to be faster, and realistic user agent
-        await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36');
-        
-        // Go to page
-        await page.goto(link, { waitUntil: "domcontentloaded", timeout: 15000 });
+	let browser = null;
+	try {
+		// 1. Launch Browser
+		browser = await puppeteer.launch({ headless: "new" });
+		const page = await browser.newPage();
 
-        // 2. Extract clean text and Main Image
-        const pageData = await page.evaluate(() => {
-            // Get main visible text
-            const text = document.body.innerText || "";
-            
-            // Try to find the best "preview" image
-            const ogImage = document.querySelector('meta[property="og:image"]')?.content;
-            const twitterImage = document.querySelector('meta[name="twitter:image"]')?.content;
-            const firstImg = document.querySelector('img')?.src;
-            
-            return {
-                text: text.substring(0, 15000), // Get first 15k chars
-                image: ogImage || twitterImage || firstImg || ""
-            };
-        });
+		// Set timeout to 15s to be faster, and realistic user agent
+		await page.setUserAgent(
+			"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36",
+		);
 
-        // If text is too short, it might be unparseable or blocked
-        if (pageData.text.length < 50) {
-            throw new Error("Page content empty or blocked");
-        }
+		// Go to page
+		await page.goto(link, { waitUntil: "domcontentloaded", timeout: 15000 });
+
+		// 2. Extract clean text and Main Image
+		const pageData = await page.evaluate(() => {
+			// Get main visible text
+			const text = document.body.innerText || "";
+
+			// Try to find the best "preview" image
+			const ogImage = document.querySelector('meta[property="og:image"]')?.content;
+			const twitterImage = document.querySelector('meta[name="twitter:image"]')?.content;
+			const firstImg = document.querySelector("img")?.src;
+
+			return {
+				text: text.substring(0, 15000), // Get first 15k chars
+				image: ogImage || twitterImage || firstImg || "",
+			};
+		});
+
+		// If text is too short, it might be unparseable or blocked
+		if (pageData.text.length < 50) {
+			throw new Error("Page content empty or blocked");
+		}
 
 		// 3. Send to OpenAI
 		const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -870,7 +864,7 @@ app.post("/api/extract-link-details", async (req, res) => {
 		const completion = await openai.chat.completions.create({
 			messages: [
 				{ role: "system", content: "You are a helpful assistant that extracts structured JSON data." },
-				{ role: "user", content: prompt }
+				{ role: "user", content: prompt },
 			],
 			model: "gpt-4o-mini",
 			response_format: { type: "json_object" },
@@ -879,27 +873,25 @@ app.post("/api/extract-link-details", async (req, res) => {
 		const content = completion.choices[0].message.content;
 		const data = JSON.parse(content);
 
-        if (data.error) {
-            return res.status(422).json({ error: "Link not parsable (no place found)" });
-        }
+		if (data.error) {
+			return res.status(422).json({ error: "Link not parsable (no place found)" });
+		}
 
-        res.json({
-            ...data,
-            photo: pageData.image
-        });
-
-    } catch (error) {
-        console.error("Extraction error:", error);
-        res.status(500).json({ error: "Could not parse link. Website might be private or blocking access." });
-    } finally {
-        if (browser) await browser.close();
-    }
+		res.json({
+			...data,
+			photo: pageData.image,
+		});
+	} catch (error) {
+		console.error("Extraction error:", error);
+		res.status(500).json({ error: "Could not parse link. Website might be private or blocking access." });
+	} finally {
+		if (browser) await browser.close();
+	}
 });
 // Catchall for unspecified routes (Express sends 404 anyways, but changing HTML for JSON with error property)
 app.use((req, res, next) => {
 	res.status(404).json({ error: "Path not found" });
 });
-
 
 app.listen(process.env.PORT || 8000, () => {
 	console.log(`Express app listening at http://localhost:${process.env.PORT || 8000}`);

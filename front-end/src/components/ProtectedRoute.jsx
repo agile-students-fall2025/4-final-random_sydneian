@@ -16,4 +16,3 @@ export default function ProtectedRoute({ children, requireEmailVerification = fa
 
 	return children;
 }
-

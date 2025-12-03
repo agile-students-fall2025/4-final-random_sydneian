@@ -16,7 +16,7 @@ export default function AddPlaceThroughLink() {
 		location: "Brooklyn, NY",
 		highlights: ["Aesthetic Interior", "Famous for matcha", "Great brunch spot"],
 		photo: null,
-		tags: "#aesthetic, #matcha, #brunch"
+		tags: "#aesthetic, #matcha, #brunch",
 	});
 
 	const handleImportDetails = async () => {
@@ -25,19 +25,19 @@ export default function AddPlaceThroughLink() {
 			setShowErrorModal(true);
 			return;
 		}
-		
+
 		setIsLoading(true);
 		try {
 			const JWT = localStorage.getItem("JWT");
 			const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
-			
+
 			const headers = { "Content-Type": "application/json" };
 			if (JWT) headers["Authorization"] = `Bearer ${JWT}`;
 
 			const response = await fetch(`${backendURL}/api/extract-link-details`, {
 				method: "POST",
 				headers,
-				body: JSON.stringify({ link })
+				body: JSON.stringify({ link }),
 			});
 
 			const data = await response.json();
@@ -45,22 +45,21 @@ export default function AddPlaceThroughLink() {
 			if (!response.ok) {
 				// Set error message for the modal instead of alert
 				setErrorMessage(
-					(data.error && data.error.includes("not parsable"))
+					data.error && data.error.includes("not parsable")
 						? "We couldn't find a specific place in that link. Please fill in the details manually."
-						: (data.error || "Failed to fetch details")
+						: data.error || "Failed to fetch details",
 				);
 				setShowErrorModal(true);
 				return;
 			}
-			
+
 			setPreviewData({
 				name: data.name || "Unknown Place",
 				location: data.location || "Unknown Location",
 				highlights: data.highlights || [],
 				photo: data.photo || null,
-				tags: data.hashtags || ""
+				tags: data.hashtags || "",
 			});
-			
 		} catch (error) {
 			console.error(error);
 			setErrorMessage("Could not extract details. Try entering them manually.");
@@ -95,7 +94,7 @@ export default function AddPlaceThroughLink() {
 						name: previewData.name, // changed from link
 						category: "Uncategorised",
 						tags: previewData.tags, // changed from tags
-						locationDescription: previewData.location // added location
+						locationDescription: previewData.location, // added location
 					}),
 				});
 
@@ -137,9 +136,9 @@ export default function AddPlaceThroughLink() {
 					<h2 className="section-heading">Paste Article or Website Link.</h2>
 					<input type="text" value={link} onChange={(e) => setLink(e.target.value)} className="form-input" />
 					<div className="import-button-container">
-						<Button 
-							text={isLoading ? "Importing..." : "Import Details"} 
-							buttonType="primary" 
+						<Button
+							text={isLoading ? "Importing..." : "Import Details"}
+							buttonType="primary"
 							onClick={handleImportDetails}
 							disabled={isLoading}
 						/>
@@ -149,13 +148,17 @@ export default function AddPlaceThroughLink() {
 				<div className="section">
 					<h2 className="section-heading">Preview.</h2>
 					{/* Dynamic Photo */}
-					<div 
-						className="preview-box" 
-						style={previewData.photo ? { 
-							backgroundImage: `url(${previewData.photo})`,
-							backgroundSize: 'cover',
-							backgroundPosition: 'center' 
-						} : {}}
+					<div
+						className="preview-box"
+						style={
+							previewData.photo
+								? {
+										backgroundImage: `url(${previewData.photo})`,
+										backgroundSize: "cover",
+										backgroundPosition: "center",
+									}
+								: {}
+						}
 					>
 						{!previewData.photo && <span className="preview-text">Photo</span>}
 					</div>
@@ -180,11 +183,11 @@ export default function AddPlaceThroughLink() {
 				<div className="section">
 					<h3 className="section-heading">Add Tags (Optional).</h3>
 					{/* Dynamic Tags Input */}
-					<input 
-						type="text" 
-						value={previewData.tags} 
-						onChange={(e) => setPreviewData({...previewData, tags: e.target.value})} 
-						className="form-input" 
+					<input
+						type="text"
+						value={previewData.tags}
+						onChange={(e) => setPreviewData({ ...previewData, tags: e.target.value })}
+						className="form-input"
 					/>
 				</div>
 
@@ -195,23 +198,36 @@ export default function AddPlaceThroughLink() {
 
 			{/* Error Modal */}
 			{showErrorModal && (
-				<div className="modal-overlay" style={{
-					position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-					backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', 
-					justifyContent: 'center', alignItems: 'center', zIndex: 1000
-				}}>
-					<div className="modal-content" style={{
-						backgroundColor: 'white', padding: '2rem', borderRadius: '12px',
-						maxWidth: '90%', width: '400px', textAlign: 'center',
-						boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
-					}}>
-						<h3 style={{ marginTop: 0, marginBottom: '1rem' }}>Import Failed</h3>
-						<p style={{ marginBottom: '1.5rem', color: '#666' }}>{errorMessage}</p>
-						<Button 
-							text="Close" 
-							buttonType="primary" 
-							onClick={() => setShowErrorModal(false)} 
-						/>
+				<div
+					className="modal-overlay"
+					style={{
+						position: "fixed",
+						top: 0,
+						left: 0,
+						right: 0,
+						bottom: 0,
+						backgroundColor: "rgba(0,0,0,0.5)",
+						display: "flex",
+						justifyContent: "center",
+						alignItems: "center",
+						zIndex: 1000,
+					}}
+				>
+					<div
+						className="modal-content"
+						style={{
+							backgroundColor: "white",
+							padding: "2rem",
+							borderRadius: "12px",
+							maxWidth: "90%",
+							width: "400px",
+							textAlign: "center",
+							boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+						}}
+					>
+						<h3 style={{ marginTop: 0, marginBottom: "1rem" }}>Import Failed</h3>
+						<p style={{ marginBottom: "1.5rem", color: "#666" }}>{errorMessage}</p>
+						<Button text="Close" buttonType="primary" onClick={() => setShowErrorModal(false)} />
 					</div>
 				</div>
 			)}

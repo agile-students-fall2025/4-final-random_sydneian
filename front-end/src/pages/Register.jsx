@@ -19,7 +19,6 @@ function Register() {
 		}
 
 		try {
-
 			const backendURL = "http://localhost:8000";
 
 			console.log("Registering user... at " + backendURL + "/api/register");
@@ -50,17 +49,13 @@ function Register() {
 	return (
 		<div className="register-container">
 			<div className="auth-header-row">
-			<img 
-				src="/src/assets/logo.png"
-				alt="Rendezvous logo"
-				className="auth-logo-large"
-			/>
+				<img src="/src/assets/logo.png" alt="Rendezvous logo" className="auth-logo-large" />
 
-			<div className="auth-text-group">
-				<h1 className="auth-title">rendezvous</h1>
-				<p className="auth-subtitle">plan together, decide faster</p>
+				<div className="auth-text-group">
+					<h1 className="auth-title">rendezvous</h1>
+					<p className="auth-subtitle">plan together, decide faster</p>
+				</div>
 			</div>
-		</div>
 
 			{error && <p className="error-text">{error}</p>}
 

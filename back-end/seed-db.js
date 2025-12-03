@@ -150,7 +150,7 @@ async function seedDatabase() {
 
 		for (let i = 0; i < 5; i++) {
 			const template = groupTemplates[i];
-			
+
 			const numMembers = getRandomInt(2, 4);
 			const memberUsers = getRandomItems(createdUsers, numMembers);
 			const memberIds = memberUsers.map((u) => u._id);
@@ -228,9 +228,7 @@ async function seedDatabase() {
 		console.log("Database seeded successfully!\n");
 		console.log("Users:");
 		for (const user of createdUsers) {
-			const memberOfGroups = createdGroups.filter((g) =>
-				g.members.some((m) => m.toString() === user._id.toString()),
-			);
+			const memberOfGroups = createdGroups.filter((g) => g.members.some((m) => m.toString() === user._id.toString()));
 			const invitedToGroups = createdGroups.filter((g) =>
 				g.invitedMembers.some((m) => m.toString() === user._id.toString()),
 			);

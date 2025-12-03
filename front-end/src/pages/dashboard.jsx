@@ -109,7 +109,7 @@ export default function DashboardPage() {
 		try {
 			const JWT = localStorage.getItem("JWT");
 			const backendURL = "http://localhost:8000";
-			
+
 			const response = await fetch(`${backendURL}/api/groups/${groupId}/leave`, {
 				method: "POST",
 				headers: {
