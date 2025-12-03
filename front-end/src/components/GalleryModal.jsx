@@ -1,48 +1,68 @@
 import React, { useState } from "react";
-import { X, ChevronLeft, ChevronRight } from "lucide-react"; // Assuming you have lucide-react installed
+import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import "./GalleryModal.css";
 
 export default function GalleryModal({ photos = [], startIndex = 0, onClose }) {
-	const [currentIndex, setCurrentIndex] = useState(startIndex);
+    const [currentIndex, setCurrentIndex] = useState(startIndex);
+    const [animClass, setAnimClass] = useState("");
 
-	if (!photos || photos.length === 0) return null;
+    if (!photos || photos.length === 0) return null;
 
-	const handleNext = (e) => {
-		e.stopPropagation();
-		setCurrentIndex((prev) => (prev + 1) % photos.length);
-	};
+    const slideTo = (direction) => {
+        // Step 1: add animation class
+        setAnimClass(direction);
 
-	const handlePrev = (e) => {
-		e.stopPropagation();
-		setCurrentIndex((prev) => (prev - 1 + photos.length) % photos.length);
-	};
+        // Step 2: wait for animation to finish before changing photo
+        setTimeout(() => {
+            setCurrentIndex((prev) => {
+                if (direction === "slide-left") {
+                    return (prev + 1) % photos.length;
+                }
+                return (prev - 1 + photos.length) % photos.length;
+            });
 
-	return (
-		<div className="gallery-modal-overlay" onClick={onClose}>
-			{/* Close Button */}
-			<button className="gallery-close-btn" onClick={onClose}>
-				<X size={32} color="white" />
-			</button>
+            // Step 3: remove animation class so new image fades in
+            setAnimClass("");
+        }, 300); // match CSS animation duration
+    };
 
-			{/* Left Arrow */}
-			<button className="gallery-nav-btn left" onClick={handlePrev}>
-				<ChevronLeft size={48} color="white" />
-			</button>
+    return (
+        <div className="gallery-modal-overlay" onClick={onClose}>
+            <button className="gallery-close-btn" onClick={onClose}>
+                <X size={32} color="white" />
+            </button>
 
-			{/* Main Image Container */}
-			<div className="gallery-content" onClick={(e) => e.stopPropagation()}>
-				<img src={photos[currentIndex]} alt={`Gallery ${currentIndex}`} className="gallery-main-image" />
+            <button
+                className="gallery-nav-btn left"
+                onClick={(e) => {
+                    e.stopPropagation();
+                    slideTo("slide-right");
+                }}
+            >
+                <ChevronLeft size={48} color="white" />
+            </button>
 
-				{/* Optional: Counter at bottom */}
-				<div className="gallery-counter">
-					{currentIndex + 1} / {photos.length}
-				</div>
-			</div>
+            <div className="gallery-content" onClick={(e) => e.stopPropagation()}>
+                <img
+                    src={photos[currentIndex]}
+                    alt={`Gallery ${currentIndex}`}
+                    className={`gallery-main-image ${animClass}`}
+                />
 
-			{/* Right Arrow */}
-			<button className="gallery-nav-btn right" onClick={handleNext}>
-				<ChevronRight size={48} color="white" />
-			</button>
-		</div>
-	);
+                <div className="gallery-counter">
+                    {currentIndex + 1} / {photos.length}
+                </div>
+            </div>
+
+            <button
+                className="gallery-nav-btn right"
+                onClick={(e) => {
+                    e.stopPropagation();
+                    slideTo("slide-left");
+                }}
+            >
+                <ChevronRight size={48} color="white" />
+            </button>
+        </div>
+    );
 }
