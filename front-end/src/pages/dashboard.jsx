@@ -290,7 +290,7 @@ export default function DashboardPage() {
 			</div>
 
 			<div className="my-groups">
-				<h2 className="section-title">My Groups (Swipe to delete)</h2>
+				<h2 className="section-title">My Groups</h2>
 				<div className="button-spacing">
 					{groups.map((group) => (
 						<div
