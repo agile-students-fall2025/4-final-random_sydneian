@@ -1,10 +1,10 @@
 import path from "node:path";
 import crypto from "node:crypto";
 import express from "express";
+import { body, validationResult } from "express-validator";
 import cors from "cors";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-
 import { User, Memory, Activity, Group } from "./db.js";
 import { sendEmail } from "./sendEmail.js";
 import OpenAI from "openai";
@@ -27,9 +27,9 @@ app.use(
 
 // --- Routes ---
 
-app.post("/api/login", async (req, res) => {
-	// Ensure required fields are present
-	if (!req.body?.username || !req.body?.password) {
+app.post("/api/login", [body("username").notEmpty(), body("password").notEmpty()], async (req, res) => {
+	const errors = validationResult(req);
+	if (!errors.isEmpty()) {
 		return res.status(400).json({ error: "Missing required fields" });
 	}
 
@@ -58,66 +58,76 @@ app.post("/api/login", async (req, res) => {
 	}
 });
 
-app.post("/api/register", async (req, res) => {
-	// Ensure required fields are present
-	if (!req.body?.username || !req.body?.password || !req.body?.email) {
-		return res.status(400).json({ error: "Missing required fields" });
-	}
-
-	try {
-		// Check if username already taken
-		const existingUsername = await User.findOne({ username: req.body.username });
-		if (existingUsername) {
-			return res.status(409).json({ error: "Username taken" });
+app.post(
+	"/api/register",
+	[
+		body("username").notEmpty(),
+		body("email").notEmpty().isEmail(),
+		body("password")
+			.notEmpty()
+			.isStrongPassword({ minLength: 8, minLowercase: 1, minUppercase: 0, minNumbers: 0, minSymbols: 0 }),
+	],
+	async (req, res) => {
+		const errors = validationResult(req);
+		if (!errors.isEmpty()) {
+			return res.status(400).json({ error: "Missing required fields, or invalid email/password" });
 		}
 
-		// Check if email already used
-		const existingEmail = await User.findOne({ email: req.body.email });
-		if (existingEmail) {
-			return res.status(409).json({ error: "Email taken" });
-		}
+		try {
+			// Check if username already taken
+			const existingUsername = await User.findOne({ username: req.body.username });
+			if (existingUsername) {
+				return res.status(409).json({ error: "Username taken" });
+			}
 
-		const otp = Math.floor(100000 + Math.random() * 900000).toString();
+			// Check if email already used
+			const existingEmail = await User.findOne({ email: req.body.email });
+			if (existingEmail) {
+				return res.status(409).json({ error: "Email taken" });
+			}
 
-		// Create new user in MongoDB
-		const newUser = new User({
-			username: req.body.username,
-			password: bcrypt.hashSync(req.body.password),
-			email: req.body.email,
-			emailVerified: false,
-			OTP: otp,
-			OTPTimestamp: Date.now(),
-			profilePicture: undefined,
-			preferences: {
-				notifications: {
-					eventNextDay: true,
-					newEventAdded: true,
+			const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+			// Create new user in MongoDB
+			const newUser = new User({
+				username: req.body.username,
+				password: bcrypt.hashSync(req.body.password),
+				email: req.body.email,
+				emailVerified: false,
+				OTP: otp,
+				OTPTimestamp: Date.now(),
+				profilePicture: undefined,
+				preferences: {
+					notifications: {
+						eventNextDay: true,
+						newEventAdded: true,
+					},
+					theme: "light",
 				},
-				theme: "light",
-			},
-		});
+			});
 
-		// Save user
-		await newUser.save();
+			// Save user
+			await newUser.save();
 
-		// Send OTP email
-		await sendEmail(
-			newUser.email,
-			"Your Rendezvous OTP",
-			`Your verification code is: ${otp}\n\nThis code expires in 10 minutes.`,
-		);
+			// Send OTP email
+			await sendEmail(
+				newUser.email,
+				"Your Rendezvous OTP",
+				`Your verification code is: ${otp}\n\nThis code expires in 10 minutes.`,
+			);
 
-		// If no errors, send successful response, which indicates client should move onto OTP
-		res.status(201).json({ redirect: "/verify-email" });
-	} catch (error) {
-		console.error("Register error:", error);
-		res.status(500).json({ error: "Internal server error" });
-	}
-});
+			// If no errors, send successful response, which indicates client should move onto OTP
+			res.status(201).json({ redirect: "/verify-email" });
+		} catch (error) {
+			console.error("Register error:", error);
+			res.status(500).json({ error: "Internal server error" });
+		}
+	},
+);
 
-app.post("/api/register/verify-email", async (req, res) => {
-	// Ensure required fields are present
-	if (!req.body?.username || !req.body?.otp) {
+app.post("/api/register/verify-email", [body("username").notEmpty(), body("otp").notEmpty()], async (req, res) => {
+	const errors = validationResult(req);
+	if (!errors.isEmpty()) {
 		return res.status(400).json({ error: "Missing required fields" });
 	}
 
@@ -151,10 +161,10 @@ app.post("/api/register/verify-email", async (req, res) => {
 	}
 });
 
-app.post("/api/register/renew-otp", async (req, res) => {
-	// Ensure required fields are present
-	if (!req.body?.username) {
-		return res.status(400).json({ error: "Missing required fields" });
+app.post("/api/register/renew-otp", [body("username").notEmpty()], async (req, res) => {
+	const errors = validationResult(req);
+	if (!errors.isEmpty()) {
+		return res.status(400).json({ error: "Missing required field" });
 	}
 
 	try {
@@ -401,7 +411,8 @@ app.get("/api/groups/:id", async (req, res) => {
 	try {
 		const group = await Group.findById(req.params.id)
 			.populate("members", "username profilePicture")
-			.populate("invitedMembers", "username profilePicture");
+			.populate("invitedMembers", "username profilePicture")
+			.populate("activities.likes", "username profilePicture");
 
 		// Error if group doesn't exist
 		if (!group) return res.status(404).json({ error: "Group not found" });
@@ -888,6 +899,7 @@ app.post("/api/extract-link-details", async (req, res) => {
 		if (browser) await browser.close();
 	}
 });
+
 // Catchall for unspecified routes (Express sends 404 anyways, but changing HTML for JSON with error property)
 app.use((req, res, next) => {
 	res.status(404).json({ error: "Path not found" });
