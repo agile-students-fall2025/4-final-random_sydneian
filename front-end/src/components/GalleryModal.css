@@ -26,6 +26,53 @@
     max-width: 100%;
     max-height: 100%;
     object-fit: contain;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.slide-left {
+    animation: slideLeft 0.3s forwards ease;
+}
+
+.slide-right {
+    animation: slideRight 0.3s forwards ease;
+}
+
+@keyframes slideLeft {
+    0% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(-40%);
+        opacity: 0;
+    }
+}
+
+@keyframes slideRight {
+    0% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(40%);
+        opacity: 0;
+    }
+}
+
+/* Add fade-in for new image */
+.gallery-main-image {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
 .gallery-close-btn {
