@@ -5,6 +5,8 @@ import "./addPlaceThroughLink.css";
 import Header from "../components/Header";
 
 export default function AddPlaceThroughLink() {
+	const [showErrorModal, setShowErrorModal] = useState(false);
+	const [errorMessage, setErrorMessage] = useState("");
 	const navigate = useNavigate();
 	const { groupId } = useParams();
 	const [link, setLink] = useState("https://tiktok.com/@rickastleyofficial/vide...");
@@ -18,50 +20,55 @@ export default function AddPlaceThroughLink() {
 	});
 
 	const handleImportDetails = async () => {
-        if (!link) return alert("Please paste a link first");
-        
-        setIsLoading(true);
-        try {
-            const JWT = localStorage.getItem("JWT");
-            const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
-            
-            const headers = { "Content-Type": "application/json" };
-            if (JWT) headers["Authorization"] = `Bearer ${JWT}`;
+		if (!link) {
+			setErrorMessage("Please paste a link first.");
+			setShowErrorModal(true);
+			return;
+		}
+		
+		setIsLoading(true);
+		try {
+			const JWT = localStorage.getItem("JWT");
+			const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+			
+			const headers = { "Content-Type": "application/json" };
+			if (JWT) headers["Authorization"] = `Bearer ${JWT}`;
 
-            const response = await fetch(`${backendURL}/api/extract-link-details`, {
-                method: "POST",
-                headers,
-                body: JSON.stringify({ link })
-            });
+			const response = await fetch(`${backendURL}/api/extract-link-details`, {
+				method: "POST",
+				headers,
+				body: JSON.stringify({ link })
+			});
 
-            const data = await response.json();
+			const data = await response.json();
 
-            if (!response.ok) {
-                // Specifically handle the "not parsable" case
-                if (data.error && data.error.includes("not parsable")) {
-                    alert("We couldn't find a specific place in that link. Please fill in the details manually.");
-                } else {
-                    throw new Error(data.error || "Failed to fetch");
-                }
-                return;
-            }
-            
-            // Success - Update State
-            setPreviewData({
-                name: data.name || "Unknown Place",
-                location: data.location || "Unknown Location",
-                highlights: data.highlights || [],
-                photo: data.photo || null,
-                tags: data.hashtags || ""
-            });
-            
-        } catch (error) {
-            console.error(error);
-            alert("Could not extract details. Try entering them manually.");
-        } finally {
-            setIsLoading(false);
-        }
-    };
+			if (!response.ok) {
+				// Set error message for the modal instead of alert
+				setErrorMessage(
+					(data.error && data.error.includes("not parsable"))
+						? "We couldn't find a specific place in that link. Please fill in the details manually."
+						: (data.error || "Failed to fetch details")
+				);
+				setShowErrorModal(true);
+				return;
+			}
+			
+			setPreviewData({
+				name: data.name || "Unknown Place",
+				location: data.location || "Unknown Location",
+				highlights: data.highlights || [],
+				photo: data.photo || null,
+				tags: data.hashtags || ""
+			});
+			
+		} catch (error) {
+			console.error(error);
+			setErrorMessage("Could not extract details. Try entering them manually.");
+			setShowErrorModal(true);
+		} finally {
+			setIsLoading(false);
+		}
+	};
 
 	const handleAddToBucketList = () => {
 		const JWT = localStorage.getItem("JWT");
@@ -181,6 +188,29 @@ export default function AddPlaceThroughLink() {
 		<div className="submit-button-container">
 			<Button text="Add to Bucket List" buttonType="primary" onClick={handleAddToBucketList} />
 		</div>
+
+		{/* Error Modal */}
+		{showErrorModal && (
+			<div className="modal-overlay" style={{
+				position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+				backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', 
+				justifyContent: 'center', alignItems: 'center', zIndex: 1000
+			}}>
+				<div className="modal-content" style={{
+					backgroundColor: 'white', padding: '2rem', borderRadius: '12px',
+					maxWidth: '90%', width: '400px', textAlign: 'center',
+					boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+				}}>
+					<h3 style={{ marginTop: 0, marginBottom: '1rem' }}>Import Failed</h3>
+					<p style={{ marginBottom: '1.5rem', color: '#666' }}>{errorMessage}</p>
+					<Button 
+						text="Close" 
+						buttonType="primary" 
+						onClick={() => setShowErrorModal(false)} 
+					/>
+				</div>
+			</div>
+		)}
 	</div>
 	);
 }
