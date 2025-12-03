@@ -6,6 +6,8 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 import { User, Memory, Activity, Group } from "./db.js";
+import OpenAI from "openai";
+import puppeteer from "puppeteer";
 
 const app = express();
 
@@ -750,11 +752,101 @@ app.delete("/api/groups/:groupId/memories/:memoryId", async (req, res) => {
 		res.status(500).json({ error: "Internal server error" });
 	}
 });
-
+/*
 // Catchall for unspecified routes (Express sends 404 anyways, but changing HTML for JSON with error property)
 app.use((req, res, next) => {
 	res.status(404).json({ error: "Path not found" });
 });
+*/
+app.post("/api/extract-link-details", async (req, res) => {
+    const { link } = req.body;
+    if (!link) return res.status(400).json({ error: "Link is required" });
+
+    let browser = null;
+    try {
+        // 1. Launch Browser
+        browser = await puppeteer.launch({ headless: "new" });
+        const page = await browser.newPage();
+        
+        // Set timeout to 15s to be faster, and realistic user agent
+        await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36');
+        
+        // Go to page
+        await page.goto(link, { waitUntil: "domcontentloaded", timeout: 15000 });
+
+        // 2. Extract clean text and Main Image
+        const pageData = await page.evaluate(() => {
+            // Get main visible text
+            const text = document.body.innerText || "";
+            
+            // Try to find the best "preview" image
+            const ogImage = document.querySelector('meta[property="og:image"]')?.content;
+            const twitterImage = document.querySelector('meta[name="twitter:image"]')?.content;
+            const firstImg = document.querySelector('img')?.src;
+            
+            return {
+                text: text.substring(0, 15000), // Get first 15k chars
+                image: ogImage || twitterImage || firstImg || ""
+            };
+        });
+
+        // If text is too short, it might be unparseable or blocked
+        if (pageData.text.length < 50) {
+            throw new Error("Page content empty or blocked");
+        }
+
+		// 3. Send to OpenAI
+		const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+		const prompt = `
+            You are an assistant that extracts travel/place details from article text.
+            
+            Task: Analyze the text below.
+            If the text describes a specific place (restaurant, cafe, park, museum, etc.), extract:
+            - "name": The name of the place.
+            - "location": The city/address.
+            - "highlights": Array of 3 short highlights (max 5 words each).
+            - "hashtags": A comma-separated string of tags.
+            
+            If the text is NOT about a place or you cannot extract these details, return JSON with "error": "link not parsable".
+
+            Raw Text:
+            ${pageData.text}
+        `;
+
+		const completion = await openai.chat.completions.create({
+			messages: [
+				{ role: "system", content: "You are a helpful assistant that extracts structured JSON data." },
+				{ role: "user", content: prompt }
+			],
+			model: "gpt-4o-mini",
+			response_format: { type: "json_object" },
+		});
+
+		const content = completion.choices[0].message.content;
+		const data = JSON.parse(content);
+
+        if (data.error) {
+            return res.status(422).json({ error: "Link not parsable (no place found)" });
+        }
+
+        res.json({
+            ...data,
+            photo: pageData.image
+        });
+
+    } catch (error) {
+        console.error("Extraction error:", error);
+        res.status(500).json({ error: "Could not parse link. Website might be private or blocking access." });
+    } finally {
+        if (browser) await browser.close();
+    }
+});
+// Catchall for unspecified routes (Express sends 404 anyways, but changing HTML for JSON with error property)
+app.use((req, res, next) => {
+	res.status(404).json({ error: "Path not found" });
+});
+
 
 app.listen(process.env.PORT || 8000, () => {
 	console.log(`Express app listening at http://localhost:${process.env.PORT || 8000}`);
