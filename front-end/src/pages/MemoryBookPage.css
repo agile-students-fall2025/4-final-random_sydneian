@@ -84,18 +84,47 @@
 	font-weight: 500;
 }
 
+.more-photos-btn {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-size: 14px;
+	background: #f4f4f4;
+	border: 1px solid #ddd;
+	cursor: pointer;
+	color: #333;
+}
+
 .memory-photo-grid {
-	display: grid;
-	grid-template-columns: repeat(2, 1fr);
+	display: flex;
+	flex-wrap: wrap;
 	gap: 8px;
 }
 
 .photo-item img {
-	width: 100%;
-	height: 120px;
+	width: 100px;
+	height: 100px;
 	object-fit: cover;
 	border-radius: 8px;
-	border: 1px solid var(--color-primary);
+	cursor: pointer;
+
+	border: none !important;
+    box-shadow: none !important;
+}
+
+.photo-item {
+	width: 100px;
+    height: 100px;
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    background: #f4f4f4; 
+    border: none;
+    box-shadow: none;
+    outline: none;
 }
 
 /* Floating + button — inside iPhone layout */

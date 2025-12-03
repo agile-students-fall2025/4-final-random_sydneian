@@ -1,5 +1,6 @@
 {
   "dependencies": {
-    "react-image-gallery": "^1.4.0"
+    "react-image-gallery": "^1.4.0",
+    "swiper": "^12.0.3"
   }
 }
