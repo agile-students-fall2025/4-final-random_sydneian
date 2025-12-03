@@ -1,14 +1,129 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { Edit2 } from "lucide-react";
 import "./ProfileSettings.css";
 import Header from "../components/Header";
 import Button from "../components/Button";
 
 function ProfileSettings() {
-	const [notif1, setNotif1] = useState(true);
-	const [notif2, setNotif2] = useState(true);
-	const [notif3, setNotif3] = useState(false);
+	const navigate = useNavigate();
+	const fileInputRef = useRef(null);
+	const [profilePicture, setProfilePicture] = useState("");
+	const [username, setUsername] = useState("");
+	const [email, setEmail] = useState("");
+	const [loading, setLoading] = useState(true);
+	const [saving, setSaving] = useState(false);
+	const [message, setMessage] = useState("");
 
-	const [theme, setTheme] = useState("light");
+	useEffect(() => {
+		const fetchUserData = async () => {
+			const JWT = localStorage.getItem("JWT");
+			if (!JWT) {
+				navigate("/login");
+				return;
+			}
+
+			try {
+				const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+				
+				// Decode JWT to get user ID
+				const payload = JSON.parse(atob(JWT.split('.')[1]));
+				const userId = payload.id;
+
+				const response = await fetch(`${backendURL}/api/users/${userId}`, {
+					headers: { Authorization: `Bearer ${JWT}` },
+				});
+
+				if (!response.ok) {
+					throw new Error("Failed to fetch user data");
+				}
+
+				const userData = await response.json();
+				setProfilePicture(userData.profilePicture || "");
+				setUsername(userData.username || "");
+				setEmail(userData.email || "");
+			} catch (error) {
+				console.error("Error fetching user data:", error);
+				setMessage("Failed to load profile data");
+			} finally {
+				setLoading(false);
+			}
+		};
+
+		fetchUserData();
+	}, [navigate]);
+
+	const handleFileChange = (e) => {
+		const file = e.target.files[0];
+		if (file) {
+			// Convert to base64 or use FileReader to preview
+			const reader = new FileReader();
+			reader.onloadend = () => {
+				setProfilePicture(reader.result);
+			};
+			reader.readAsDataURL(file);
+		}
+	};
+
+	const handleEditClick = () => {
+		fileInputRef.current?.click();
+	};
+
+	const handleSave = async () => {
+		setSaving(true);
+		setMessage("");
+
+		const JWT = localStorage.getItem("JWT");
+		if (!JWT) {
+			navigate("/login");
+			return;
+		}
+
+		try {
+			const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+			
+			// Decode JWT to get user ID
+			const payload = JSON.parse(atob(JWT.split('.')[1]));
+			const userId = payload.id;
+
+			const response = await fetch(`${backendURL}/api/users/${userId}`, {
+				method: "PUT",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${JWT}`,
+				},
+				body: JSON.stringify({
+					profilePicture,
+					username,
+					email,
+				}),
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(errorData.error || "Failed to update profile");
+			}
+
+			setMessage("Profile updated successfully!");
+			setTimeout(() => setMessage(""), 1500);
+		} catch (error) {
+			console.error("Error updating profile:", error);
+			setMessage(error.message || "Failed to update profile");
+		} finally {
+			setSaving(false);
+		}
+	};
+
+	if (loading) {
+		return (
+			<>
+				<Header backPath={"/"} title="Profile & Settings" />
+				<div className="profile-container">
+					<p>Loading...</p>
+				</div>
+			</>
+		);
+	}
 
 	return (
 		<>
@@ -16,57 +131,71 @@ function ProfileSettings() {
 			<div className="profile-container">
 				{/* Account Info */}
 				<div className="account-section">
-					<div className="profile-pic"></div>
-					<div>
-						<p className="profile-name">Lynda</p>
-						<p className="profile-email">lynda25@gmail.com</p>
+					<div className="profile-pic-container">
+						{profilePicture ? (
+							<img 
+								src={profilePicture} 
+								alt="Profile" 
+								className="profile-pic"
+							/>
+						) : (
+							<div className="profile-pic profile-pic-empty">
+								<span>No Image</span>
+							</div>
+						)}
+						<button 
+							className="edit-pic-button" 
+							onClick={handleEditClick}
+							aria-label="Edit profile picture"
+						>
+							<Edit2 size={20} />
+						</button>
+						<input
+							ref={fileInputRef}
+							type="file"
+							accept="image/*"
+							onChange={handleFileChange}
+							style={{ display: 'none' }}
+						/>
+					</div>
+					<div className="profile-info">
+						<div className="form-group">
+							<label htmlFor="username">Username</label>
+							<input
+								id="username"
+								type="text"
+								value={username}
+								onChange={(e) => setUsername(e.target.value)}
+								placeholder="Enter username"
+							/>
+						</div>
+						<div className="form-group">
+							<label htmlFor="email">Email</label>
+							<input
+								id="email"
+								type="email"
+								value={email}
+								onChange={(e) => setEmail(e.target.value)}
+								placeholder="Enter email"
+							/>
+						</div>
 					</div>
 				</div>
 
-				{/* Notifications */}
-				<div className="section">
-					<h3>Notifications</h3>
-					<div className="toggle-group">
-						<label>
-							<input type="checkbox" checked={notif1} onChange={() => setNotif1(!notif1)} /> When an event is 1 day away
-						</label>
-						<label>
-							<input type="checkbox" checked={notif2} onChange={() => setNotif2(!notif2)} /> When a new event is added
-						</label>
-						<label>
-							<input type="checkbox" checked={notif3} onChange={() => setNotif3(!notif3)} /> When an existing event is
-							modified
-						</label>
-					</div>
-				</div>
-
-				{/* Theme */}
-				<div className="section">
-					<h3>Theme</h3>
-					<select className="theme-select" value={theme} onChange={(e) => setTheme(e.target.value)}>
-						<option value="light">Light Mode</option>
-						<option value="dark">Dark Mode</option>
-						<option value="pastel">Pastel</option>
-						<option value="high-contrast">High Contrast</option>
-					</select>
-				</div>
-
-				{/* Misc */}
-				<div className="section">
-					<h3>Misc</h3>
-					<Button
-						text="Rate our app"
-						arrowType="forward"
-						buttonType="secondary"
-						onClick={() => console.log("Rate app clicked")}
-					/>
-					<Button
-						text="About"
-						arrowType="forward"
-						buttonType="secondary"
-						onClick={() => console.log("About clicked")}
-					/>
-				</div>
+				<Button
+					text={message? `${message}`: saving ? "Saving..." : "Save Changes"}
+					buttonType={message? "success" : "primary"}
+					onClick={handleSave}
+					disabled={saving}
+				/>
+				
+				<button className="sign-out-button" onClick={() => {
+					localStorage.removeItem("JWT");
+					localStorage.removeItem("emailVerified");
+					navigate("/login");
+				}}>
+					Sign Out
+				</button>
 			</div>
 		</>
 	);
