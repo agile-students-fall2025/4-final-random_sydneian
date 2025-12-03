@@ -13,12 +13,13 @@ const Button = ({ text, onClick, buttonType }) => {
     );
 };
 
-export default function AddMemoryPopup({ onClose, onAdd, memoryToEdit }) {
+export default function AddMemoryPopup({ onClose, onAdd, onEdit, memoryToEdit }) {
     const [selectedPlace, setSelectedPlace] = useState(memoryToEdit?.title || "");
     const [photos, setPhotos] = useState(memoryToEdit?.photos || []);
     const [error, setError] = useState("");
     const [activities, setActivities] = useState([]);
     const fileInputRef = useRef(null);
+	const isEditing = !!memoryToEdit;
 
     const { groupId } = useParams();
     const navigate = useNavigate();
@@ -87,33 +88,52 @@ export default function AddMemoryPopup({ onClose, onAdd, memoryToEdit }) {
     };
 
     const handleSubmit = () => {
-        if (!selectedPlace.trim()) {
-            setError("Please select a place before adding a memory.");
-            return;
-        }
+    // Only require selecting a place when ADDING
+    if (!isEditing && !selectedPlace.trim()) {
+        setError("Please select a place before adding a memory.");
+        return;
+    }
 
-        if (photos.length === 0) {
-            setError("Please add at least one photo.");
-            return;
-        }
+    // Always require at least one photo
+    if (photos.length === 0) {
+        setError("Please add at least one photo.");
+        return;
+    }
 
-        const selectedActivity = activities.find((activity) => activity.name === selectedPlace);
+    // Find the activity only when *adding*
+    let activityId;
+    if (!isEditing) {
+        const selectedActivity = activities.find(a => a.name === selectedPlace);
         if (!selectedActivity) {
             setError("Selected place is invalid.");
             return;
         }
+        activityId = selectedActivity._id;
+    } else {
+        // Reuse old activityId for editing
+        activityId = memoryToEdit.activityId;
+    }
 
-        const newMemory = {
-            title: selectedPlace,
-			images: photos,
-            activityId: selectedActivity._id,
-        };
-        onAdd(newMemory);
-        setSelectedPlace("");
-        setPhotos([]);
-        setError("");
-        onClose();
+    const payload = {
+        title: selectedPlace,
+        images: photos,
+        activityId
     };
+
+    if (isEditing) {
+        payload.memoryId = memoryToEdit._id;
+        onEdit(payload);
+    } else {
+        onAdd(payload);
+    }
+
+    // Reset & close
+    setSelectedPlace("");
+    setPhotos([]);
+    setError("");
+    onClose();
+};
+
 
     return (
         <div className="popup-overlay">

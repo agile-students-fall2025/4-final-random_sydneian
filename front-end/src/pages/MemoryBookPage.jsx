@@ -131,6 +131,47 @@ export default function MemoryBookPage() {
         console.error("Delete memory request failed:", err);
     }
 };
+
+const handleEditMemorySave = async (edited) => {
+    const JWT = localStorage.getItem("JWT");
+    if (!JWT) {
+        navigate("/login");
+        return;
+    }
+
+    try {
+        const res = await fetch(`${API_BASE}/${edited.memoryId}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${JWT}`,
+            },
+            body: JSON.stringify({
+                title: edited.title,
+                images: edited.images,
+            }),
+        });
+
+        if (!res.ok) {
+            const errData = await res.json().catch(() => ({}));
+            console.error("Edit memory error:", errData.error);
+            return;
+        }
+
+        const updated = await res.json();
+        const normalized = normalizeMemory(updated);
+
+        setMemories((prev) =>
+            prev.map((m, i) =>
+                i === editingIndex ? normalized : m
+            )
+        );
+
+        setEditingIndex(null);
+    } catch (err) {
+        console.error("Edit memory request failed:", err);
+    }
+};
     
     const handleEditMemory = (index) => {
         setEditingIndex(index);
@@ -211,6 +252,7 @@ export default function MemoryBookPage() {
                 <AddMemoryPopup
                     onClose={() => { setEditingIndex(null); setShowPopup(false); }}
                     onAdd={handleAddMemory}
+					onEdit={handleEditMemorySave}
                     memoryToEdit={editingIndex !== null ? memories[editingIndex] : null}
                 />
             )}
