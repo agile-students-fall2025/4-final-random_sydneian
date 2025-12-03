@@ -83,41 +83,59 @@
 	font-weight: 500;
 }
 
+.more-photos-btn {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-size: 14px;
+	background: #f4f4f4;
+	border: 1px solid #ddd;
+	cursor: pointer;
+	color: #333;
+}
+
 .memory-photo-grid {
-	display: grid;
-	grid-template-columns: repeat(2, 1fr);
-	gap: 8px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 per row */
+    gap: 8px;
+    width: 100%;
+}
+
+.photo-item {
+    aspect-ratio: 1 / 1; /* perfect square */
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    background: #f4f4f4;
+    width: 100%; /* takes the size from the grid cell */
+    height: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .photo-item img {
-	width: 100%;
-	height: 120px;
-	object-fit: cover;
-	border-radius: 8px;
-	border: 1px solid var(--color-primary);
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 /* Floating + button — inside iPhone layout */
 .add-memory-btn {
-	position: fixed;
-	bottom: 100px;
-	right: 24px;
-	width: 56px;
-	height: 56px;
-	background-color: var(--color-primary);
-	border-radius: 50%;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	border: 2px solid var(--color-primary);
-	cursor: pointer;
-	z-index: 10;
-	color: #fff;
-	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-	transition:
-		background-color 0.2s ease,
-		border-color 0.2s ease,
-		box-shadow 0.2s ease;
+    position: fixed;   /* stays in place while scrolling */
+    bottom: 80px;
+    right: 24px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: 2px solid var(--color-primary);
+    background: var(--color-primary);
+    color: #fff;
+    font-size: 28px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    z-index: 1000; /* So it stays above cards */
 }
 
 .add-memory-btn:hover {
