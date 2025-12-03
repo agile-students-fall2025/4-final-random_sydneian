@@ -127,17 +127,6 @@ export default function BucketList() {
 		<div className="bucket-list-container">
 			{/* Header */}
 			<div className="bucket-list-header">
-				{/* <div className="bucket-list-header-content">
-          <button 
-            className="back-button"
-            onClick={() => navigate(-1)}
-            aria-label="Back"
-          >
-            <ChevronLeft size={20} />
-          </button>
-          <h1 className="bucket-list-title">Sydneian</h1>
-          <div className="header-spacer"></div>
-        </div> */}
 				<Header
 					backPath={"/"}
 					title="Bucket List"
@@ -182,45 +171,12 @@ export default function BucketList() {
 			{/* Content Area */}
 			<div className="content-area">
 				<div className="content-list">
-					{activeTab === "todo" ? (
-						filteredActivities.length > 0 ? (
-							filteredActivities.map((activity) => (
-								<div key={activity._id} className="activity-card">
-									{/* Title and Likes Row */}
-									<div className="card-header">
-										<h3 className="card-title">{activity.name}</h3>
-										<div className="likes-container">
-											<Heart size={16} fill="currentColor" />
-											<span className="likes-count">{activity.likes?.length || 0}</span>
-										</div>
-									</div>
-
-									{/* Type and Location */}
-									<p className="card-type-location">{activity.category}</p>
-
-									{/* Added By Info */}
-									{/* Placeholder added-by info until we track creator */}
-									<p className="card-added-info">Added recently</p>
-
-									{/* Tags */}
-									<div className="card-tags">
-										{(activity.tags || []).map((tag, index) => (
-											<span key={index} className="tag">
-												#{tag}
-											</span>
-										))}
-									</div>
-								</div>
-							))
-						) : (
-							<div className="empty-state">No activities found</div>
-						)
-					) : filteredCompletedActivities.length > 0 ? (
-						filteredCompletedActivities.map((activity) => (
+					{(activeTab === "todo" ? filteredActivities : filteredCompletedActivities).length > 0 ? (
+						(activeTab === "todo" ? filteredActivities : filteredCompletedActivities).map((activity) => (
 							<div key={activity._id} className="activity-card">
 								{/* Title and Likes Row */}
 								<div className="card-header">
-									<h3 className="card-title completed">{activity.name}</h3>
+									<h3 className={"card-title" + (activeTab === "done" ? " completed" : "")}>{activity.name}</h3>
 									<div className="likes-container">
 										<Heart size={16} fill="currentColor" />
 										<span className="likes-count">{activity.likes?.length || 0}</span>
@@ -231,6 +187,7 @@ export default function BucketList() {
 								<p className="card-type-location">{activity.category}</p>
 
 								{/* Added By Info */}
+								{/* Placeholder added-by info until we track creator */}
 								<p className="card-added-info">Added recently</p>
 
 								{/* Tags */}
@@ -244,7 +201,7 @@ export default function BucketList() {
 							</div>
 						))
 					) : (
-						<div className="empty-state">No completed activities found</div>
+						<div className="empty-state">No activities found</div>
 					)}
 				</div>
 			</div>
