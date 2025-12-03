@@ -265,8 +265,7 @@ const handleEditMemorySave = async (edited) => {
                 />
             )}
         </div>
-
-        {/* ← Now the button is OUTSIDE the scroll container */}
+     
         <button className="add-memory-btn" onClick={() => setShowPopup(true)}>+</button>
     </>
 );

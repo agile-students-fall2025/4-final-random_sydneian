@@ -10,6 +10,7 @@
 	overflow-x: hidden;
 	display: flex;
 	flex-direction: column;
+	position: relative;
 }
 
 .dashboard-header {
@@ -33,7 +34,7 @@
 .menu-icon {
 	position: relative;
 	left: 96%;
-	transform: translateX(-50%);
+	transform: translateX(-55%);
 	cursor: pointer;
 	padding-top: 2px;
 	padding-left: 3.5px;
@@ -58,6 +59,7 @@
 .quick-actions {
 	margin-bottom: 40px;
 	padding: 0 16px;
+	position: relative;
 }
 
 .button-spacing {
@@ -69,6 +71,7 @@
 .my-groups {
 	padding: 0 16px 32px 16px;
 	flex: 1;
+	position: relative;
 }
 
 .section-title {

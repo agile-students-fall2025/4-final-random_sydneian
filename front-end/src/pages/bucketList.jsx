@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Heart } from "lucide-react";
+import { Heart, Plus } from "lucide-react";
 import "./bucketList.css";
 import Header from "../components/Header";
+import Button from "../components/Button";
 
 export default function BucketList() {
 	const navigate = useNavigate();
@@ -12,6 +13,7 @@ export default function BucketList() {
 	const [activities, setActivities] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
+	const [showAddPopup, setShowAddPopup] = useState(false);
 
 	useEffect(() => {
 		const fetchActivities = async () => {
@@ -93,7 +95,7 @@ export default function BucketList() {
 			navigate("/");
 			return;
 		}
-		navigate(`/groups/${groupId}/activities/add`);
+		setShowAddPopup(true);
 	};
 
 	// Navigation handlers (for future use)
@@ -144,7 +146,16 @@ export default function BucketList() {
           <h1 className="bucket-list-title">Sydneian</h1>
           <div className="header-spacer"></div>
         </div> */}
-				<Header backPath={"/"} title="Bucket List" />
+				<Header
+					backPath={"/"}
+					title="Bucket List"
+					// menuItems={[
+					// 	{ text: "Add Place", action: () => navigate(`/groups/${groupId}/activities/add`) },
+					// 	{ text: "Memory Book", action: () => navigate(`/groups/${groupId}/memories`) },
+					// 	{ text: "Decide!", action: () => navigate(`/groups/${groupId}/decide`) },
+					// 	{ text: "Group Settings", action: () => navigate(`/groups/${groupId}/settings`) },
+					// ]}
+				/>
 
 				{/* Search Bar */}
 				<div className="search-container">
@@ -182,13 +193,13 @@ export default function BucketList() {
 					{activeTab === "todo" ? (
 						filteredActivities.length > 0 ? (
 							filteredActivities.map((activity) => (
-								<div key={activity.id} className="activity-card">
+								<div key={activity._id} className="activity-card">
 									{/* Title and Likes Row */}
 									<div className="card-header">
 										<h3 className="card-title">{activity.name}</h3>
 										<div className="likes-container">
 											<Heart size={16} fill="currentColor" />
-											<span className="likes-count">{activity.likes}</span>
+											<span className="likes-count">{activity.likes?.length || 0}</span>
 										</div>
 									</div>
 
@@ -214,13 +225,13 @@ export default function BucketList() {
 						)
 					) : filteredCompletedActivities.length > 0 ? (
 						filteredCompletedActivities.map((activity) => (
-							<div key={activity.id} className="activity-card">
+							<div key={activity._id} className="activity-card">
 								{/* Title and Likes Row */}
 								<div className="card-header">
 									<h3 className="card-title completed">{activity.name}</h3>
 									<div className="likes-container">
 										<Heart size={16} fill="currentColor" />
-										<span className="likes-count">{activity.likes}</span>
+										<span className="likes-count">{activity.likes?.length || 0}</span>
 									</div>
 								</div>
 
@@ -248,8 +259,47 @@ export default function BucketList() {
 
 			{/* Floating Action Button */}
 			<button onClick={handleAddPlace} className="fab-button" aria-label="Add new item">
-				+
+				<Plus size={24} />
 			</button>
+
+						{/* Add Activity Popup */}
+						{showAddPopup && (
+				<div className="modal-overlay" style={{
+					position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+					backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', 
+					justifyContent: 'center', alignItems: 'center', zIndex: 2000
+				}} onClick={() => setShowAddPopup(false)}>
+					<div className="modal-content" style={{
+						backgroundColor: 'white', padding: '20px', borderRadius: '15px',
+						width: '85%', maxWidth: '350px', display: 'flex', flexDirection: 'column', gap: '15px'
+					}} onClick={e => e.stopPropagation()}>
+						
+						<h3 style={{textAlign: 'center', margin: '0 0 10px 0'}}>Add New Activity</h3>
+
+						<Button 
+							text="Paste Link" 
+							buttonType="primary" 
+							onClick={() => navigate(`/groups/${groupId}/activities/add/link`)}
+						/>
+						
+						<Button 
+							text="Add Manually" 
+							buttonType="secondary" 
+							onClick={() => navigate(`/groups/${groupId}/activities/add/manual`)}
+						/>
+
+						
+
+						<div style={{marginTop: '10px'}}>
+							<Button 
+								text="Cancel" 
+								buttonType="danger" 
+								onClick={() => setShowAddPopup(false)} 
+							/>
+						</div>
+					</div>
+				</div>
+			)}
 		</div>
 	);
 }

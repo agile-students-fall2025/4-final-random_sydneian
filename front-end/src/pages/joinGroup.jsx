@@ -7,6 +7,7 @@ import "../components/Dialog.css";
 export default function JoinGroupPage() {
 	const [selectedGroup, setSelectedGroup] = useState(null);
 	const [searchQuery, setSearchQuery] = useState("");
+	const [inviteCode, setInviteCode] = useState("");
 	const [invites, setInvites] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
@@ -131,6 +132,42 @@ export default function JoinGroupPage() {
 		dialogRef.current?.showModal();
 	};
 
+	const handleJoinByCode = async () => {
+		if (!inviteCode.trim()) {
+			alert("Please enter an invite code");
+			return;
+		}
+
+		try {
+			const JWT = localStorage.getItem("JWT");
+			if (!JWT) {
+				alert("Please login first");
+				return;
+			}
+
+			const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+			const response = await fetch(`${backendURL}/api/groups/join-by-code`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${JWT}`,
+				},
+				body: JSON.stringify({ inviteCode: inviteCode.trim() }),
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(errorData.error || "Failed to join group");
+			}
+
+			alert("Successfully joined group!");
+			setInviteCode("");
+		} catch (error) {
+			console.error("Error joining by code:", error);
+			alert(error.message);
+		}
+	};
+
 	if (loading) {
 		return (
 			<div className="join-container">
@@ -153,17 +190,36 @@ export default function JoinGroupPage() {
 		<div className="join-container">
 			<Header title="Join Existing Group" backPath="/" />
 
+			<div className="join-code-section">
+				<h2 className="section-title">Join by Invite Code</h2>
+				<div className="code-input-group">
+					<input
+						type="text"
+						className="code-input"
+						placeholder="Enter invite code"
+						value={inviteCode}
+						onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
+						maxLength={8}
+					/>
+					<Button text="Join" buttonType="primary" onClick={handleJoinByCode} />
+				</div>
+			</div>
+
+			<div className="divider">
+				<span>OR</span>
+			</div>
+
 			<div className="search-container">
 				<input
 					type="text"
 					className="search-input"
-					placeholder="Search..."
+					placeholder="Search invites..."
 					value={searchQuery}
 					onChange={(e) => setSearchQuery(e.target.value)}
 				/>
 			</div>
 
-			<h2 className="invites-title">Invites</h2>
+			<h2 className="invites-title">My Invites</h2>
 			<div className="invites-section">
 				{filteredInvites.length > 0 ? (
 					filteredInvites.map((invite) => (

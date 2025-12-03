@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
+import dotenv from "dotenv";
 
-// Connect to MongoDB Atlas
+dotenv.config();
+
 mongoose.connect(process.env.MONGODB_URI).catch((err) => {
 	console.error("MongoDB connection error:", err);
 	process.exit(1);
@@ -71,6 +73,7 @@ const GroupSchema = new mongoose.Schema(
 		members: [{ type: mongoose.ObjectId, ref: "User" }],
 		invitedMembers: [{ type: mongoose.ObjectId, ref: "User" }],
 		activities: [ActivitySchema],
+		inviteCode: { type: String, unique: true, sparse: true },
 	},
 	{ timestamps: true },
 );

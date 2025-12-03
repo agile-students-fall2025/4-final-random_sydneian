@@ -13,9 +13,17 @@
 	--light-gray: #e2e2e2;
 }
 
+html {
+	height: 100%;
+	overflow-x: hidden;
+	background-color: white;
+}
+
 body {
 	height: 100%;
-	background-color: #f5f5f5;
+	margin: 0;
+	background-color: white;
+	overflow-x: hidden;
 }
 
 #root {
@@ -24,6 +32,8 @@ body {
 	max-width: 400px;
 	margin: auto;
 	background-color: white;
+	position: relative;
+	overflow-x: hidden;
 }
 
 .section-title {
