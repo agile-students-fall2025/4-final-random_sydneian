@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 import { User, Memory, Activity, Group } from "./db.js";
+import { sendEmail } from "./sendEmail.js";
 import OpenAI from "openai";
 import puppeteer from "puppeteer";
 
@@ -80,14 +81,16 @@ app.post("/api/register", async (req, res) => {
 			return res.status(409).json({ error: "Email taken" });
 		}
 
+		const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
 		// Create new user in MongoDB
 		const newUser = new User({
 			username: req.body.username,
 			password: bcrypt.hashSync(req.body.password),
 			email: req.body.email,
 			emailVerified: false,
-			OTP: "000000",
-			OTPTimestamp: Date.now(),
+			OTP: otp,
+    		OTPTimestamp: Date.now(),
 			profilePicture: undefined,
 			preferences: {
 				notifications: {
@@ -98,8 +101,15 @@ app.post("/api/register", async (req, res) => {
 			},
 		});
 
+		// Save user
 		await newUser.save();
 
+		// Send OTP email
+		await sendEmail(
+			newUser.email,
+			"Your Rendezvous OTP",
+			`Your verification code is: ${otp}\n\nThis code expires in 10 minutes.`
+		);
 
 		// If no errors, send successful response, which indicates client should move onto OTP
 		res.status(201).json({ redirect: "/verify-email" });
@@ -164,11 +174,19 @@ app.post("/api/register/renew-otp", async (req, res) => {
 			return res.status(404).json({ error: "Username invalid or already verified" });
 		}
 
-		// Generate and save new OTP
-		user.OTP = "000000";
-		user.OTPTimestamp = Date.now();
-		await user.save();
+		// Generate new OTP
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
+        user.OTP = otp;
+        user.OTPTimestamp = Date.now();
+        await user.save();
+
+        // Send email
+        await sendEmail(
+            user.email,
+            "Your new Rendezvous OTP",
+            `Your new verification code is: ${otp}\n\nThis code expires in 10 minutes.`
+        );
 
 		// Successful response, indicating OTP has been renewed
 		res.send();
