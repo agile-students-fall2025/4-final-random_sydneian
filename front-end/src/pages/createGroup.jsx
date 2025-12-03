@@ -50,9 +50,7 @@ export default function CreateGroupPage() {
 
 				if (response.ok) {
 					const users = await response.json();
-					const filteredUsers = users.filter(
-						(user) => !selectedUsers.some((selected) => selected._id === user._id),
-					);
+					const filteredUsers = users.filter((user) => !selectedUsers.some((selected) => selected._id === user._id));
 					setUserSuggestions(filteredUsers);
 				}
 			} catch (error) {
