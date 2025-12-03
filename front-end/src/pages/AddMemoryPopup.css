@@ -82,8 +82,9 @@
     border: none;
     padding: 0;
     min-height: auto;
-    display: block;
     margin-bottom: 24px;
+    display: flex;
+    flex-direction: column;
 }
 
 /* --- Empty State Placeholder --- */
@@ -112,14 +113,11 @@
 /* --- Grid Layout for Photos --- */
 .photos-grid {
     display: grid;
-    /* Forces exactly 2 items per row */
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
     width: 100%;
-    /* Allow scrolling within the grid if it gets too tall */
-    max-height: 300px;
-    overflow-y: auto;
-    padding-right: 4px; /* Space for scrollbar */
+    padding-right: 4px;
+    /* removed max-height + overflow */
 }
 
 .photo-item {

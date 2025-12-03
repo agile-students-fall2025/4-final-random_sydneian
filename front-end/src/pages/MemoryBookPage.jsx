@@ -88,6 +88,7 @@ export default function MemoryBookPage() {
     if (loading) return <div className="memory-empty">Loading...</div>;
 
     return (
+    <>
         <div className="memory-container">
             <Header backPath={`/groups/${groupId}/activities`} title="Our Memories" />
 
@@ -113,21 +114,18 @@ export default function MemoryBookPage() {
                                 <h2 className="memory-title">{memory.title}</h2>
                                 <p className="memory-date">Added on {memory.dateAdded}</p>
                             </div>
-                            
-                            {/* --- THIS IS THE PART YOU ASKED ABOUT --- */}
+
                             <div className="memory-photo-grid">
-                                {/* Only show first 3 photos */}
                                 {memory.photos.slice(0, 3).map((photo, i) => (
                                     <div 
                                         key={i} 
-                                        className="photo-item" 
+                                        className="photo-item"
                                         onClick={() => openGalleryHandler(memory.photos, i)}
                                     >
                                         <img src={photo} alt={`Memory ${i}`} />
                                     </div>
                                 ))}
 
-                                {/* If more than 3, show the button */}
                                 {memory.photos.length > 3 && (
                                     <div
                                         className="photo-item more-photos-btn"
@@ -137,7 +135,6 @@ export default function MemoryBookPage() {
                                     </div>
                                 )}
                             </div>
-                            {/* ---------------------------------------- */}
 
                             <div className="memory-actions-icons">
                                 <Pencil size={18} className="icon edit-icon" onClick={() => handleEditMemory(index)} />
@@ -148,8 +145,6 @@ export default function MemoryBookPage() {
                 </div>
             )}
 
-            <button className="add-memory-btn" onClick={() => setShowPopup(true)}>+</button>
-
             {showPopup && (
                 <AddMemoryPopup
                     onClose={() => { setEditingIndex(null); setShowPopup(false); }}
@@ -158,7 +153,6 @@ export default function MemoryBookPage() {
                 />
             )}
 
-            {/* Render the Custom Gallery */}
             {openGallery && (
                 <GalleryModal
                     photos={galleryPhotos}
@@ -167,5 +161,9 @@ export default function MemoryBookPage() {
                 />
             )}
         </div>
-    );
+
+        {/* ← Now the button is OUTSIDE the scroll container */}
+        <button className="add-memory-btn" onClick={() => setShowPopup(true)}>+</button>
+    </>
+);
 }
