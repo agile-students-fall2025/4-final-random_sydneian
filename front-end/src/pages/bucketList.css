@@ -26,60 +26,6 @@
 	padding: 24px;
 }
 
-.bucket-list-header-content {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	padding: 16px;
-}
-
-.back-button {
-	width: 24px;
-	height: 24px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	cursor: pointer;
-	background: none;
-	border: 2px solid var(--color-primary);
-	border-radius: 4px;
-	padding: 0;
-	transition:
-		background-color 0.2s ease,
-		border-color 0.2s ease,
-		box-shadow 0.2s ease;
-}
-
-.back-button:hover {
-	background-color: var(--color-accent);
-	border-color: var(--color-accent);
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.back-button:focus {
-	outline: 2px solid var(--color-accent);
-	outline-offset: 2px;
-}
-
-.back-button svg {
-	width: 20px;
-	height: 20px;
-	stroke: currentColor;
-}
-
-.bucket-list-title {
-	position: absolute;
-	left: 50%;
-	transform: translateX(-50%);
-	font-size: 24px;
-	font-weight: 700;
-	margin: 0;
-}
-
-.header-spacer {
-	width: 24px;
-}
-
 .search-container {
 	padding: 0 16px 16px 16px;
 	position: relative;

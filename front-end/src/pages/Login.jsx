@@ -44,8 +44,14 @@ function Login() {
 
 	return (
 		<div className="login-container">
-			<h1 className="login-title">Rendezvous</h1>
-			<p className="login-subtitle">Plan together, decide faster</p>
+			<div className="auth-header-row">
+				<img src="/src/assets/logo.png" alt="Rendezvous logo" className="auth-logo-large" />
+
+				<div className="auth-text-group">
+					<h1 className="auth-title">rendezvous</h1>
+					<p className="auth-subtitle">plan together, decide faster</p>
+				</div>
+			</div>
 
 			{error && <p className="login-error">{error}</p>}
 

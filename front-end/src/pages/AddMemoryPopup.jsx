@@ -1,19 +1,30 @@
 import React, { useState, useEffect, useRef } from "react";
 import { ChevronDown } from "lucide-react";
-import Button from "../components/Button";
 import "./AddMemoryPopup.css";
 import { useParams, useNavigate } from "react-router-dom";
 
-export default function AddMemoryPopup({ onClose, onAdd, memoryToEdit }) {
+// Simple internal Button component to avoid import errors
+const Button = ({ text, onClick, buttonType }) => {
+	const className = buttonType === "primary" ? "btn-base btn-primary" : "btn-base btn-secondary";
+	return (
+		<button className={className} onClick={onClick}>
+			{text}
+		</button>
+	);
+};
+
+export default function AddMemoryPopup({ onClose, onAdd, onEdit, memoryToEdit }) {
 	const [selectedPlace, setSelectedPlace] = useState(memoryToEdit?.title || "");
 	const [photos, setPhotos] = useState(memoryToEdit?.photos || []);
 	const [error, setError] = useState("");
 	const [activities, setActivities] = useState([]);
 	const fileInputRef = useRef(null);
+	const isEditing = !!memoryToEdit;
 
 	const { groupId } = useParams();
 	const navigate = useNavigate();
-	const BACKEND = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+	// Fixed: Removed import.meta to prevent build errors
+	const BACKEND = "http://localhost:8000";
 
 	useEffect(() => {
 		const fetchActivities = async () => {
@@ -70,33 +81,53 @@ export default function AddMemoryPopup({ onClose, onAdd, memoryToEdit }) {
 	};
 
 	const handleRemovePhoto = (index) => {
-		setPhotos((prev) => prev.filter((_, i) => i !== index));
+		// Confirmation dialog added here
+		if (window.confirm("Are you sure you want to delete this photo?")) {
+			setPhotos((prev) => prev.filter((_, i) => i !== index));
+		}
 	};
 
 	const handleSubmit = () => {
-		if (!selectedPlace.trim()) {
+		// Only require selecting a place when ADDING
+		if (!isEditing && !selectedPlace.trim()) {
 			setError("Please select a place before adding a memory.");
 			return;
 		}
 
+		// Always require at least one photo
 		if (photos.length === 0) {
 			setError("Please add at least one photo.");
 			return;
 		}
 
-		const selectedActivity = activities.find((activity) => activity.name === selectedPlace);
-		if (!selectedActivity) {
-			setError("Selected place is invalid.");
-			return;
+		// Find the activity only when *adding*
+		let activityId;
+		if (!isEditing) {
+			const selectedActivity = activities.find((a) => a.name === selectedPlace);
+			if (!selectedActivity) {
+				setError("Selected place is invalid.");
+				return;
+			}
+			activityId = selectedActivity._id;
+		} else {
+			// Reuse old activityId for editing
+			activityId = memoryToEdit.activityId;
 		}
 
-		const newMemory = {
-			place: selectedPlace,
-			photos,
+		const payload = {
 			title: selectedPlace,
-			activityId: selectedActivity._id,
+			images: photos,
+			activityId,
 		};
-		onAdd(newMemory);
+
+		if (isEditing) {
+			payload.memoryId = memoryToEdit._id;
+			onEdit(payload);
+		} else {
+			onAdd(payload);
+		}
+
+		// Reset & close
 		setSelectedPlace("");
 		setPhotos([]);
 		setError("");
@@ -138,7 +169,7 @@ export default function AddMemoryPopup({ onClose, onAdd, memoryToEdit }) {
 				{error && <p className="error-text">{error}</p>}
 
 				{/* Add Photos Area */}
-				<div className="add-photos-container">
+				<div className={`add-photos-container ${photos.length > 0 ? "has-photos" : ""}`}>
 					{photos.length === 0 ? (
 						<div className="add-photos-placeholder" onClick={handleAddPhoto}>
 							<span className="add-photos-plus">+</span>
@@ -149,14 +180,22 @@ export default function AddMemoryPopup({ onClose, onAdd, memoryToEdit }) {
 							{photos.map((photo, index) => (
 								<div key={index} className="photo-item">
 									<img src={photo} alt={`Preview ${index}`} />
-
-									{/* Replace raw button with <Button /> */}
-									<Button text="✕" buttonType="secondary" onClick={() => handleRemovePhoto(index)} />
+									<button
+										className="remove-btn"
+										onClick={(e) => {
+											e.stopPropagation();
+											handleRemovePhoto(index);
+										}}
+									>
+										✕
+									</button>
 								</div>
 							))}
-							<div className="add-more-photos" onClick={handleAddPhoto}>
-								<span className="add-photos-plus">+</span>
-								<span className="add-photos-text">Add Photos</span>
+
+							{/* This is the small square button that appears at the end of the list */}
+							<div className="add-more-photos-tile" onClick={handleAddPhoto}>
+								<span className="add-photos-plus small">+</span>
+								<span className="add-photos-text small">Add</span>
 							</div>
 						</div>
 					)}

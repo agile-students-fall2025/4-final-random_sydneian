@@ -32,8 +32,6 @@ export default function DashboardPage() {
 					return;
 				}
 
-				const backendURL = "http://localhost:8000";
-
 				// Get list of group IDs
 				const groupIdsResponse = await fetch(`${backendURL}/api/groups`, {
 					headers: {
@@ -108,8 +106,8 @@ export default function DashboardPage() {
 	const handleLeaveGroup = async (groupId) => {
 		try {
 			const JWT = localStorage.getItem("JWT");
-			const backendURL = "http://localhost:8000";
-			
+			const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+
 			const response = await fetch(`${backendURL}/api/groups/${groupId}/leave`, {
 				method: "POST",
 				headers: {
@@ -290,7 +288,7 @@ export default function DashboardPage() {
 			</div>
 
 			<div className="my-groups">
-				<h2 className="section-title">My Groups (Swipe to delete)</h2>
+				<h2 className="section-title">My Groups</h2>
 				<div className="button-spacing">
 					{groups.map((group) => (
 						<div

@@ -59,6 +59,34 @@ function EmailVerification() {
 		}
 	};
 
+	const handleResend = async () => {
+		const username = sessionStorage.getItem("username");
+		if (!username) {
+			alert("Session expired. Please register again.");
+			navigate("/register");
+			return;
+		}
+
+		try {
+			const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+
+			const response = await fetch(`${backendURL}/api/register/renew-otp`, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ username }),
+			});
+
+			if (!response.ok) {
+				const data = await response.json();
+				throw new Error(data.error || "Failed to resend OTP");
+			}
+
+			alert("A new OTP has been sent to your email.");
+		} catch (err) {
+			alert(err.message);
+		}
+	};
+
 	return (
 		<div className="verify-container">
 			<div className="verify-box">
@@ -81,7 +109,10 @@ function EmailVerification() {
 				<Button text="Verify" buttonType="primary" onClick={handleVerify} />
 
 				<p className="resend-text">
-					Didn’t receive it? Check spam, otherwise <span className="resend-link">click to resend</span>
+					Didn’t receive it? Check spam, otherwise{" "}
+					<span className="resend-link" onClick={handleResend}>
+						click to resend
+					</span>
 				</p>
 			</div>
 		</div>
