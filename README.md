@@ -34,7 +34,60 @@ More information on how to contribute can be found [here](https://github.com/agi
 
 ## How to Build and Test
 
-Not there yet.
+### Building the Project
+
+To build the front-end and back-end:
+
+**Front-End**
+1. Navigate to the `front-end` directory:
+    ```bash
+    cd front-end
+    ```
+2. Install dependencies:
+    ```bash
+    npm install
+    ```
+
+**Back-End**
+1. Navigate to the `back-end` directory:
+    ```bash
+    cd back-end
+    ```
+2. Install dependencies:
+    ```bash
+    npm install
+    ```
+
+### Running the App Locally
+
+**Front-End**
+```bash
+npm run dev
+```
+The app will be available at [http://localhost:3000](http://localhost:3000).
+
+**Back-End**
+```bash
+npm run dev
+```
+By default, the server will be running on [http://localhost:8000](http://localhost:8000).
+
+### Running Tests
+
+**Back-End**
+```bash
+npm test
+```
+
+Or with coverage report:
+```bash
+npm run test:coverage
+```
+
+### Notes
+- Ensure you have Node.js and npm installed (see prerequisites above).
+- Database setup and environment configuration are required for back-end tests.
+- Back-end server runs on [http://localhost:8000](http://localhost:8000).
 
 ### Project Links
 
