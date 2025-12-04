@@ -57,6 +57,14 @@ To build the front-end and back-end:
     ```bash
     npm install
     ```
+3. Create a `.env` file with your environment variables inside inside /back-end:
+    ```bash
+    MONGODB_URI=your-mongodb-connection-string
+    JWT_SECRET=your-secret-key
+    PORT=8000
+    FRONTEND_ORIGIN=http://localhost:3000
+    OPENAI_API_KEY=your-openai-key
+    ```
 
 ### Running the App Locally
 
@@ -84,10 +92,21 @@ Or with coverage report:
 npm run test:coverage
 ```
 
+### Database Setup
+
+To seed the database with test data (already done in provided MONGODB_URI):
+```bash
+cd back-end
+node --env-file .env seed-db.js
+```
+
+This creates 5 users (all with password `password123`), 5 groups with overlapping memberships, 10 activities per group, and sample memories with images.
+
 ### Notes
-- Ensure you have Node.js and npm installed (see prerequisites above).
-- Database setup and environment configuration are required for back-end tests.
-- Back-end server runs on [http://localhost:8000](http://localhost:8000).
+- Ensure you have Node.js (v18+) and npm installed.
+- MongoDB Atlas connection and environment variables are required.
+- Backend server runs on [http://localhost:8000](http://localhost:8000).
+- Frontend runs on [http://localhost:3000](http://localhost:3000).
 
 ### Project Links
 
