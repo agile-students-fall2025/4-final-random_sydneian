@@ -333,14 +333,18 @@ app.post("/api/groups", async (req, res) => {
 			name: req.body.name,
 			desc: req.body.desc || "",
 			icon: req.body.icon || undefined,
+			owner: req.user.id,
 			members: [req.user.id],
+			admins: [req.user.id],
 			invitedMembers: invitedMemberIds,
 			activities: [],
 		});
 
 		await newGroup.save();
 
+		await newGroup.populate("owner", "username profilePicture");
 		await newGroup.populate("members", "username profilePicture");
+		await newGroup.populate("admins", "username profilePicture");
 		await newGroup.populate("invitedMembers", "username profilePicture");
 
 		res.status(201).json(newGroup);
@@ -372,7 +376,9 @@ app.post("/api/groups/:id/accept", async (req, res) => {
 		group.invitedMembers = group.invitedMembers.filter((memberId) => memberId.toString() !== req.user.id);
 		await group.save();
 
+		await group.populate("owner", "username profilePicture");
 		await group.populate("members", "username profilePicture");
+		await group.populate("admins", "username profilePicture");
 		await group.populate("invitedMembers", "username profilePicture");
 
 		res.json(group);
@@ -396,7 +402,14 @@ app.post("/api/groups/:id/leave", async (req, res) => {
 			return res.status(400).json({ error: "User is not a member of this group" });
 		}
 
+		// Owner cannot leave the group, they must delete it instead
+		const isOwner = group.owner.toString() === req.user.id;
+		if (isOwner) {
+			return res.status(400).json({ error: "Group owner cannot leave. Please delete the group or transfer ownership." });
+		}
+
 		group.members = group.members.filter((memberId) => memberId.toString() !== req.user.id);
+		group.admins = group.admins.filter((adminId) => adminId.toString() !== req.user.id);
 		await group.save();
 
 		res.json({ message: "Left group successfully" });
@@ -406,11 +419,152 @@ app.post("/api/groups/:id/leave", async (req, res) => {
 	}
 });
 
+// Remove a member from the group (admin only)
+app.post("/api/groups/:id/remove-member", async (req, res) => {
+	try {
+		const group = await Group.findById(req.params.id);
+
+		if (!group) {
+			return res.status(404).json({ error: "Group not found" });
+		}
+
+		// Check if requester is an admin
+		const isAdmin = group.admins.some((adminId) => adminId.toString() === req.user.id);
+		if (!isAdmin) {
+			return res.status(403).json({ error: "Only admins can remove members" });
+		}
+
+		if (!req.body?.userId) {
+			return res.status(400).json({ error: "Missing required field: userId" });
+		}
+
+		// Prevent removing yourself (use leave endpoint instead)
+		if (req.body.userId === req.user.id) {
+			return res.status(400).json({ error: "Cannot remove yourself. Use leave endpoint instead" });
+		}
+
+		// Prevent removing the owner
+		if (req.body.userId === group.owner.toString()) {
+			return res.status(400).json({ error: "Cannot remove the group owner" });
+		}
+
+		const isMember = group.members.some((memberId) => memberId.toString() === req.body.userId);
+		if (!isMember) {
+			return res.status(400).json({ error: "User is not a member of this group" });
+		}
+
+		// Remove from both members and admins arrays
+		group.members = group.members.filter((memberId) => memberId.toString() !== req.body.userId);
+		group.admins = group.admins.filter((adminId) => adminId.toString() !== req.body.userId);
+		await group.save();
+
+		await group.populate("owner", "username profilePicture");
+		await group.populate("members", "username profilePicture");
+		await group.populate("admins", "username profilePicture");
+		await group.populate("invitedMembers", "username profilePicture");
+
+		res.json({ message: "Member removed successfully", group });
+	} catch (error) {
+		console.error("Remove member error:", error);
+		res.status(500).json({ error: "Internal server error" });
+	}
+});
+
+// Promote a member to admin (admin only)
+app.post("/api/groups/:id/promote-admin", async (req, res) => {
+	try {
+		const group = await Group.findById(req.params.id);
+
+		if (!group) {
+			return res.status(404).json({ error: "Group not found" });
+		}
+
+		// Check if requester is an admin
+		const isAdmin = group.admins.some((adminId) => adminId.toString() === req.user.id);
+		if (!isAdmin) {
+			return res.status(403).json({ error: "Only admins can promote members" });
+		}
+
+		if (!req.body?.userId) {
+			return res.status(400).json({ error: "Missing required field: userId" });
+		}
+
+		const isMember = group.members.some((memberId) => memberId.toString() === req.body.userId);
+		if (!isMember) {
+			return res.status(400).json({ error: "User is not a member of this group" });
+		}
+
+		const isAlreadyAdmin = group.admins.some((adminId) => adminId.toString() === req.body.userId);
+		if (isAlreadyAdmin) {
+			return res.status(400).json({ error: "User is already an admin" });
+		}
+
+		group.admins.push(req.body.userId);
+		await group.save();
+
+		await group.populate("owner", "username profilePicture");
+		await group.populate("members", "username profilePicture");
+		await group.populate("admins", "username profilePicture");
+		await group.populate("invitedMembers", "username profilePicture");
+
+		res.json({ message: "User promoted to admin successfully", group });
+	} catch (error) {
+		console.error("Promote admin error:", error);
+		res.status(500).json({ error: "Internal server error" });
+	}
+});
+
+// Demote an admin to regular member (owner only)
+app.post("/api/groups/:id/demote-admin", async (req, res) => {
+	try {
+		const group = await Group.findById(req.params.id);
+
+		if (!group) {
+			return res.status(404).json({ error: "Group not found" });
+		}
+
+		// Check if requester is the owner
+		const isOwner = group.owner.toString() === req.user.id;
+		if (!isOwner) {
+			return res.status(403).json({ error: "Only the group owner can demote admins" });
+		}
+
+		if (!req.body?.userId) {
+			return res.status(400).json({ error: "Missing required field: userId" });
+		}
+
+		// Cannot demote the owner
+		if (req.body.userId === group.owner.toString()) {
+			return res.status(400).json({ error: "Cannot demote the group owner" });
+		}
+
+		const isTargetAdmin = group.admins.some((adminId) => adminId.toString() === req.body.userId);
+		if (!isTargetAdmin) {
+			return res.status(400).json({ error: "User is not an admin" });
+		}
+
+		group.admins = group.admins.filter((adminId) => adminId.toString() !== req.body.userId);
+		await group.save();
+
+		await group.populate("owner", "username profilePicture");
+		await group.populate("members", "username profilePicture");
+		await group.populate("admins", "username profilePicture");
+		await group.populate("invitedMembers", "username profilePicture");
+
+		res.json({ message: "Admin demoted successfully", group });
+	} catch (error) {
+		console.error("Demote admin error:", error);
+		res.status(500).json({ error: "Internal server error" });
+	}
+});
+
 // Get group details
 app.get("/api/groups/:id", async (req, res) => {
 	try {
 		const group = await Group.findById(req.params.id)
+			.populate("owner", "username profilePicture")
 			.populate("members", "username profilePicture")
+			.populate("admins", "username profilePicture")
 			.populate("invitedMembers", "username profilePicture")
 			.populate("activities.likes", "username profilePicture");
 
@@ -535,7 +689,9 @@ app.put("/api/groups/:id", async (req, res) => {
 
 		await group.save();
 
+		await group.populate("owner", "username profilePicture");
 		await group.populate("members", "username profilePicture");
+		await group.populate("admins", "username profilePicture");
 		await group.populate("invitedMembers", "username profilePicture");
 
 		res.json(group);
@@ -545,7 +701,7 @@ app.put("/api/groups/:id", async (req, res) => {
 	}
 });
 
-// Delete a group (only if user is the last member)
+// Delete a group (owner only)
 app.delete("/api/groups/:id", async (req, res) => {
 	try {
 		const group = await Group.findById(req.params.id);
@@ -554,15 +710,10 @@ app.delete("/api/groups/:id", async (req, res) => {
 			return res.status(404).json({ error: "Group not found" });
 		}
 
-		const isMember = group.members.some((memberId) => memberId.toString() === req.user.id);
-		if (!isMember) {
-			return res.status(403).json({ error: "Only members can delete the group" });
-		}
-
-		if (group.members.length > 1) {
-			return res.status(400).json({
-				error: "Cannot delete group with multiple members. Please leave the group instead.",
-			});
+		// Only the owner can delete the group
+		const isOwner = group.owner.toString() === req.user.id;
+		if (!isOwner) {
+			return res.status(403).json({ error: "Only the group owner can delete the group" });
 		}
 
 		await Group.findByIdAndDelete(req.params.id);
@@ -611,7 +762,9 @@ app.post("/api/groups/:id/invite", async (req, res) => {
 		group.invitedMembers.push(req.body.userId);
 		await group.save();
 
+		await group.populate("owner", "username profilePicture");
 		await group.populate("members", "username profilePicture");
+		await group.populate("admins", "username profilePicture");
 		await group.populate("invitedMembers", "username profilePicture");
 
 		res.json({ message: "User invited successfully", group });
@@ -666,7 +819,9 @@ app.post("/api/groups/join-by-code", async (req, res) => {
 		group.invitedMembers = group.invitedMembers.filter((memberId) => memberId.toString() !== req.user.id);
 		await group.save();
 
+		await group.populate("owner", "username profilePicture");
 		await group.populate("members", "username profilePicture");
+		await group.populate("admins", "username profilePicture");
 		await group.populate("invitedMembers", "username profilePicture");
 
 		res.json(group);

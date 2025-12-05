@@ -199,13 +199,101 @@
 	height: 48px;
 	border-radius: 50%;
 	object-fit: cover;
+	flex-shrink: 0;
+}
+
+.member-info {
+	flex: 1;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: wrap;
 }
 
 .member-username {
-	flex: 1;
 	font-size: 16px;
 	font-weight: 600;
 	color: #333;
+}
+
+.owner-badge {
+	padding: 4px 10px;
+	background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+	color: #333;
+	border-radius: 12px;
+	font-size: 11px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	box-shadow: 0 2px 4px rgba(255, 215, 0, 0.3);
+}
+
+.admin-badge {
+	padding: 4px 10px;
+	background-color: var(--color-primary);
+	color: white;
+	border-radius: 12px;
+	font-size: 11px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.member-actions {
+	display: flex;
+	gap: 6px;
+	flex-shrink: 0;
+}
+
+.action-button {
+	padding: 8px;
+	border: none;
+	border-radius: 6px;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: all 0.2s ease;
+	background-color: white;
+	border: 2px solid #ddd;
+}
+
+.action-button:hover {
+	transform: scale(1.05);
+}
+
+.action-button:active {
+	transform: scale(0.95);
+}
+
+.promote-button {
+	color: #28a745;
+	border-color: #28a745;
+}
+
+.promote-button:hover {
+	background-color: #28a745;
+	color: white;
+}
+
+.demote-button {
+	color: #ffc107;
+	border-color: #ffc107;
+}
+
+.demote-button:hover {
+	background-color: #ffc107;
+	color: white;
+}
+
+.remove-button {
+	color: #dc3545;
+	border-color: #dc3545;
+}
+
+.remove-button:hover {
+	background-color: #dc3545;
+	color: white;
 }
 
 .pending-badge {

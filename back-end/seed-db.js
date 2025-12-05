@@ -110,47 +110,118 @@ async function seedDatabase() {
 		});
 
 		console.log("Connected to MongoDB");
-		console.log("Cleaning database...\n");
+		// console.log("Cleaning database...\n");
 
-		await User.deleteMany({});
-		await Group.deleteMany({});
+		// await User.deleteMany({});
+		// await Group.deleteMany({});
 
-		console.log("Database cleaned\n");
-		console.log("Creating 5 users...\n");
+		// console.log("Database cleaned\n");
+		// console.log("Creating 5 users...\n");
 
 		const hashedPassword = bcrypt.hashSync(COMMON_PASSWORD, 10);
 		const createdUsers = [];
 
 		for (const userData of users) {
-			const user = new User({
-				username: userData.username,
-				password: hashedPassword,
-				email: userData.email,
-				emailVerified: true,
-				profilePicture: userData.pic,
-				preferences: {
-					notifications: {
-						eventNextDay: true,
-						newEventAdded: true,
+			// Check if user already exists
+			let user = await User.findOne({ email: userData.email });
+			
+			if (user) {
+				// Update existing user
+				user.username = userData.username;
+				user.password = hashedPassword;
+				user.emailVerified = true;
+				user.profilePicture = userData.pic;
+				if (!user.preferences) {
+					user.preferences = {
+						notifications: {
+							eventNextDay: true,
+							newEventAdded: true,
+						},
+						theme: ["light", "dark", "pastel"][getRandomInt(0, 2)],
+					};
+				}
+				await user.save();
+				console.log(`Updated: ${user.username} (${user.email})`);
+			} else {
+				// Create new user
+				user = new User({
+					username: userData.username,
+					password: hashedPassword,
+					email: userData.email,
+					emailVerified: true,
+					profilePicture: userData.pic,
+					preferences: {
+						notifications: {
+							eventNextDay: true,
+							newEventAdded: true,
+						},
+						theme: ["light", "dark", "pastel"][getRandomInt(0, 2)],
 					},
-					theme: ["light", "dark", "pastel"][getRandomInt(0, 2)],
-				},
-			});
-			await user.save();
+				});
+				await user.save();
+				console.log(`Created: ${user.username} (${user.email})`);
+			}
 			createdUsers.push(user);
-			console.log(`${user.username} (${user.email})`);
 		}
 
-		console.log("\n📦 Creating 5 groups (with overlapping members)...\n");
+		console.log("Updating existing groups and creating new ones...\n");
+
+		// Update existing groups to add owner and admins fields if missing
+		const existingGroups = await Group.find({});
+		let updatedCount = 0;
+		
+		for (const group of existingGroups) {
+			let needsUpdate = false;
+			
+			// If no owner, set first member as owner
+			if (!group.owner && group.members.length > 0) {
+				group.owner = group.members[0];
+				needsUpdate = true;
+			}
+			
+			// If no admins array or empty, add owner to admins
+			if (!group.admins || group.admins.length === 0) {
+				if (group.owner) {
+					group.admins = [group.owner];
+					needsUpdate = true;
+				} else if (group.members.length > 0) {
+					group.admins = [group.members[0]];
+					needsUpdate = true;
+				}
+			}
+			
+			// Ensure owner is in admins array
+			if (group.owner && (!group.admins || !group.admins.some(a => a.toString() === group.owner.toString()))) {
+				if (!group.admins) {
+					group.admins = [];
+				}
+				group.admins.push(group.owner);
+				needsUpdate = true;
+			}
+			
+			if (needsUpdate) {
+				await group.save();
+				updatedCount++;
+				console.log(`Updated group: ${group.name} (added owner and admins)`);
+			}
+		}
+		
+		if (updatedCount > 0) {
+			console.log(`\nUpdated ${updatedCount} existing groups\n`);
+		}
 
 		const createdGroups = [];
 
 		for (let i = 0; i < 5; i++) {
 			const template = groupTemplates[i];
+			
+			// Check if group already exists
+			let group = await Group.findOne({ name: template.name });
 
 			const numMembers = getRandomInt(2, 4);
 			const memberUsers = getRandomItems(createdUsers, numMembers);
 			const memberIds = memberUsers.map((u) => u._id);
+			const ownerId = memberIds[0]; // First member becomes owner
 
 			const numInvited = getRandomInt(0, 2);
 			const invitedUsers = getRandomItems(
@@ -159,88 +230,146 @@ async function seedDatabase() {
 			);
 			const invitedIds = invitedUsers.map((u) => u._id);
 
-			const group = new Group({
-				name: template.name,
-				desc: template.desc,
-				icon: `https://picsum.photos/seed/group${i}/128/128`,
-				members: memberIds,
-				invitedMembers: invitedIds,
-				inviteCode: crypto.randomBytes(4).toString("hex").toUpperCase(),
-				activities: [],
-			});
+			if (group) {
+				// Update existing group - preserve existing data, only update what's needed
+				if (!group.desc) group.desc = template.desc;
+				if (!group.icon) group.icon = `https://picsum.photos/seed/group${i}/128/128`;
+				
+				// Update members and invited members
+				group.members = memberIds;
+				group.invitedMembers = invitedIds;
+				
+				// Set owner if not set, or update if needed
+				if (!group.owner) {
+					group.owner = ownerId;
+				}
+				
+				// Ensure owner is in admins array
+				if (!group.admins || group.admins.length === 0) {
+					group.admins = [group.owner];
+				} else if (!group.admins.some(a => a.toString() === group.owner.toString())) {
+					group.admins.push(group.owner);
+				}
+				
+				if (!group.inviteCode) {
+					group.inviteCode = crypto.randomBytes(4).toString("hex").toUpperCase();
+				}
+				
+				// Preserve existing activities - only add new ones if group has no activities
+				if (!group.activities || group.activities.length === 0) {
+					group.activities = [];
+				}
+				
+				console.log(`Updated: ${group.name} (preserved existing activities)`);
+			} else {
+				// Create new group
+				group = new Group({
+					name: template.name,
+					desc: template.desc,
+					icon: `https://picsum.photos/seed/group${i}/128/128`,
+					owner: ownerId,
+					members: memberIds,
+					admins: [ownerId], // Owner is admin
+					invitedMembers: invitedIds,
+					inviteCode: crypto.randomBytes(4).toString("hex").toUpperCase(),
+					activities: [],
+				});
+				
+				console.log(`Created: ${group.name}`);
+			}
 
-			console.log(`${group.name}`);
+			console.log(`Owner: ${memberUsers[0].username}`);
 			console.log(`Members: ${memberUsers.map((u) => u.username).join(", ")}`);
 			if (invitedUsers.length > 0) {
 				console.log(`Invited: ${invitedUsers.map((u) => u.username).join(", ")}`);
 			}
 			console.log(`Invite Code: ${group.inviteCode}`);
 
-			const groupActivities = getRandomItems(activities, 10);
+			// Only add activities if group doesn't have any
+			if (!group.activities || group.activities.length === 0) {
+				const groupActivities = getRandomItems(activities, 10);
 
-			for (let j = 0; j < groupActivities.length; j++) {
-				const actTemplate = groupActivities[j];
-				const isDone = Math.random() > 0.6;
+				for (let j = 0; j < groupActivities.length; j++) {
+					const actTemplate = groupActivities[j];
+					const isDone = Math.random() > 0.6;
 
-				const activity = {
-					name: actTemplate.name,
-					category: actTemplate.category,
-					tags: actTemplate.tags,
-					likes: getRandomItems(memberIds, getRandomInt(0, memberIds.length)),
-					location: {
-						type: "Point",
-						coordinates: [-74.006 + Math.random() * 0.1, 40.7128 + Math.random() * 0.1],
-					},
-					memories: [],
-					done: isDone,
-				};
+					const activity = {
+						name: actTemplate.name,
+						category: actTemplate.category,
+						tags: actTemplate.tags,
+						likes: getRandomItems(memberIds, getRandomInt(0, memberIds.length)),
+						location: {
+							type: "Point",
+							coordinates: [-74.006 + Math.random() * 0.1, 40.7128 + Math.random() * 0.1],
+						},
+						memories: [],
+						done: isDone,
+					};
 
-				if (isDone && Math.random() > 0.5) {
-					const numMemories = getRandomInt(1, 3);
-					for (let k = 0; k < numMemories; k++) {
-						const numImages = getRandomInt(1, 4);
-						activity.memories.push({
-							title: memoryTitles[getRandomInt(0, memoryTitles.length - 1)],
-							images: getRandomItems(memoryImages, numImages),
-							createdAt: new Date(Date.now() - getRandomInt(1, 30) * 24 * 60 * 60 * 1000),
-							updatedAt: new Date(Date.now() - getRandomInt(1, 30) * 24 * 60 * 60 * 1000),
-						});
+					if (isDone && Math.random() > 0.5) {
+						const numMemories = getRandomInt(1, 3);
+						for (let k = 0; k < numMemories; k++) {
+							const numImages = getRandomInt(1, 4);
+							activity.memories.push({
+								title: memoryTitles[getRandomInt(0, memoryTitles.length - 1)],
+								images: getRandomItems(memoryImages, numImages),
+								createdAt: new Date(Date.now() - getRandomInt(1, 30) * 24 * 60 * 60 * 1000),
+								updatedAt: new Date(Date.now() - getRandomInt(1, 30) * 24 * 60 * 60 * 1000),
+							});
+						}
 					}
-				}
 
-				group.activities.push(activity);
+					group.activities.push(activity);
+				}
 			}
 
 			await group.save();
 			createdGroups.push(group);
-			console.log(`      ✓ Added ${group.activities.length} activities`);
-			const totalMemories = group.activities.reduce((sum, act) => sum + act.memories.length, 0);
-			if (totalMemories > 0) {
-				console.log(`      ✓ Added ${totalMemories} memories\n`);
+			
+			if (group.activities && group.activities.length > 0) {
+				console.log(`      ✓ ${group.activities.length} activities`);
+				const totalMemories = group.activities.reduce((sum, act) => sum + act.memories.length, 0);
+				if (totalMemories > 0) {
+					console.log(`      ✓ ${totalMemories} memories\n`);
+				} else {
+					console.log("");
+				}
 			} else {
 				console.log("");
 			}
 		}
 
-		console.log("Database seeded successfully!\n");
+		// Refresh groups list to include all groups (existing + newly created)
+		const allGroups = await Group.find({});
+		
+		console.log("\nDatabase seeded successfully!\n");
 		console.log("Users:");
 		for (const user of createdUsers) {
-			const memberOfGroups = createdGroups.filter((g) => g.members.some((m) => m.toString() === user._id.toString()));
-			const invitedToGroups = createdGroups.filter((g) =>
+			const memberOfGroups = allGroups.filter((g) => g.members.some((m) => m.toString() === user._id.toString()));
+			const invitedToGroups = allGroups.filter((g) =>
 				g.invitedMembers.some((m) => m.toString() === user._id.toString()),
 			);
-			console.log(`${user.username} - ${memberOfGroups.length} groups, ${invitedToGroups.length} invites`);
+			const ownedGroups = allGroups.filter((g) => g.owner && g.owner.toString() === user._id.toString());
+			console.log(`${user.username} - ${memberOfGroups.length} groups, ${invitedToGroups.length} invites, ${ownedGroups.length} owned`);
 		}
 
-		console.log(`Total users: ${createdUsers.length}`);
-		console.log(`Total groups: ${createdGroups.length}`);
-		const totalActivities = createdGroups.reduce((sum, g) => sum + g.activities.length, 0);
+		console.log(`\nTotal users: ${createdUsers.length}`);
+		console.log(`Total groups: ${allGroups.length}`);
+		const totalActivities = allGroups.reduce((sum, g) => sum + g.activities.length, 0);
 		console.log(`Total activities: ${totalActivities}`);
-		const totalMemories = createdGroups.reduce(
+		const totalMemories = allGroups.reduce(
 			(sum, g) => sum + g.activities.reduce((s, a) => s + a.memories.length, 0),
 			0,
 		);
 		console.log(`Total memories: ${totalMemories}`);
+		
+		// Show groups with owners
+		console.log("\nGroups with owners:");
+		for (const group of allGroups) {
+			const owner = createdUsers.find(u => u._id.toString() === group.owner?.toString());
+			const ownerName = owner ? owner.username : "Unknown";
+			console.log(`  ${group.name} - Owner: ${ownerName}`);
+		}
 
 		process.exit(0);
 	} catch (error) {

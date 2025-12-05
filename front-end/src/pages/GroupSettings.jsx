@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Copy, Check } from "lucide-react";
+import { Copy, Check, UserMinus, ShieldPlus, ShieldMinus } from "lucide-react";
 import Header from "../components/Header";
 import Button from "../components/Button";
 import "./GroupSettings.css";
@@ -15,7 +15,21 @@ export default function GroupSettings() {
 	const [searchQuery, setSearchQuery] = useState("");
 	const [userSuggestions, setUserSuggestions] = useState([]);
 	const [showSuggestions, setShowSuggestions] = useState(false);
+	const [currentUserId, setCurrentUserId] = useState(null);
 	const suggestionsRef = useRef(null);
+
+	// Decode JWT to get current user ID
+	useEffect(() => {
+		const JWT = localStorage.getItem("JWT");
+		if (JWT) {
+			try {
+				const payload = JSON.parse(atob(JWT.split(".")[1]));
+				setCurrentUserId(payload.id);
+			} catch (err) {
+				console.error("Error decoding JWT:", err);
+			}
+		}
+	}, []);
 
 	useEffect(() => {
 		const fetchGroup = async () => {
@@ -159,6 +173,98 @@ export default function GroupSettings() {
 		}
 	};
 
+	const handleRemoveMember = async (userId) => {
+		if (!window.confirm("Are you sure you want to remove this member?")) {
+			return;
+		}
+
+		try {
+			const JWT = localStorage.getItem("JWT");
+			const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+
+			const response = await fetch(`${backendURL}/api/groups/${groupId}/remove-member`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${JWT}`,
+				},
+				body: JSON.stringify({ userId }),
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(errorData.error || "Failed to remove member");
+			}
+
+			const result = await response.json();
+			setGroup(result.group);
+			alert("Member removed successfully!");
+		} catch (error) {
+			console.error("Error removing member:", error);
+			alert(error.message);
+		}
+	};
+
+	const handlePromoteToAdmin = async (userId) => {
+		try {
+			const JWT = localStorage.getItem("JWT");
+			const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+
+			const response = await fetch(`${backendURL}/api/groups/${groupId}/promote-admin`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${JWT}`,
+				},
+				body: JSON.stringify({ userId }),
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(errorData.error || "Failed to promote user");
+			}
+
+			const result = await response.json();
+			setGroup(result.group);
+			alert("User promoted to admin!");
+		} catch (error) {
+			console.error("Error promoting user:", error);
+			alert(error.message);
+		}
+	};
+
+	const handleDemoteAdmin = async (userId) => {
+		if (!window.confirm("Are you sure you want to remove admin privileges from this user?")) {
+			return;
+		}
+
+		try {
+			const JWT = localStorage.getItem("JWT");
+			const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+
+			const response = await fetch(`${backendURL}/api/groups/${groupId}/demote-admin`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${JWT}`,
+				},
+				body: JSON.stringify({ userId }),
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(errorData.error || "Failed to demote admin");
+			}
+
+			const result = await response.json();
+			setGroup(result.group);
+			alert("Admin demoted successfully!");
+		} catch (error) {
+			console.error("Error demoting admin:", error);
+			alert(error.message);
+		}
+	};
+
 	if (loading) {
 		return (
 			<div className="group-settings-container">
@@ -243,16 +349,60 @@ export default function GroupSettings() {
 				<div className="settings-section">
 					<h3 className="section-title">Members ({group?.members?.length || 0})</h3>
 					<div className="members-list">
-						{group?.members?.map((member) => (
-							<div key={member._id} className="member-item">
-								<img
-									src={member.profilePicture || "https://placehold.co/48"}
-									alt={member.username}
-									className="member-avatar"
-								/>
-								<span className="member-username">{member.username}</span>
-							</div>
-						))}
+						{group?.members?.map((member) => {
+							const isOwner = group?.owner?._id === member._id;
+							const isAdmin = group?.admins?.some((admin) => admin._id === member._id);
+							const isCurrentUserOwner = group?.owner?._id === currentUserId;
+							const isCurrentUserAdmin = group?.admins?.some((admin) => admin._id === currentUserId);
+							const isCurrentUser = member._id === currentUserId;
+
+							return (
+								<div key={member._id} className="member-item">
+									<img
+										src={member.profilePicture || "https://placehold.co/48"}
+										alt={member.username}
+										className="member-avatar"
+									/>
+									<div className="member-info">
+										<span className="member-username">{member.username}</span>
+										{isOwner && <span className="owner-badge">Owner</span>}
+										{!isOwner && isAdmin && <span className="admin-badge">Admin</span>}
+									</div>
+									{isCurrentUserAdmin && !isCurrentUser && !isOwner && (
+										<div className="member-actions">
+											{isAdmin ? (
+												// Only owner can demote admins
+												isCurrentUserOwner && (
+													<button
+														className="action-button demote-button"
+														onClick={() => handleDemoteAdmin(member._id)}
+														title="Remove admin"
+													>
+														<ShieldMinus size={18} />
+													</button>
+												)
+											) : (
+												// All admins can promote to admin
+												<button
+													className="action-button promote-button"
+													onClick={() => handlePromoteToAdmin(member._id)}
+													title="Make admin"
+												>
+													<ShieldPlus size={18} />
+												</button>
+											)}
+											<button
+												className="action-button remove-button"
+												onClick={() => handleRemoveMember(member._id)}
+												title="Remove member"
+											>
+												<UserMinus size={18} />
+											</button>
+										</div>
+									)}
+								</div>
+							);
+						})}
 					</div>
 				</div>
 
