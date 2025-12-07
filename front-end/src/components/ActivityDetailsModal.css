@@ -1,0 +1,154 @@
+.activity-details-popup {
+	border: none;
+	border-radius: 16px;
+	max-height: 80%;
+	width: 90%;
+	box-shadow: 2px 2px 8px #00000040;
+	scale: 1;
+	transition:
+		all 100ms ease-in-out,
+		scale 200ms ease-in-out,
+		display 200ms allow-discrete,
+		overlay 200ms allow-discrete;
+
+	* {
+		scale: 1;
+		transition: all 200ms ease-in-out;
+
+		@starting-style {
+			scale: 1 0;
+		}
+	}
+
+	@starting-style {
+		scale: 1 0;
+	}
+
+	&:not([open]) {
+		scale: 1 0;
+	}
+
+	/* Staggering entrance animation (only works in Chromium browsers rn), based on https://nerdy.dev/sibling-index */
+	> * {
+		--stagger: calc((sibling-index() - 1) * 0.1s);
+
+		transition:
+			opacity 500ms ease-in-out var(--stagger),
+			translate 500ms cubic-bezier(0.34, 1.56, 0.64, 1) var(--stagger);
+
+		@starting-style {
+			opacity: 0;
+			translate: -100px 0;
+		}
+	}
+
+	> *:not(:last-child) {
+		margin-bottom: 32px;
+		/* text-align: center; */
+	}
+
+	> img {
+		display: block;
+		border-radius: 4px;
+		width: 100%;
+		height: auto;
+	}
+
+	&::backdrop {
+		backdrop-filter: blur(8px);
+		background-color: rgba(0, 0, 0, 0.25);
+	}
+
+	.activity-name {
+		font-size: 20px;
+		text-align: center;
+		margin: 0;
+	}
+
+	section {
+		h3 {
+			font-size: 18px;
+			margin-block: 0.5em;
+			/* font-weight: 700; */
+			/* margin-bottom: 16px; */
+		}
+	}
+
+	.members-list {
+		list-style: none;
+		padding: 0;
+
+		> * {
+			--stagger: calc((sibling-index() - 1) * 0.1s + 0.5s);
+
+			transition:
+				opacity 500ms ease-in-out var(--stagger),
+				translate 500ms cubic-bezier(0.34, 1.56, 0.64, 1) var(--stagger);
+
+			@starting-style {
+				opacity: 0;
+				translate: -100px 0;
+			}
+		}
+
+		li {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 24px;
+			padding: 8px 16px;
+			/* padding-right: 32px; */
+			/* width: 48%; */
+			background-color: #f8f9fa;
+			border-radius: 8px;
+			border: 1px solid #e0e0e0;
+
+			font-size: 16px;
+			font-weight: 600;
+			color: #333;
+
+			img {
+				width: 48px;
+				height: 48px;
+				border-radius: 50%;
+			}
+
+			span {
+				flex: 1;
+			}
+		}
+	}
+
+	.activity-completed {
+		/* outline: 2px solid purple; */
+		/* width: 100%; */
+		display: flex;
+		padding: 8px;
+		align-items: center;
+		justify-content: space-evenly;
+		gap: 16px;
+		border-radius: 8px;
+		background: #f8f9fa;
+		outline: 1px solid #e1e1e1;
+
+		&:has(input:checked) {
+			background: hsla(from var(--color-accent) h s l / 50%);
+			outline: 2px solid var(--color-primary);
+		}
+
+		input[type="checkbox"] {
+			/* outline: 2px solid purple; */
+			/* height: 100%; */
+			width: 32px;
+			height: 32px;
+		}
+
+		p {
+			margin-block: 2px;
+
+			&:last-child {
+				opacity: 0.7;
+			}
+		}
+	}
+}
