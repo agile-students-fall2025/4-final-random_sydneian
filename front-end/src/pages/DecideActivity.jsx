@@ -53,6 +53,8 @@ class Wheel {
 	}
 
 	draw() {
+		this.ctx.canvas.style.transform = `skewX(-${mapRange(this.speed, 0.1, 0, 20, 0, true)}deg)`; // Sheer the wheel on high speed (cartoon speed effect)
+
 		this.ctx.globalAlpha = mapRange(this.speed, 0.05, 0, 0.1, 0.5, true);
 		this.ctx.translate(this.center.x, this.center.y);
 
@@ -84,9 +86,14 @@ class Wheel {
 			this.ctx.save();
 			this.ctx.rotate(Math.PI / this.activities.length);
 			this.ctx.fillStyle = "black";
-			this.ctx.globalAlpha = 1;
+			this.ctx.globalAlpha = mapRange(this.speed, 0.1, 0, 0.1, 1, true);
 			this.ctx.font = "32px Inter";
-			this.ctx.fillText(this.activities[i].name, 64, 8, this.radius * 0.75);
+			this.ctx.fillText(
+				this.activities[i].name.length > 12 ? this.activities[i].name.substr(0, 10) + "..." : this.activities[i].name,
+				64,
+				12,
+				this.radius * 0.7,
+			);
 			this.ctx.restore();
 
 			this.ctx.rotate((2 * Math.PI) / this.activities.length);
