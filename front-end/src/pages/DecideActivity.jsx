@@ -53,8 +53,6 @@ class Wheel {
 	}
 
 	draw() {
-		this.ctx.canvas.style.transform = `skewX(-${mapRange(this.speed, 0.1, 0, 20, 0, true)}deg)`; // Sheer the wheel on high speed (cartoon speed effect)
-
 		this.ctx.globalAlpha = mapRange(this.speed, 0.05, 0, 0.1, 0.5, true);
 		this.ctx.translate(this.center.x, this.center.y);
 
