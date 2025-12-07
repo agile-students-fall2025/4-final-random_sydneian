@@ -37,3 +37,23 @@ body {
 	font-weight: 700;
 	margin-bottom: 16px;
 }
+
+/* More realistic loading spinner with 2 overlapping rotations with different speed & easings */
+
+@keyframes spin1 {
+	to {
+		rotate: 360deg;
+	}
+}
+
+@keyframes spin2 {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+.spin-loader {
+	animation:
+		spin1 1s ease-in-out infinite,
+		spin2 2s linear infinite;
+}

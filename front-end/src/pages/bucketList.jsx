@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Heart, Plus } from "lucide-react";
-import "./bucketList.css";
 import Header from "../components/Header";
 import Button from "../components/Button";
+import ActivityDetailsModal from "../components/ActivityDetailsModal";
+import "./bucketList.css";
 
 export default function BucketList() {
 	const navigate = useNavigate();
@@ -14,6 +15,8 @@ export default function BucketList() {
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
 	const [showAddPopup, setShowAddPopup] = useState(false);
+	const [selectedActivity, setSelectedActivity] = useState({});
+	const activityDetailsModalRef = useRef();
 
 	useEffect(() => {
 		const fetchActivities = async () => {
@@ -173,7 +176,14 @@ export default function BucketList() {
 				<div className="content-list">
 					{(activeTab === "todo" ? filteredActivities : filteredCompletedActivities).length > 0 ? (
 						(activeTab === "todo" ? filteredActivities : filteredCompletedActivities).map((activity) => (
-							<div key={activity._id} className="activity-card">
+							<div
+								key={activity._id}
+								className="activity-card"
+								onClick={(evt) => {
+									setSelectedActivity(activity);
+									activityDetailsModalRef.current.showModal();
+								}}
+							>
 								{/* Title and Likes Row */}
 								<div className="card-header">
 									<h3 className={"card-title" + (activeTab === "done" ? " completed" : "")}>{activity.name}</h3>
@@ -263,6 +273,20 @@ export default function BucketList() {
 					</div>
 				</div>
 			)}
+
+			{/* Activity details & editing popup */}
+			<ActivityDetailsModal
+				groupId={groupId}
+				activities={activities}
+				selectedActivity={selectedActivity}
+				ref={activityDetailsModalRef}
+				onUpdate={(updatedActivity) => {
+					setActivities(
+						activities.map((activity) => (activity._id === updatedActivity._id ? updatedActivity : activity)),
+					);
+					setSelectedActivity(updatedActivity);
+				}}
+			/>
 		</div>
 	);
 }
