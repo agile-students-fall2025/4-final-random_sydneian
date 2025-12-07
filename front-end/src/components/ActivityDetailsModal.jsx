@@ -27,12 +27,14 @@ export default function ActivityDetailsModal({ groupId, activities, selectedActi
 					value={selectedActivity.name}
 					placeholder="Activity name"
 					onEdit={(newVal) => {
-						console.log("New val:", newVal); // Z-TEMP
+						// TODO
+						console.log("New val:", newVal);
 					}}
 				/>
 			</section>
 
-			{/* Images. Note: Just a stub, will need to implement carousel/gallery, and adding/removing pictures UI */}
+			{/* Images */}
+			{/* TODO: Use Deema's gallery, and add ability to add & remove pictures */}
 			<img
 				width="300"
 				height="150"
@@ -48,12 +50,14 @@ export default function ActivityDetailsModal({ groupId, activities, selectedActi
 					placeholder="Category"
 					autosuggestList={categories}
 					onEdit={(newVal) => {
-						console.log("New val:", newVal); // Z-TEMP
+						// TODO
+						console.log("New val:", newVal);
 					}}
 				/>
 			</section>
 
 			{/* Tags */}
+			{/* TODO: Adding & removing tags (autosave (send PATCH req) with loading state on each change) */}
 			<section>
 				<h3>Tags</h3>
 

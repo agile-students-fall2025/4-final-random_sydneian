@@ -465,9 +465,9 @@ app.patch(
 	"/api/groups/:groupId/activities/:activityId",
 	// TODO: express-validation verification
 	// - Each field should be validated and sanitised
-	// - Authz check (user is member of group) (actually, should probably start nesting routes so we don't have to duplicate the checks)
+	// - Authz check (user is member of group)
+	// - (actually, should probably start nesting routes so we don't have to duplicate the checks, fetching group, etc)
 	async (req, res) => {
-		//
 		try {
 			const group = await Group.findById(req.params.groupId);
 
@@ -480,39 +480,22 @@ app.patch(
 				return res.status(403).json({ error: "Only members can update activities" });
 			}
 
-			// Note: Instead of the likes array, we use a liked boolean, to prevent potential race condition (and smaller req size)
-			const { name, images, category, tags, liked, location, done } = req.body;
-
 			const activity = group.activities.id(req.params.activityId);
 			if (!activity) return res.status(404).json({ error: "Activity not found" });
 
-			if (name !== undefined) {
-				activity.name = name;
-			}
-			if (images !== undefined) {
-				activity.images = images;
-			}
-			if (category !== undefined) {
-				activity.category = category;
-			}
-			if (tags !== undefined) {
-				activity.tags = tags;
-			}
-			if (liked !== undefined) {
-				// Add user to likes list if liked equals true, and user isn't already part of it
-				if (liked) {
-					if (!activity.likes.includes(req.user.id)) activity.likes.push(req.user.id);
-				} else {
-					// Remove user from list if liked equals false
-					activity.likes.remove(req.user.id);
+			for (const field of ["name", "images", "category", "tags", "location", "done"]) {
+				if (req.body[field] !== undefined) {
+					activity[field] = req.body[field];
 				}
 			}
-			// Will probably switch to location string
-			// if (location !== undefined) {
-			// 	activity.location = location;
-			// }
-			if (done !== undefined) {
-				activity.done = done;
+
+			// Note: Use boolean liked instead of the usual likes array, to simplify & only allow users to modify their own like (prevents race condition)
+			if (req.body.liked !== undefined) {
+				if (req.body.liked) {
+					if (!activity.likes.includes(req.user.id)) activity.likes.push(req.user.id);
+				} else {
+					activity.likes.remove(req.user.id);
+				}
 			}
 
 			await group.save();
