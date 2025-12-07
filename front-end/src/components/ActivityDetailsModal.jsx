@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Heart, LoaderCircle } from "lucide-react";
 import EditableTextField from "./EditableTextField";
 import "./ActivityDetailsModal.css";
@@ -11,11 +11,6 @@ export default function ActivityDetailsModal({ groupId, activities, selectedActi
 	categories = categories.filter(
 		(category, index) => categories.map((c) => c.toLowerCase()).indexOf(category.toLowerCase()) === index,
 	);
-
-	useEffect(() => {
-		setTimeout(() => ref.current.scrollTo(0, 0), 10); // Needed because modal fully scrolled, likely due to (unintentional) autofocusing on the checkbox
-		console.log("scrolled");
-	}, [ref, selectedActivity]);
 
 	return (
 		<dialog className="activity-details-popup" ref={ref} closedby="any">
