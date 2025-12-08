@@ -209,6 +209,8 @@ export default function BucketList() {
 		if (days === 14) return "2 weeks ago";
 		if (days === 21) return "3 weeks ago";
 		return `${days} days ago`;
+	};
+
 	const getTimeAgo = (dateString) => {
 		const date = new Date(dateString);
 		const now = new Date();
