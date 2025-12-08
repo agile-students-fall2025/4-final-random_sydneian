@@ -6,57 +6,53 @@ import "./addPlaceManually.css";
 import Header from "../components/Header";
 import usePlacesAutocomplete, { getGeocode, getLatLng } from "use-places-autocomplete";
 
-
-
-
 const PlacesAutocomplete = ({ setLocation, setCoordinates }) => {
 	const {
-	  ready,
-	  value,
-	  setValue,
-	  suggestions: { status, data },
-	  clearSuggestions,
+		ready,
+		value,
+		setValue,
+		suggestions: { status, data },
+		clearSuggestions,
 	} = usePlacesAutocomplete();
-  
-	const handleSelect = async (address) => {
-	  setValue(address, false);
-	  setLocation(address);
-	  clearSuggestions();
-  
-	  try {
-		const results = await getGeocode({ address });
-		const { lat, lng } = await getLatLng(results[0]);
-		setCoordinates({ lat, lng });
-	  } catch (error) {
-		console.error("Error: ", error);
-	  }
-	};
-  
-	return (
-	  <div style={{ position: "relative" }}>
-		<input
-		  value={value}
-		  onChange={(e) => {
-			setValue(e.target.value);
-			setLocation(e.target.value);
-		  }}
-		  disabled={!ready}
-		  className="form-input"
-		  placeholder="Search places..."
-		/>
-		{status === "OK" && (
-		  <ul className="suggestions-list">
-			{data.map(({ place_id, description }) => (
-			  <li key={place_id} onClick={() => handleSelect(description)}>
-				{description}
-			  </li>
-			))}
-		  </ul>
-		)}
-	  </div>
-	);
-  };
 
+	const handleSelect = async (address) => {
+		setValue(address, false);
+		setLocation(address);
+		clearSuggestions();
+
+		try {
+			const results = await getGeocode({ address });
+			const { lat, lng } = await getLatLng(results[0]);
+			setCoordinates({ lat, lng });
+		} catch (error) {
+			console.error("Error: ", error);
+		}
+	};
+
+	return (
+		<div style={{ position: "relative" }}>
+			<input
+				value={value}
+				onChange={(e) => {
+					setValue(e.target.value);
+					setLocation(e.target.value);
+				}}
+				disabled={!ready}
+				className="form-input"
+				placeholder="Search places..."
+			/>
+			{status === "OK" && (
+				<ul className="suggestions-list">
+					{data.map(({ place_id, description }) => (
+						<li key={place_id} onClick={() => handleSelect(description)}>
+							{description}
+						</li>
+					))}
+				</ul>
+			)}
+		</div>
+	);
+};
 
 export default function AddPlaceManually() {
 	const navigate = useNavigate();
@@ -149,7 +145,6 @@ export default function AddPlaceManually() {
 		navigate(`/groups/${groupId}/activities`);
 	};
 
-
 	return (
 		<div className="add-place-manually-container">
 			{/* Header */}
@@ -173,9 +168,7 @@ export default function AddPlaceManually() {
 					className="form-input"
 				/>
 
-				<PlacesAutocomplete setLocation={setLocation} 
-				setCoordinates={setCoordinates} 
-				/>
+				<PlacesAutocomplete setLocation={setLocation} setCoordinates={setCoordinates} />
 
 				<div className="select-container">
 					<select

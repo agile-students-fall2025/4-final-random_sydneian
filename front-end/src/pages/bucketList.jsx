@@ -72,7 +72,7 @@ export default function BucketList() {
 		const days = Math.floor(hours / 24);
 		if (days < 7) return `${days}d ago`;
 		if (days < 30) return `${Math.floor(days / 7)}w ago`;
-        
+
 		return date.toLocaleDateString(); // Fallback to date for older items
 	};
 
