@@ -62,12 +62,21 @@ export default function BucketList() {
 		fetchActivities();
 	}, [navigate, groupId]);
 
-	const getDaysAgoText = (days) => {
-		if (days === 1) return "1 day ago";
-		if (days === 7) return "1 week ago";
-		if (days === 14) return "2 weeks ago";
-		if (days === 21) return "3 weeks ago";
-		return `${days} days ago`;
+	const getTimeAgo = (dateString) => {
+		const date = new Date(dateString);
+		const now = new Date();
+		const seconds = Math.floor((now - date) / 1000);
+
+		if (seconds < 60) return "just now";
+		const minutes = Math.floor(seconds / 60);
+		if (minutes < 60) return `${minutes}m ago`;
+		const hours = Math.floor(minutes / 60);
+		if (hours < 24) return `${hours}h ago`;
+		const days = Math.floor(hours / 24);
+		if (days < 7) return `${days}d ago`;
+		if (days < 30) return `${Math.floor(days / 7)}w ago`;
+        
+		return date.toLocaleDateString(); // Fallback to date for older items
 	};
 
 	const toDoActivities = activities.filter((activity) => !activity.done);
@@ -197,8 +206,15 @@ export default function BucketList() {
 								<p className="card-type-location">{activity.category}</p>
 
 								{/* Added By Info */}
-								{/* Placeholder added-by info until we track creator */}
-								<p className="card-added-info">Added recently</p>
+								{activity.addedBy ? (
+									<p className="card-added-info">
+										Added by {activity.addedBy.username} • {getTimeAgo(activity.createdAt)}
+									</p>
+								) : (
+									<p className="card-added-info">
+										Added {activity.createdAt ? getTimeAgo(activity.createdAt) : "recently"}
+									</p>
+								)}
 
 								{/* Tags */}
 								<div className="card-tags">

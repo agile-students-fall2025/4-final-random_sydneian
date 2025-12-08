@@ -4,6 +4,59 @@ import { ChevronLeft, ChevronDown } from "lucide-react";
 import Button from "../components/Button";
 import "./addPlaceManually.css";
 import Header from "../components/Header";
+import usePlacesAutocomplete, { getGeocode, getLatLng } from "use-places-autocomplete";
+
+
+
+
+const PlacesAutocomplete = ({ setLocation, setCoordinates }) => {
+	const {
+	  ready,
+	  value,
+	  setValue,
+	  suggestions: { status, data },
+	  clearSuggestions,
+	} = usePlacesAutocomplete();
+  
+	const handleSelect = async (address) => {
+	  setValue(address, false);
+	  setLocation(address);
+	  clearSuggestions();
+  
+	  try {
+		const results = await getGeocode({ address });
+		const { lat, lng } = await getLatLng(results[0]);
+		setCoordinates({ lat, lng });
+	  } catch (error) {
+		console.error("Error: ", error);
+	  }
+	};
+  
+	return (
+	  <div style={{ position: "relative" }}>
+		<input
+		  value={value}
+		  onChange={(e) => {
+			setValue(e.target.value);
+			setLocation(e.target.value);
+		  }}
+		  disabled={!ready}
+		  className="form-input"
+		  placeholder="Search places..."
+		/>
+		{status === "OK" && (
+		  <ul className="suggestions-list">
+			{data.map(({ place_id, description }) => (
+			  <li key={place_id} onClick={() => handleSelect(description)}>
+				{description}
+			  </li>
+			))}
+		  </ul>
+		)}
+	  </div>
+	);
+  };
+
 
 export default function AddPlaceManually() {
 	const navigate = useNavigate();
@@ -16,6 +69,7 @@ export default function AddPlaceManually() {
 	const [photos, setPhotos] = useState([]);
 	const fileInputRef = useRef(null);
 	const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+	const [coordinates, setCoordinates] = useState({ lat: null, lng: null });
 
 	const handleSubmit = () => {
 		const JWT = localStorage.getItem("JWT");
@@ -42,6 +96,8 @@ export default function AddPlaceManually() {
 						name: placeName,
 						category: category || "Uncategorised",
 						tags,
+						latitude: coordinates.lat,
+						longitude: coordinates.lng,
 					}),
 				});
 
@@ -93,6 +149,7 @@ export default function AddPlaceManually() {
 		navigate(`/groups/${groupId}/activities`);
 	};
 
+
 	return (
 		<div className="add-place-manually-container">
 			{/* Header */}
@@ -116,12 +173,8 @@ export default function AddPlaceManually() {
 					className="form-input"
 				/>
 
-				<input
-					type="text"
-					placeholder="Location"
-					value={location}
-					onChange={(e) => setLocation(e.target.value)}
-					className="form-input"
+				<PlacesAutocomplete setLocation={setLocation} 
+				setCoordinates={setCoordinates} 
 				/>
 
 				<div className="select-container">
