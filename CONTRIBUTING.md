@@ -89,7 +89,6 @@ This section is mostly for team members (maintainers).
 ### Daily standups
 
 - Schedule
-
   - Tuesday, at 11:45 AM (in person)
   - Thursday, at 11 AM (virtual)
   - Sunday, at 8 PM (virtual)

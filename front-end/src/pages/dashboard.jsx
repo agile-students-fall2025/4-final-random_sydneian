@@ -1,7 +1,7 @@
 import Button from "../components/Button";
 import { MoreVertical, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import "./dashboard.css";
 
 export default function DashboardPage() {
@@ -12,6 +12,19 @@ export default function DashboardPage() {
 	const [swipedGroupId, setSwipedGroupId] = useState(null);
 	const [touchStart, setTouchStart] = useState(null);
 	const [touchEnd, setTouchEnd] = useState(null);
+	const [isScrolled, setIsScrolled] = useState(false);
+
+	// Handle scroll for header background change
+	useEffect(() => {
+		const handleScroll = () => {
+			setIsScrolled(window.scrollY > 10);
+		};
+
+		window.addEventListener("scroll", handleScroll, { passive: true });
+		return () => {
+			window.removeEventListener("scroll", handleScroll);
+		};
+	}, []);
 
 	// Fetch groups from backend on mount
 	useEffect(() => {
@@ -272,12 +285,14 @@ export default function DashboardPage() {
 
 	return (
 		<div className="dashboard-container">
-			<div className="dashboard-header">
+			<div className={`dashboard-header ${isScrolled ? "scrolled" : ""}`}>
 				<h1 className="dashboard-title">Dashboard</h1>
 				<div className="menu-icon" onClick={() => onNavigate("/profile-settings")} role="button" tabIndex={0}>
 					<MoreVertical size={20} />
 				</div>
 			</div>
+
+			<div className="dashboard-header-spacer" />
 
 			<div className="quick-actions">
 				<h2 className="section-title">Quick Actions</h2>

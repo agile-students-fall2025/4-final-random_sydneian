@@ -21,7 +21,7 @@ export default function GalleryModal({ photos = [], startIndex = 0, onClose }) {
 
 			// Step 3: remove animation class so new image fades in
 			setAnimClass("");
-		}, 1000); // match CSS animation duration
+		}, 300); // match CSS animation duration
 	};
 
 	if (!photos || photos.length === 0) return null;
@@ -43,7 +43,7 @@ export default function GalleryModal({ photos = [], startIndex = 0, onClose }) {
 			</button>
 
 			<div className="gallery-content" onClick={(e) => e.stopPropagation()}>
-				{/* {animClass && ( */}
+				<img src={photos[currentIndex]} alt={`Gallery ${currentIndex}`} className={`gallery-main-image ${animClass}`} />
 				<img
 					src={
 						photos[
@@ -52,15 +52,8 @@ export default function GalleryModal({ photos = [], startIndex = 0, onClose }) {
 								: (currentIndex - 1 + photos.length) % photos.length
 						]
 					}
-					alt={`Gallery ${
-						animClass === "slide-left"
-							? (currentIndex + 1) % photos.length
-							: (currentIndex - 1 + photos.length) % photos.length
-					}`}
 					className={`gallery-next-image ${animClass}`}
 				/>
-				{/* )} */}
-				<img src={photos[currentIndex]} alt={`Gallery ${currentIndex}`} className={`gallery-main-image ${animClass}`} />
 
 				<div className="gallery-counter">
 					{currentIndex + 1} / {photos.length}
