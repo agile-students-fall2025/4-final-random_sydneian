@@ -566,7 +566,8 @@ app.get("/api/groups/:id", async (req, res) => {
 			.populate("members", "username profilePicture")
 			.populate("admins", "username profilePicture")
 			.populate("invitedMembers", "username profilePicture")
-			.populate("activities.likes", "username profilePicture");
+			.populate("activities.likes", "username profilePicture")
+			.populate("activities.addedBy", "username profilePicture");
 
 		// Error if group doesn't exist
 		if (!group) return res.status(404).json({ error: "Group not found" });
@@ -645,6 +646,8 @@ app.post("/api/groups/:groupId/activities", async (req, res) => {
 			},
 			memories: [],
 			done: false,
+			addedBy: req.user.id,
+
 		};
 
 		group.activities.push(newActivity);
