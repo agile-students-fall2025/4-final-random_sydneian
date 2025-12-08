@@ -1,32 +1,34 @@
 ## Product Vision Statement
+
 **Rendezvous** empowers groups of friends to effortlessly plan social outings by transforming indecisive group chats into an organized, collaborative experience.  
 Our vision is to make spontaneous hangouts exciting rather than stressful, by encouraging discovery of new places and creating lasting memories along the way.
 
 ## Core Team
 
-| Name & GitHub | Role |
-|:--------------|:-----|
-| [Catalin Botezat](https://github.com/CatalinMoldova) | |
-| [Deema Hazim](https://github.com/deema-hazim) | Product Owner |
-| [Nada Beltagui](https://github.com/nadsb26) | |
-| [Nursultan Sagyntay](https://github.com/kazakhpunk) | Scrum Master |
-| [Zavier Shaikh](https://github.com/zs-5) | |
+| Name & GitHub                                        | Role          |
+| :--------------------------------------------------- | :------------ |
+| [Catalin Botezat](https://github.com/CatalinMoldova) | Scrum Master  |
+| [Deema Hazim](https://github.com/deema-hazim)        |               |
+| [Nada Beltagui](https://github.com/nadsb26)          |               |
+| [Nursultan Sagyntay](https://github.com/kazakhpunk)  |               |
+| [Zavier Shaikh](https://github.com/zs-5)             | Product Owner |
 
 ## Project Description
 
-**Rendezvous** is a social planning app designed for university students and young adults who love going out with friends but struggle with the *“Where should we go?”* dilemma.  
+**Rendezvous** is a social planning app designed for university students and young adults who love going out with friends but struggle with the _“Where should we go?”_ dilemma.  
 Instead of relying on endless group chats and scattered social media saves, Rendezvous offers a shared, centralized bucket list where friends can add cafes, restaurants, and activities they find online. When a user finds a new spot they like, they can add it directly into the app. The app then uses AI extraction tools to automatically pull key info such as name, cost, type of activity, etc.
 
 When it’s time to hang out, users can:
-- **Filter activities** by location, budget, category, etc.  
-- **Let the app decide** through fun features like a wheel spin or card draw  
+
+- **Filter activities** by location, budget, category, etc.
+- **Let the app decide** through fun features like a wheel spin or card draw
 - **Record memories** by marking outings as “done” and adding photos and captions
 
 Rendezvous is built to make social planning smoother, quicker, and more fun by helping friend groups spend less time deciding and more time experiencing.
 
 ## Project History
 
-The idea for **rendezvous** came from our own experiences as university students constantly trying to plan group outings. We noticed that group chats were full of “we should go here!” messages, but when the time came, no one could remember where or decide on a plan. This frustration inspired us to design a system that organizes shared ideas into a practical, fun tool for decision-making.  
+The idea for **rendezvous** came from our own experiences as university students constantly trying to plan group outings. We noticed that group chats were full of “we should go here!” messages, but when the time came, no one could remember where or decide on a plan. This frustration inspired us to design a system that organizes shared ideas into a practical, fun tool for decision-making.
 
 ## How to Contribute
 
@@ -39,55 +41,63 @@ More information on how to contribute can be found [here](https://github.com/agi
 To build the front-end and back-end:
 
 **Front-End**
+
 1. Navigate to the `front-end` directory:
-    ```bash
-    cd front-end
-    ```
+   ```bash
+   cd front-end
+   ```
 2. Install dependencies:
-    ```bash
-    npm install
-    ```
+   ```bash
+   npm install
+   ```
 
 **Back-End**
+
 1. Navigate to the `back-end` directory:
-    ```bash
-    cd back-end
-    ```
+   ```bash
+   cd back-end
+   ```
 2. Install dependencies:
-    ```bash
-    npm install
-    ```
+   ```bash
+   npm install
+   ```
 3. Create a `.env` file with your environment variables inside inside /back-end:
-    ```bash
-    MONGODB_URI=your-mongodb-connection-string
-    JWT_SECRET=your-secret-key
-    PORT=8000
-    FRONTEND_ORIGIN=http://localhost:3000
-    OPENAI_API_KEY=your-openai-key
-    ```
+   ```bash
+   MONGODB_URI=your-mongodb-connection-string
+   JWT_SECRET=your-secret-key
+   PORT=8000
+   FRONTEND_ORIGIN=http://localhost:3000
+   OPENAI_API_KEY=your-openai-key
+   ```
 
 ### Running the App Locally
 
 **Front-End**
+
 ```bash
 npm run dev
 ```
+
 The app will be available at [http://localhost:3000](http://localhost:3000).
 
 **Back-End**
+
 ```bash
 npm run dev
 ```
+
 By default, the server will be running on [http://localhost:8000](http://localhost:8000).
 
 ### Running Tests
 
 **Back-End**
+
 ```bash
 npm test
 ```
 
 Or with coverage report:
+
 ```bash
 npm run test:coverage
 ```
@@ -95,6 +105,7 @@ npm run test:coverage
 ### Database Setup
 
 To seed the database with test data (already done in provided MONGODB_URI):
+
 ```bash
 cd back-end
 node --env-file .env seed-db.js
@@ -103,6 +114,7 @@ node --env-file .env seed-db.js
 This creates 5 users (all with password `password123`), 5 groups with overlapping memberships, 10 activities per group, and sample memories with images.
 
 ### Notes
+
 - Ensure you have Node.js (v18+) and npm installed.
 - MongoDB Atlas connection and environment variables are required.
 - Backend server runs on [http://localhost:8000](http://localhost:8000).
@@ -131,10 +143,12 @@ Several sets of instructions are included in this repository. They should each b
 ## How to Start
 
 ### Prerequisites
+
 - Node.js (v18 or higher recommended)
 - npm
 
 ### Front-End
+
 1. Navigate to the front-end directory:
    ```bash
    cd front-end
@@ -150,6 +164,7 @@ Several sets of instructions are included in this repository. They should each b
    The app will be available at `http://localhost:3000` (or the port shown in the terminal).
 
 ### Back-End
+
 1. Navigate to the back-end directory:
    ```bash
    cd back-end

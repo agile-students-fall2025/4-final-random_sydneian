@@ -52,6 +52,7 @@ const ActivitySchema = new mongoose.Schema(
 		category: { type: String, required: true, default: "Uncategorised" },
 		tags: [String],
 		likes: [{ type: mongoose.ObjectId, ref: "User" }],
+		addedBy: { type: mongoose.ObjectId, ref: "User", required: false },
 		location: {
 			type: { type: String, enum: ["Point"], required: true, default: "Point" },
 			coordinates: [Number],
