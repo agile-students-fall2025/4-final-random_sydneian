@@ -566,7 +566,8 @@ app.get("/api/groups/:id", async (req, res) => {
 			.populate("members", "username profilePicture")
 			.populate("admins", "username profilePicture")
 			.populate("invitedMembers", "username profilePicture")
-			.populate("activities.likes", "username profilePicture");
+			.populate("activities.likes", "username profilePicture")
+			.populate("activities.addedBy", "username profilePicture");
 
 		// Error if group doesn't exist
 		if (!group) return res.status(404).json({ error: "Group not found" });
@@ -622,7 +623,7 @@ app.post("/api/groups/:groupId/activities", async (req, res) => {
 			return res.status(403).json({ error: "Only group members can add activities" });
 		}
 
-		const { name, category, tags, locationDescription } = req.body;
+		const { name, category, tags, locationDescription, latitude, longitude } = req.body;
 		if (!name) {
 			return res.status(400).json({ error: "Name is required" });
 		}
@@ -641,10 +642,12 @@ app.post("/api/groups/:groupId/activities", async (req, res) => {
 			likes: [],
 			location: {
 				type: "Point",
-				coordinates: [0, 0],
+				coordinates: [longitude || 0, latitude || 0],
 			},
 			memories: [],
 			done: false,
+			addedBy: req.user.id,
+
 		};
 
 		group.activities.push(newActivity);
