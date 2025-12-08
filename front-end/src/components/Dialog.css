@@ -19,19 +19,21 @@
 .invite-dialog::backdrop {
 	background: rgba(0, 0, 0, 0.4);
 	backdrop-filter: blur(4px);
-	-webkit-backdrop-filter: blur(4px);
 	animation: backdropFadeIn 0.25s ease-out;
 }
 
 @keyframes backdropFadeIn {
-	from { opacity: 0; }
-	to { opacity: 1; }
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
 }
 
 .dialog-content {
 	background: rgba(255, 255, 255, 0.95);
 	backdrop-filter: blur(16px);
-	-webkit-backdrop-filter: blur(16px);
 	border: 2px solid var(--color-primary);
 	border-radius: 20px;
 	padding: 28px;

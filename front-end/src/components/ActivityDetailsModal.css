@@ -11,6 +11,14 @@
 		display 200ms allow-discrete,
 		overlay 200ms allow-discrete;
 
+	@starting-style {
+		scale: 1 0;
+	}
+
+	&:not([open]) {
+		scale: 1 0;
+	}
+
 	* {
 		scale: 1;
 		transition: all 200ms ease-in-out;
@@ -18,14 +26,6 @@
 		@starting-style {
 			scale: 1 0;
 		}
-	}
-
-	@starting-style {
-		scale: 1 0;
-	}
-
-	&:not([open]) {
-		scale: 1 0;
 	}
 
 	/* Staggering entrance animation (only works in Chromium browsers rn), based on https://nerdy.dev/sibling-index */
@@ -44,7 +44,6 @@
 
 	> *:not(:last-child) {
 		margin-bottom: 32px;
-		/* text-align: center; */
 	}
 
 	> img {
