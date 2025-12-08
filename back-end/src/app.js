@@ -623,7 +623,7 @@ app.post("/api/groups/:groupId/activities", async (req, res) => {
 			return res.status(403).json({ error: "Only group members can add activities" });
 		}
 
-		const { name, category, tags, locationDescription } = req.body;
+		const { name, category, tags, locationDescription, latitude, longitude } = req.body;
 		if (!name) {
 			return res.status(400).json({ error: "Name is required" });
 		}
@@ -642,7 +642,7 @@ app.post("/api/groups/:groupId/activities", async (req, res) => {
 			likes: [],
 			location: {
 				type: "Point",
-				coordinates: [0, 0],
+				coordinates: [longitude || 0, latitude || 0],
 			},
 			memories: [],
 			done: false,
