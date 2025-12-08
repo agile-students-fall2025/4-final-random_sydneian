@@ -1,9 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, useLayoutEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Heart, Plus } from "lucide-react";
+import { Heart, Plus, MapPin } from "lucide-react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import "./bucketList.css";
 import Header from "../components/Header";
 import Button from "../components/Button";
+
+// Register GSAP plugin
+gsap.registerPlugin(ScrollTrigger);
 
 export default function BucketList() {
 	const navigate = useNavigate();
@@ -14,6 +19,10 @@ export default function BucketList() {
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
 	const [showAddPopup, setShowAddPopup] = useState(false);
+	const containerRef = useRef(null);
+	const cardRefs = useRef([]);
+	const currentExpandedCardRef = useRef(null);
+	const lastScrollTopRef = useRef(0);
 
 	useEffect(() => {
 		const fetchActivities = async () => {
@@ -58,6 +67,149 @@ export default function BucketList() {
 
 		fetchActivities();
 	}, [navigate, groupId]);
+
+	useLayoutEffect(() => {
+		let rafId = null;
+		let scrollHandler = null;
+		let contentArea = null;
+		
+		const updateExpandedCard = () => {
+			if (rafId) return;
+			
+			rafId = requestAnimationFrame(() => {
+				const viewportCenter = window.innerHeight * 0.5;
+				let bestCard = null;
+				let bestDistance = Infinity;
+				
+				const validCards = cardRefs.current.filter(card => card !== null && card !== undefined);
+				const firstCard = validCards[0];
+				const lastCard = validCards[validCards.length - 1];
+				
+				const contentArea = containerRef.current?.querySelector('.content-area');
+				const scrollTop = contentArea?.scrollTop || window.scrollY;
+				const scrollHeight = contentArea?.scrollHeight || document.documentElement.scrollHeight;
+				const clientHeight = contentArea?.clientHeight || window.innerHeight;
+				
+				const isScrollingDown = scrollTop > lastScrollTopRef.current;
+				lastScrollTopRef.current = scrollTop;
+				
+				const cardData = [];
+				cardRefs.current.forEach((card, idx) => {
+					if (!card) return;
+
+					const rect = card.getBoundingClientRect();
+					
+					const visibleTop = Math.max(0, rect.top);
+					const visibleBottom = Math.min(window.innerHeight, rect.bottom);
+					const visibleHeight = Math.max(0, visibleBottom - visibleTop);
+					const visibilityRatio = visibleHeight / rect.height;
+					
+					const isFirst = card === firstCard;
+					const isLast = card === lastCard;
+					const minVisibility = (isFirst || isLast) ? 0.15 : 0.2;
+					
+					if (visibilityRatio < minVisibility) return;
+					
+					const cardCenter = rect.top + rect.height / 2;
+					const rawDistance = Math.abs(cardCenter - viewportCenter);
+					
+					cardData.push({ card, rawDistance, visibilityRatio, isFirst, isLast });
+				});
+				
+				// Second pass: apply bonuses and select winner
+				cardData.forEach(({ card, rawDistance, visibilityRatio, isFirst, isLast }) => {
+					let distance = rawDistance;
+					
+					// Hysteresis when scrolling down
+					if (card === currentExpandedCardRef.current && isScrollingDown) {
+						distance = distance * 0.9;
+					}
+					
+					// First card bonus
+					if (isFirst && scrollTop < 50) {
+						distance = distance * 0.1; 
+					}
+					// Last card bonus - only when at absolute bottom and second-to-last isn't closer
+					else if (isLast && scrollTop + clientHeight > scrollHeight - 5 && isScrollingDown && visibilityRatio > 0.5) {
+						// Check if second-to-last card is closer to center (without bonuses)
+						const secondToLastData = cardData[cardData.length - 2];
+						if (secondToLastData && secondToLastData.rawDistance < rawDistance * 0.7) {
+							// Second-to-last is significantly closer, don't apply bonus
+							// This prevents last card from stealing focus
+						} else {
+							distance = distance * 0.15;
+						}
+					}
+
+					if (distance < bestDistance) {
+						bestDistance = distance;
+						bestCard = card;
+					}
+				});
+
+				// Update all cards
+				cardRefs.current.forEach((card) => {
+					if (card) {
+						if (card === bestCard && bestCard) {
+							card.classList.add('in-view');
+							currentExpandedCardRef.current = card; // Track current expanded card
+						} else {
+							card.classList.remove('in-view');
+						}
+					}
+				});
+				
+				rafId = null;
+			});
+		};
+
+		// Wait for cards to be rendered
+		const timer = setTimeout(() => {
+			// Clear existing ScrollTriggers
+			ScrollTrigger.getAll().forEach(st => st.kill());
+			
+			// Create a single ScrollTrigger that updates on scroll
+			ScrollTrigger.create({
+				trigger: containerRef.current || document.body,
+				start: "top top",
+				end: "bottom bottom",
+				onUpdate: updateExpandedCard,
+			});
+
+			// Also listen to scroll events directly for more reliable updates
+			scrollHandler = () => updateExpandedCard();
+			contentArea = containerRef.current?.querySelector('.content-area');
+			if (contentArea) {
+				contentArea.addEventListener('scroll', scrollHandler, { passive: true });
+			}
+			window.addEventListener('scroll', scrollHandler, { passive: true });
+
+			// Initial check
+			updateExpandedCard();
+
+			ScrollTrigger.refresh();
+		}, 100);
+
+		return () => {
+			clearTimeout(timer);
+			if (rafId) cancelAnimationFrame(rafId);
+			if (scrollHandler) {
+				if (contentArea) {
+					contentArea.removeEventListener('scroll', scrollHandler);
+				}
+				window.removeEventListener('scroll', scrollHandler);
+			}
+			ScrollTrigger.getAll().forEach(st => st.kill());
+		};
+	}, [activities, activeTab, loading]);
+
+	const getDaysAgoText = (days) => {
+		if (days === 1) return "1 day ago";
+		if (days === 7) return "1 week ago";
+		if (days === 14) return "2 weeks ago";
+		if (days === 21) return "3 weeks ago";
+		return `${days} days ago`;
+	};
 
 	const getTimeAgo = (dateString) => {
 		const date = new Date(dateString);
@@ -133,7 +285,7 @@ export default function BucketList() {
 	}
 
 	return (
-		<div className="bucket-list-container">
+		<div ref={containerRef} className="bucket-list-container">
 			{/* Header */}
 			<div className="bucket-list-header">
 				<Header
@@ -181,13 +333,28 @@ export default function BucketList() {
 			<div className="content-area">
 				<div className="content-list">
 					{(activeTab === "todo" ? filteredActivities : filteredCompletedActivities).length > 0 ? (
-						(activeTab === "todo" ? filteredActivities : filteredCompletedActivities).map((activity) => (
-							<div key={activity._id} className="activity-card">
+						(activeTab === "todo" ? filteredActivities : filteredCompletedActivities).map((activity, index) => (
+							<div
+								key={activity._id}
+								ref={(el) => (cardRefs.current[index] = el)}
+								className="activity-card"
+							>
+								{/* Image container - expands when in view */}
+								<div className="card-image-container">
+									{activity.imageUrl ? (
+										<img src={activity.imageUrl} alt={activity.name} className="card-image" />
+									) : (
+										<div className="card-image-placeholder">
+											<MapPin size={24} />
+										</div>
+									)}
+								</div>
+
 								{/* Title and Likes Row */}
 								<div className="card-header">
 									<h3 className={"card-title" + (activeTab === "done" ? " completed" : "")}>{activity.name}</h3>
 									<div className="likes-container">
-										<Heart size={16} fill="currentColor" />
+										<Heart size={16} fill="currentColor" className="heart-icon" />
 										<span className="likes-count">{activity.likes?.length || 0}</span>
 									</div>
 								</div>
@@ -208,8 +375,8 @@ export default function BucketList() {
 
 								{/* Tags */}
 								<div className="card-tags">
-									{(activity.tags || []).map((tag, index) => (
-										<span key={index} className="tag">
+									{(activity.tags || []).map((tag, idx) => (
+										<span key={idx} className="tag">
 											#{tag}
 										</span>
 									))}

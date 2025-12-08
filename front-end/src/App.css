@@ -1,12 +1,12 @@
 :root {
 	height: 100%;
-	background-color: white;
 	overflow-x: hidden;
 
 	/* CSS vars */
-	--color-primary: #0072b2;
-	--color-accent: #9ad2f2;
-	--color-neutral: #000000;
+	--color-primary: #4a5568;
+	--color-accent: #a0aec0;
+	--color-neutral: #1a202c;
+	--color-primary-light: rgba(74, 85, 104, 0.1);
 
 	/* Legacy colors for backward compatibility */
 	--soft-mint-green: #d1e8e2;
@@ -15,19 +15,83 @@
 	--light-gray: #e2e2e2;
 }
 
+html {
+	scroll-behavior: smooth;
+}
+
+* {
+	scroll-behavior: smooth;
+}
+
+/* Smooth scroll for all scrollable containers */
+body, #root, .content-area {
+	scroll-behavior: smooth;
+}
+
 body {
-	height: 100%;
 	margin: 0;
-	background-color: white;
+	min-height: 100vh;
+	background-color: #fafafa;
+	background-image:
+		/* soft warm beige / cream */
+		radial-gradient(circle at 0% 0%, rgba(245, 222, 179, 0.4) 0, transparent 55%),
+		radial-gradient(circle at 100% 0%, rgba(255, 216, 190, 0.3) 0, transparent 55%),
+		/* soft pink / coral */
+		radial-gradient(circle at 15% 80%, rgba(255, 160, 170, 0.22) 0, transparent 55%),
+		radial-gradient(circle at 85% 100%, rgba(255, 140, 180, 0.18) 0, transparent 55%),
+		/* soft grays / slate */
+		radial-gradient(circle at 15% 20%, rgba(74, 85, 104, 0.12) 0, transparent 55%),
+		radial-gradient(circle at 85% 25%, rgba(113, 128, 150, 0.1) 0, transparent 55%),
+		radial-gradient(circle at 20% 85%, rgba(160, 174, 192, 0.08) 0, transparent 55%),
+		radial-gradient(circle at 80% 80%, rgba(74, 85, 104, 0.1) 0, transparent 55%);
+	background-repeat: no-repeat;
+	background-attachment: fixed;
+	background-size: 100% 100%;
+	animation: lumaLikeBg 28s ease-in-out infinite alternate;
 	overflow-x: hidden;
 }
 
+@keyframes lumaLikeBg {
+	0% {
+		background-position:
+			0% 0%,
+			100% 0%,
+			15% 80%,
+			85% 100%,
+			15% 20%,
+			85% 25%,
+			20% 85%,
+			80% 80%;
+	}
+	50% {
+		background-position:
+			10% 10%,
+			90% 5%,
+			5% 90%,
+			95% 95%,
+			5% 30%,
+			90% 20%,
+			25% 90%,
+			70% 70%;
+	}
+	100% {
+		background-position:
+			0% 20%,
+			100% 10%,
+			20% 100%,
+			80% 90%,
+			18% 10%,
+			80% 35%,
+			15% 80%,
+			90% 90%;
+	}
+}
+
 #root {
-	height: 100%;
+	min-height: 100vh;
 	padding: 0 16px;
 	max-width: 400px;
 	margin: auto;
-	background-color: white;
 	position: relative;
 	overflow-x: hidden;
 }
@@ -37,3 +101,66 @@ body {
 	font-weight: 700;
 	margin-bottom: 16px;
 }
+
+/* Global page transition animations */
+@keyframes fadeInUp {
+	from {
+		opacity: 0;
+		transform: translateY(20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+@keyframes scaleIn {
+	from {
+		opacity: 0;
+		transform: scale(0.95);
+	}
+	to {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
+
+@keyframes slideInRight {
+	from {
+		opacity: 0;
+		transform: translateX(20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
+
+/* Utility animation classes */
+.animate-fade-in {
+	animation: fadeIn 0.3s ease-out;
+}
+
+.animate-fade-in-up {
+	animation: fadeInUp 0.4s ease-out;
+}
+
+.animate-scale-in {
+	animation: scaleIn 0.3s ease-out;
+}
+
+/* Staggered animation delays for lists */
+.stagger-1 { animation-delay: 0.05s; }
+.stagger-2 { animation-delay: 0.1s; }
+.stagger-3 { animation-delay: 0.15s; }
+.stagger-4 { animation-delay: 0.2s; }
+.stagger-5 { animation-delay: 0.25s; }

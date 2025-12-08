@@ -1,19 +1,36 @@
 .group-settings-container {
 	min-height: 100vh;
-	background-color: white;
 	max-width: 400px;
 	margin: 0 auto;
 	font-family:
 		system-ui,
 		-apple-system,
 		sans-serif;
-	padding-bottom: 40px;
+	padding-bottom: 120px;
 	position: relative;
+	animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+	from { opacity: 0; }
+	to { opacity: 1; }
 }
 
 .settings-content {
 	padding: 16px;
 	position: relative;
+	animation: slideUp 0.4s ease-out 0.1s both;
+}
+
+@keyframes slideUp {
+	from {
+		opacity: 0;
+		transform: translateY(20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
 }
 
 .settings-section {
@@ -64,7 +81,9 @@
 }
 
 .invite-code-container {
-	background-color: #f8f9fa;
+	background: rgba(248, 249, 250, 0.9);
+	backdrop-filter: blur(8px);
+	-webkit-backdrop-filter: blur(8px);
 	border-radius: 12px;
 	padding: 16px;
 	border: 2px solid var(--color-primary);
@@ -93,23 +112,24 @@
 	padding: 14px;
 	background-color: var(--color-primary);
 	border: none;
-	border-radius: 8px;
+	border-radius: 12px;
 	color: white;
 	cursor: pointer;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	transition: background-color 0.2s ease;
+	transition: 
+		transform 0.2s ease,
+		box-shadow 0.2s ease;
 	min-width: 48px;
 	height: 48px;
-}
-
-.icon-button:hover:not(:disabled) {
-	background-color: var(--color-accent);
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .icon-button:active:not(:disabled) {
 	transform: scale(0.95);
+	background-color: #5a6778;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
 
 .icon-button:disabled {
@@ -124,19 +144,27 @@
 .search-input {
 	width: 100%;
 	padding: 14px 16px;
-	border-radius: 8px;
+	border-radius: 12px;
 	font-size: 16px;
 	font-family:
 		system-ui,
 		-apple-system,
 		sans-serif;
 	box-sizing: border-box;
-	border: 2px solid #ddd;
+	border: 2px solid var(--color-primary);
+	background: rgba(255, 255, 255, 0.9);
+	backdrop-filter: blur(8px);
+	-webkit-backdrop-filter: blur(8px);
+	transition: 
+		box-shadow 0.2s ease,
+		background-color 0.2s ease;
 }
 
 .search-input:focus {
 	outline: none;
 	border-color: var(--color-primary);
+	background: rgba(255, 255, 255, 1);
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 .search-input::placeholder {
@@ -148,27 +176,48 @@
 	top: 100%;
 	left: 0;
 	right: 0;
-	background: white;
-	border: 1px solid #ddd;
-	border-radius: 8px;
+	background: rgba(255, 255, 255, 0.95);
+	backdrop-filter: blur(12px);
+	-webkit-backdrop-filter: blur(12px);
+	border: 2px solid var(--color-primary);
+	border-radius: 12px;
 	max-height: 200px;
 	overflow-y: auto;
-	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
 	z-index: 1000;
-	margin-top: 4px;
+	margin-top: 8px;
+	animation: dropdownSlideIn 0.2s ease-out;
+}
+
+@keyframes dropdownSlideIn {
+	from {
+		opacity: 0;
+		transform: translateY(-8px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
 }
 
 .suggestion-item {
 	display: flex;
 	align-items: center;
-	gap: 10px;
-	padding: 10px 16px;
+	gap: 12px;
+	padding: 12px 16px;
 	cursor: pointer;
-	transition: background-color 0.2s ease;
+	transition: 
+		background-color 0.15s ease,
+		transform 0.15s ease;
 }
 
-.suggestion-item:hover {
-	background-color: #f5f5f5;
+.suggestion-item:active {
+	background-color: var(--color-accent);
+	transform: scale(0.98);
+}
+
+.suggestion-item:not(:last-child) {
+	border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 .suggestion-avatar {
@@ -189,10 +238,31 @@
 	align-items: center;
 	gap: 12px;
 	padding: 12px;
-	background-color: #f8f9fa;
-	border-radius: 8px;
-	border: 1px solid #e0e0e0;
+	background: rgba(248, 249, 250, 0.9);
+	backdrop-filter: blur(8px);
+	-webkit-backdrop-filter: blur(8px);
+	border-radius: 12px;
+	border: 2px solid var(--color-primary);
+	transition: transform 0.2s ease, box-shadow 0.2s ease;
+	animation: memberSlideIn 0.3s ease-out both;
 }
+
+@keyframes memberSlideIn {
+	from {
+		opacity: 0;
+		transform: translateX(-10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
+
+.member-item:nth-child(1) { animation-delay: 0.05s; }
+.member-item:nth-child(2) { animation-delay: 0.1s; }
+.member-item:nth-child(3) { animation-delay: 0.15s; }
+.member-item:nth-child(4) { animation-delay: 0.2s; }
+.member-item:nth-child(5) { animation-delay: 0.25s; }
 
 .member-avatar {
 	width: 48px;

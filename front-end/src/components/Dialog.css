@@ -1,21 +1,44 @@
 .invite-dialog {
 	padding: 0;
 	border: none;
-	border-radius: 12px;
+	border-radius: 20px;
+	animation: dialogSlideUp 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes dialogSlideUp {
+	from {
+		opacity: 0;
+		transform: translateY(30px) scale(0.95);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
 }
 
 .invite-dialog::backdrop {
-	background: rgba(0, 0, 0, 0.5);
+	background: rgba(0, 0, 0, 0.4);
+	backdrop-filter: blur(4px);
+	-webkit-backdrop-filter: blur(4px);
+	animation: backdropFadeIn 0.25s ease-out;
+}
+
+@keyframes backdropFadeIn {
+	from { opacity: 0; }
+	to { opacity: 1; }
 }
 
 .dialog-content {
-	background: #fff;
+	background: rgba(255, 255, 255, 0.95);
+	backdrop-filter: blur(16px);
+	-webkit-backdrop-filter: blur(16px);
 	border: 2px solid var(--color-primary);
-	border-radius: 12px;
-	padding: 32px;
-	max-width: 400px;
-	width: max;
+	border-radius: 20px;
+	padding: 28px;
+	max-width: 340px;
+	width: 100%;
 	position: relative;
+	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
 }
 
 .dialog-layout {
@@ -35,6 +58,8 @@
 	height: 64px;
 	border-radius: 50%;
 	object-fit: cover;
+	border: 3px solid var(--color-accent);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .dialog-group-name {
@@ -42,6 +67,7 @@
 	font-weight: 700;
 	margin-bottom: 8px;
 	line-height: 1.2;
+	color: var(--color-neutral);
 }
 
 .dialog-by {
@@ -53,13 +79,13 @@
 .dialog-description {
 	font-size: 14px;
 	color: #666;
-	line-height: 1.4;
+	line-height: 1.5;
 	margin: 0;
 }
 
 .dialog-buttons {
 	display: flex;
-	gap: 16px;
+	gap: 12px;
 }
 
 .dialog-button-half {
