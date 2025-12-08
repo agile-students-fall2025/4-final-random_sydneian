@@ -193,14 +193,14 @@
 	z-index: 1000;
 	max-height: 200px;
 	overflow-y: auto;
-  }
-  
-  .suggestions-list li {
+}
+
+.suggestions-list li {
 	padding: 10px;
 	cursor: pointer;
 	border-bottom: 1px solid #eee;
-  }
-  
-  .suggestions-list li:hover {
+}
+
+.suggestions-list li:hover {
 	background-color: #f0f0f0;
-  }
+}

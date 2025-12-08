@@ -405,7 +405,9 @@ app.post("/api/groups/:id/leave", async (req, res) => {
 		// Owner cannot leave the group, they must delete it instead
 		const isOwner = group.owner.toString() === req.user.id;
 		if (isOwner) {
-			return res.status(400).json({ error: "Group owner cannot leave. Please delete the group or transfer ownership." });
+			return res
+				.status(400)
+				.json({ error: "Group owner cannot leave. Please delete the group or transfer ownership." });
 		}
 
 		group.members = group.members.filter((memberId) => memberId.toString() !== req.user.id);
@@ -647,7 +649,6 @@ app.post("/api/groups/:groupId/activities", async (req, res) => {
 			memories: [],
 			done: false,
 			addedBy: req.user.id,
-
 		};
 
 		group.activities.push(newActivity);

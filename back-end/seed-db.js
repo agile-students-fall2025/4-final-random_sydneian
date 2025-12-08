@@ -124,7 +124,7 @@ async function seedDatabase() {
 		for (const userData of users) {
 			// Check if user already exists
 			let user = await User.findOne({ email: userData.email });
-			
+
 			if (user) {
 				// Update existing user
 				user.username = userData.username;
@@ -169,16 +169,16 @@ async function seedDatabase() {
 		// Update existing groups to add owner and admins fields if missing
 		const existingGroups = await Group.find({});
 		let updatedCount = 0;
-		
+
 		for (const group of existingGroups) {
 			let needsUpdate = false;
-			
+
 			// If no owner, set first member as owner
 			if (!group.owner && group.members.length > 0) {
 				group.owner = group.members[0];
 				needsUpdate = true;
 			}
-			
+
 			// If no admins array or empty, add owner to admins
 			if (!group.admins || group.admins.length === 0) {
 				if (group.owner) {
@@ -189,23 +189,23 @@ async function seedDatabase() {
 					needsUpdate = true;
 				}
 			}
-			
+
 			// Ensure owner is in admins array
-			if (group.owner && (!group.admins || !group.admins.some(a => a.toString() === group.owner.toString()))) {
+			if (group.owner && (!group.admins || !group.admins.some((a) => a.toString() === group.owner.toString()))) {
 				if (!group.admins) {
 					group.admins = [];
 				}
 				group.admins.push(group.owner);
 				needsUpdate = true;
 			}
-			
+
 			if (needsUpdate) {
 				await group.save();
 				updatedCount++;
 				console.log(`Updated group: ${group.name} (added owner and admins)`);
 			}
 		}
-		
+
 		if (updatedCount > 0) {
 			console.log(`\nUpdated ${updatedCount} existing groups\n`);
 		}
@@ -214,7 +214,7 @@ async function seedDatabase() {
 
 		for (let i = 0; i < 5; i++) {
 			const template = groupTemplates[i];
-			
+
 			// Check if group already exists
 			let group = await Group.findOne({ name: template.name });
 
@@ -234,32 +234,32 @@ async function seedDatabase() {
 				// Update existing group - preserve existing data, only update what's needed
 				if (!group.desc) group.desc = template.desc;
 				if (!group.icon) group.icon = `https://picsum.photos/seed/group${i}/128/128`;
-				
+
 				// Update members and invited members
 				group.members = memberIds;
 				group.invitedMembers = invitedIds;
-				
+
 				// Set owner if not set, or update if needed
 				if (!group.owner) {
 					group.owner = ownerId;
 				}
-				
+
 				// Ensure owner is in admins array
 				if (!group.admins || group.admins.length === 0) {
 					group.admins = [group.owner];
-				} else if (!group.admins.some(a => a.toString() === group.owner.toString())) {
+				} else if (!group.admins.some((a) => a.toString() === group.owner.toString())) {
 					group.admins.push(group.owner);
 				}
-				
+
 				if (!group.inviteCode) {
 					group.inviteCode = crypto.randomBytes(4).toString("hex").toUpperCase();
 				}
-				
+
 				// Preserve existing activities - only add new ones if group has no activities
 				if (!group.activities || group.activities.length === 0) {
 					group.activities = [];
 				}
-				
+
 				console.log(`Updated: ${group.name} (preserved existing activities)`);
 			} else {
 				// Create new group
@@ -274,7 +274,7 @@ async function seedDatabase() {
 					inviteCode: crypto.randomBytes(4).toString("hex").toUpperCase(),
 					activities: [],
 				});
-				
+
 				console.log(`Created: ${group.name}`);
 			}
 
@@ -325,7 +325,7 @@ async function seedDatabase() {
 
 			await group.save();
 			createdGroups.push(group);
-			
+
 			if (group.activities && group.activities.length > 0) {
 				console.log(`      ✓ ${group.activities.length} activities`);
 				const totalMemories = group.activities.reduce((sum, act) => sum + act.memories.length, 0);
@@ -341,7 +341,7 @@ async function seedDatabase() {
 
 		// Refresh groups list to include all groups (existing + newly created)
 		const allGroups = await Group.find({});
-		
+
 		console.log("\nDatabase seeded successfully!\n");
 		console.log("Users:");
 		for (const user of createdUsers) {
@@ -350,7 +350,9 @@ async function seedDatabase() {
 				g.invitedMembers.some((m) => m.toString() === user._id.toString()),
 			);
 			const ownedGroups = allGroups.filter((g) => g.owner && g.owner.toString() === user._id.toString());
-			console.log(`${user.username} - ${memberOfGroups.length} groups, ${invitedToGroups.length} invites, ${ownedGroups.length} owned`);
+			console.log(
+				`${user.username} - ${memberOfGroups.length} groups, ${invitedToGroups.length} invites, ${ownedGroups.length} owned`,
+			);
 		}
 
 		console.log(`\nTotal users: ${createdUsers.length}`);
@@ -362,11 +364,11 @@ async function seedDatabase() {
 			0,
 		);
 		console.log(`Total memories: ${totalMemories}`);
-		
+
 		// Show groups with owners
 		console.log("\nGroups with owners:");
 		for (const group of allGroups) {
-			const owner = createdUsers.find(u => u._id.toString() === group.owner?.toString());
+			const owner = createdUsers.find((u) => u._id.toString() === group.owner?.toString());
 			const ownerName = owner ? owner.username : "Unknown";
 			console.log(`  ${group.name} - Owner: ${ownerName}`);
 		}
