@@ -25,13 +25,23 @@ async function connectDB() {
 }
 
 async function disconnectDB() {
-    await mongoose.connection.dropDatabase().catch(() => {});
-    await mongoose.connection.close();
+    if (process.env.NODE_ENV === "test") {
+        // Safe to drop DB because it's in-memory
+        await mongoose.connection.dropDatabase().catch(() => {});
+        await mongoose.connection.close();
 
-    if (mongoServer) {
-        await mongoServer.stop();
+        if (mongoServer) {
+            await mongoServer.stop();
+        }
+
+        console.log("Test DB disconnected safely");
+    } else {
+        // Never drop data in real environments
+        await mongoose.connection.close();
+        console.log("MongoDB connection closed (no drop)");
     }
 }
+
 
 const UserSchema = new mongoose.Schema(
 	{
