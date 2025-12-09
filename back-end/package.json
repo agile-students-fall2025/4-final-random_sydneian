@@ -4,7 +4,7 @@
 	"version": "0.0.0",
 	"type": "module",
 	"scripts": {
-		"dev": "node --env-file .env --watch src/app.js",
+		"dev": "node --env-file .env --watch src/server.js",
 		"lint-format-all": "eslint --fix . && prettier --write .",
 		"fix-format-lint": "npm run lint-format-all",
 		"start": "node --env-file-if-exists .env src/server.js",

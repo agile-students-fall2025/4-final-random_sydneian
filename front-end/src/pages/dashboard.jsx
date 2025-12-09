@@ -56,6 +56,7 @@ export default function DashboardPage() {
 					if (groupIdsResponse.status === 401) {
 						setError("Authentication failed. Please login again.");
 						localStorage.removeItem("JWT");
+						navigate("/login");
 						return;
 					}
 					throw new Error("Failed to fetch groups");
