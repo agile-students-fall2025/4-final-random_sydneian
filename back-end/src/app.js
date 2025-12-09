@@ -1117,6 +1117,4 @@ app.use((req, res, next) => {
 	res.status(404).json({ error: "Path not found" });
 });
 
-app.listen(process.env.PORT || 8000, () => {
-	console.log(`Express app listening at http://localhost:${process.env.PORT || 8000}`);
-});
+export default app;

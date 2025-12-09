@@ -1,21 +1,47 @@
 import mongoose from "mongoose";
+import { MongoMemoryServer } from "mongodb-memory-server";
 
-mongoose.connect(process.env.MONGODB_URI).catch((err) => {
-	console.error("MongoDB connection error:", err);
-	process.exit(1);
-});
+let mongoServer = null;
 
-mongoose.connection.on("connected", () => {
-	console.log("Connected to MongoDB Atlas");
-});
+async function connectDB() {
+    try {
+        // If in test mode, use in-memory MongoDB
+        if (process.env.NODE_ENV === "test") {
+            mongoServer = await MongoMemoryServer.create();
+            const uri = mongoServer.getUri();
 
-mongoose.connection.on("error", (err) => {
-	console.error("MongoDB connection error:", err);
-});
+            await mongoose.connect(uri);
+            console.log("Connected to In-Memory MongoDB for testing");
+            return;
+        }
 
-mongoose.connection.on("disconnected", () => {
-	console.log("Disconnected from MongoDB");
-});
+        // Otherwise connect to real Mongo Atlas
+        await mongoose.connect(process.env.MONGODB_URI);
+        console.log("Connected to MongoDB Atlas");
+    } catch (err) {
+        console.error("MongoDB connection error:", err);
+        process.exit(1);
+    }
+}
+
+async function disconnectDB() {
+    if (process.env.NODE_ENV === "test") {
+        // Safe to drop DB because it's in-memory
+        await mongoose.connection.dropDatabase().catch(() => {});
+        await mongoose.connection.close();
+
+        if (mongoServer) {
+            await mongoServer.stop();
+        }
+
+        console.log("Test DB disconnected safely");
+    } else {
+        // Never drop data in real environments
+        await mongoose.connection.close();
+        console.log("MongoDB connection closed (no drop)");
+    }
+}
+
 
 const UserSchema = new mongoose.Schema(
 	{
@@ -83,4 +109,4 @@ const Memory = mongoose.model("Memory", MemorySchema);
 const Activity = mongoose.model("Activity", ActivitySchema);
 const Group = mongoose.model("Group", GroupSchema);
 
-export { User, Memory, Activity, Group };
+export { User, Memory, Activity, Group, connectDB, disconnectDB };
