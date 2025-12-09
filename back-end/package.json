@@ -7,7 +7,7 @@
 		"dev": "node --env-file .env --watch src/app.js",
 		"lint-format-all": "eslint --fix . && prettier --write .",
 		"fix-format-lint": "npm run lint-format-all",
-		"start": "node src/app.js",
+		"start": "node --env-file-if-exists .env src/app.js",
 		"test": "c8 mocha 'test/**/*.test.js'",
 		"test:coverage": "c8 --reporter=text --reporter=html mocha 'test/**/*.test.js'"
 	},
