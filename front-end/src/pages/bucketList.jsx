@@ -381,7 +381,7 @@ export default function BucketList() {
 											setIsXLoading(isXLoading.filter((x) => x !== `${activity._id}-like`));
 										}}
 									>
-										<Heart size={16} fill="currentColor" className="heart-icon" />
+										<Heart size={16} className="heart-icon" />
 										{isXLoading.includes(`${activity._id}-like`) ? (
 											<LoaderCircle strokeWidth="6" color="currentColor" size="8" className="spin-loader" />
 										) : (
