@@ -1181,6 +1181,7 @@ app.put("/api/groups/:groupId/memories/:memoryId", async (req, res) => {
 		if (req.body.title) {
 			foundMemory.title = req.body.title;
 		}
+		
 		// Update rating if provided
 		if (req.body.rating !== undefined) {
 			foundMemory.rating = req.body.rating;
