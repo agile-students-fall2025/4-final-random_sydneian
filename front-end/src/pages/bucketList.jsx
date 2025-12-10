@@ -375,10 +375,17 @@ export default function BucketList() {
 											if (!res.ok) return alert("Failed to like activity");
 
 											const updatedActivity = await res.json();
+											const mappedActivity = {
+												...updatedActivity,
+												imageUrl:
+													Array.isArray(updatedActivity.images) && updatedActivity.images.length > 0
+														? updatedActivity.images[0]
+														: "",
+											};
 
 											setActivities(
 												activities.map((activity) =>
-													activity._id === updatedActivity._id ? updatedActivity : activity,
+													activity._id === mappedActivity._id ? mappedActivity : activity,
 												),
 											);
 
