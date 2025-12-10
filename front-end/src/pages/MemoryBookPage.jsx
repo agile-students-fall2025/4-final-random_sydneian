@@ -3,7 +3,7 @@ import "./MemoryBookPage.css";
 import "../components/Button.css";
 import AddMemoryPopup from "./AddMemoryPopup";
 import Header from "../components/Header";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, Star, MessageCircle } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 import GalleryModal from "../components/GalleryModal";
 import CommentsModal from "./CommentsModal";
