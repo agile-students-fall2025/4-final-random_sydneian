@@ -14,8 +14,12 @@
 }
 
 @keyframes fadeIn {
-	from { opacity: 0; }
-	to { opacity: 1; }
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
 }
 
 .bucket-list-header {
@@ -61,7 +65,7 @@
 	background: rgba(255, 255, 255, 0.9);
 	backdrop-filter: blur(8px);
 	-webkit-backdrop-filter: blur(8px);
-	transition: 
+	transition:
 		box-shadow 0.2s ease,
 		background-color 0.2s ease;
 }
@@ -161,7 +165,7 @@
 	border: 2px solid var(--color-primary);
 	border-radius: 16px;
 	padding: 16px;
-	transition: 
+	transition:
 		transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
 		box-shadow 0.35s cubic-bezier(0.4, 0, 0.2, 1),
 		background-color 0.35s ease;
@@ -181,12 +185,24 @@
 }
 
 /* Staggered animation delays for cards */
-.activity-card:nth-child(1) { animation-delay: 0.1s; }
-.activity-card:nth-child(2) { animation-delay: 0.15s; }
-.activity-card:nth-child(3) { animation-delay: 0.2s; }
-.activity-card:nth-child(4) { animation-delay: 0.25s; }
-.activity-card:nth-child(5) { animation-delay: 0.3s; }
-.activity-card:nth-child(6) { animation-delay: 0.35s; }
+.activity-card:nth-child(1) {
+	animation-delay: 0.1s;
+}
+.activity-card:nth-child(2) {
+	animation-delay: 0.15s;
+}
+.activity-card:nth-child(3) {
+	animation-delay: 0.2s;
+}
+.activity-card:nth-child(4) {
+	animation-delay: 0.25s;
+}
+.activity-card:nth-child(5) {
+	animation-delay: 0.3s;
+}
+.activity-card:nth-child(6) {
+	animation-delay: 0.35s;
+}
 
 /* Card expansion when in viewport (controlled by IntersectionObserver) */
 .activity-card.in-view {
@@ -199,7 +215,7 @@
 .card-image-container {
 	max-height: 0;
 	overflow: hidden;
-	transition: 
+	transition:
 		max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
 		opacity 0.3s ease,
 		margin 0.4s ease;
@@ -238,7 +254,7 @@
 .card-header {
 	display: flex;
 	justify-content: space-between;
-	align-items: flex-start;
+	align-items: center;
 	margin-bottom: 8px;
 }
 
@@ -260,10 +276,31 @@
 	align-items: center;
 	gap: 4px;
 	margin-left: 8px;
-	padding: 4px 8px;
+	padding: 8px 12px;
 	border-radius: 20px;
 	background: rgba(74, 85, 104, 0.08);
-	transition: transform 0.2s ease, background-color 0.2s ease;
+	outline: 2px solid transparent; /* So that it can fade in instead of growing out */
+	transition:
+		transform 0.2s ease,
+		background-color 0.5s ease,
+		outline 0.5s ease,
+		color 0.5s ease;
+
+	&.liked {
+		background: hsla(336, 100%, 50%, 0.1);
+		outline: 2px solid hsla(336, 100%, 50%, 1);
+		color: #3a0a0a;
+	}
+
+	svg,
+	span {
+		scale: 1;
+		transition: scale 200ms ease-in-out;
+
+		@starting-style {
+			scale: 0 1;
+		}
+	}
 }
 
 .likes-container:active {
@@ -318,7 +355,7 @@
 	border-radius: 9999px;
 	background: rgba(255, 255, 255, 0.9);
 	color: var(--color-primary);
-	transition: 
+	transition:
 		background-color 0.2s ease,
 		transform 0.2s ease;
 }
@@ -351,7 +388,8 @@
 }
 
 @keyframes fabPulse {
-	0%, 100% {
+	0%,
+	100% {
 		box-shadow: 0 4px 20px rgba(74, 85, 104, 0.35);
 	}
 	50% {
@@ -375,8 +413,12 @@
 }
 
 @keyframes overlayFadeIn {
-	from { opacity: 0; }
-	to { opacity: 1; }
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
 }
 
 .modal-content {

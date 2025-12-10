@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../components/Button";
+import logo from "../assets/logo.png";
 import "./Login.css";
 
 function Login() {
@@ -45,7 +46,7 @@ function Login() {
 	return (
 		<div className="login-container">
 			<div className="auth-header-row">
-				<img src="/src/assets/logo.png" alt="Rendezvous logo" className="auth-logo-large" />
+				<img src={logo} alt="Rendezvous logo" className="auth-logo-large" />
 
 				<div className="auth-text-group">
 					<h1 className="auth-title">rendezvous</h1>

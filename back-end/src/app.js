@@ -637,6 +637,54 @@ app.get("/api/groups/:id", async (req, res) => {
 	}
 });
 
+// Update activity
+app.patch(
+	"/api/groups/:groupId/activities/:activityId",
+	// TODO: express-validation verification
+	// - Each field should be validated and sanitised
+	// - Authz check (user is member of group)
+	// - (actually, should probably start nesting routes so we don't have to duplicate the checks, fetching group, etc)
+	async (req, res) => {
+		try {
+			const group = await Group.findById(req.params.groupId);
+
+			if (!group) {
+				return res.status(404).json({ error: "Group not found" });
+			}
+
+			const isMember = group.members.some((memberId) => memberId.toString() === req.user.id);
+			if (!isMember) {
+				return res.status(403).json({ error: "Only members can update activities" });
+			}
+
+			const activity = group.activities.id(req.params.activityId);
+			if (!activity) return res.status(404).json({ error: "Activity not found" });
+
+			for (const field of ["name", "images", "category", "tags", "location", "done"]) {
+				if (req.body[field] !== undefined) {
+					activity[field] = req.body[field];
+				}
+			}
+
+			// Note: Use boolean liked instead of the usual likes array, to simplify & only allow users to modify their own like (prevents race condition)
+			if (req.body.liked !== undefined) {
+				if (req.body.liked) {
+					if (!activity.likes.includes(req.user.id)) activity.likes.push(req.user.id);
+				} else {
+					activity.likes.remove(req.user.id);
+				}
+			}
+
+			await group.save();
+			await group.populate("activities.likes", "username profilePicture");
+			res.json(activity);
+		} catch (error) {
+			console.error("Error getting specific activity:", error);
+			res.status(500).json({ error: "Internal server error" });
+		}
+	},
+);
+
 // Add item to group bucket list (MongoDB)
 app.post("/api/groups/:groupId/activities", async (req, res) => {
 	try {
@@ -1097,6 +1145,4 @@ app.use((req, res, next) => {
 	res.status(404).json({ error: "Path not found" });
 });
 
-app.listen(process.env.PORT || 8000, () => {
-	console.log(`Express app listening at http://localhost:${process.env.PORT || 8000}`);
-});
+export default app;
