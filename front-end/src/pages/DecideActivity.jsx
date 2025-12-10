@@ -9,17 +9,17 @@ const activityChosenPhrases = ["The wheel has spoken, the universe has chosen...
 const palette = ["#e37c7c", "#f0e2c9", "#f9d77e"]; // coral, light beige, soft yellow
 
 // From p5js
-function mapRange(n, start1, stop1, start2, stop2, withinBounds) {
-	const newval = ((n - start1) / (stop1 - start1)) * (stop2 - start2) + start2;
-	if (!withinBounds) {
-		return newval;
-	}
-	if (start2 < stop2) {
-		return Math.max(Math.min(newval, stop2), start2);
-	} else {
-		return Math.max(Math.min(newval, start2), stop2);
-	}
-}
+// function mapRange(n, start1, stop1, start2, stop2, withinBounds) {
+// 	const newval = ((n - start1) / (stop1 - start1)) * (stop2 - start2) + start2;
+// 	if (!withinBounds) {
+// 		return newval;
+// 	}
+// 	if (start2 < stop2) {
+// 		return Math.max(Math.min(newval, stop2), start2);
+// 	} else {
+// 		return Math.max(Math.min(newval, start2), stop2);
+// 	}
+// }
 
 class Wheel {
 	constructor(
@@ -93,7 +93,7 @@ class Wheel {
 	draw() {
 		this.ctx.setTransform(1, 0, 0, 1, 0, 0);
 		this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
-		this.ctx.globalAlpha = 1;
+		this.ctx.globalAlpha = 1; // mapRange(this.speed, 0.05, 0, 0.1, 0.5, true); // Motion blur effect
 		this.ctx.translate(this.center.x, this.center.y);
 
 		// Background circle
@@ -164,12 +164,14 @@ export default function DecideActivity() {
 	const baseActivitiesRef = useRef([]);
 	const [activity, setActivity] = useState({});
 	const [mode, setMode] = useState("equal"); // "equal" or "likes"
-	const confettiInstanceRef = useRef(null);
+	// const confettiInstanceRef = useRef(null);
 	const confettiCanvasRef = useRef(null);
 
 	const jwt = localStorage.getItem("JWT");
-	const userPayload = jwt ? JSON.parse(atob(jwt.split(".")[1])) : null;
-	const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
+	// const userPayload = jwt ? JSON.parse(atob(jwt.split(".")[1])) : null;
+	const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION
+		? ""
+		: import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
 
 	useEffect(() => {
 		(async () => {

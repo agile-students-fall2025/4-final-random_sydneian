@@ -28,7 +28,9 @@ export default function BucketList() {
 	const currentExpandedCardRef = useRef(null);
 	const lastScrollTopRef = useRef(0);
 
-	const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
+	const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION
+		? ""
+		: import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
 
 	useEffect(() => {
 		const fetchActivities = async () => {
@@ -71,7 +73,7 @@ export default function BucketList() {
 		};
 
 		fetchActivities();
-	}, [navigate, groupId]);
+	}, [navigate, groupId, backendURL]);
 
 	useLayoutEffect(() => {
 		let rafId = null;
@@ -99,7 +101,7 @@ export default function BucketList() {
 				lastScrollTopRef.current = scrollTop;
 
 				const cardData = [];
-				cardRefs.current.forEach((card, idx) => {
+				cardRefs.current.forEach((card) => {
 					if (!card) return;
 
 					const rect = card.getBoundingClientRect();
@@ -336,7 +338,7 @@ export default function BucketList() {
 								key={activity._id}
 								ref={(el) => (cardRefs.current[index] = el)}
 								className="activity-card"
-								onClick={(evt) => {
+								onClick={() => {
 									setSelectedActivity(activity);
 									activityDetailsModalRef.current.showModal();
 								}}
@@ -363,17 +365,14 @@ export default function BucketList() {
 
 											setIsXLoading([...isXLoading, `${activity._id}-like`]);
 
-											const res = await fetch(
-												`${backendURL}/api/groups/${groupId}/activities/${activity._id}`,
-												{
-													headers: {
-														Authorization: `Bearer ${localStorage.getItem("JWT")}`,
-														"Content-Type": "application/json",
-													},
-													method: "PATCH",
-													body: JSON.stringify({ liked: !activity.likes.some((user) => user._id === userId) }),
+											const res = await fetch(`${backendURL}/api/groups/${groupId}/activities/${activity._id}`, {
+												headers: {
+													Authorization: `Bearer ${localStorage.getItem("JWT")}`,
+													"Content-Type": "application/json",
 												},
-											);
+												method: "PATCH",
+												body: JSON.stringify({ liked: !activity.likes.some((user) => user._id === userId) }),
+											});
 
 											if (!res.ok) return alert("Failed to like activity");
 

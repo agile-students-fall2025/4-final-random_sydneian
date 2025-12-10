@@ -5,7 +5,9 @@ import "./EditableTagsField.css";
 export default function EditableTagsField({ groupId, activities, selectedActivity, onUpdate }) {
 	const [isEditing, setIsEditing] = useState(false);
 	const [isLoading, setIsLoading] = useState([]);
-	const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
+	const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION
+		? ""
+		: import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
 	const inputRef = useRef();
 	const autosuggestListId = useId();
 
@@ -42,20 +44,18 @@ export default function EditableTagsField({ groupId, activities, selectedActivit
 
 								setIsLoading([...isLoading, "adding tag"]);
 
-								const res = await fetch(
-									`${backendURL}/api/groups/${groupId}/activities/${selectedActivity._id}`,
-									{
-										headers: {
-											Authorization: `Bearer ${localStorage.getItem("JWT")}`,
-											"Content-Type": "application/json",
-										},
-										method: "PATCH",
-										body: JSON.stringify({ tags: [...selectedActivity.tags, inputRef.current.value] }),
+								const res = await fetch(`${backendURL}/api/groups/${groupId}/activities/${selectedActivity._id}`, {
+									headers: {
+										Authorization: `Bearer ${localStorage.getItem("JWT")}`,
+										"Content-Type": "application/json",
 									},
-								);
+									method: "PATCH",
+									body: JSON.stringify({ tags: [...selectedActivity.tags, inputRef.current.value] }),
+								});
 
 								if (!res.ok) return alert("Failed to add tag");
 								else onUpdate(await res.json());
+								// eslint-disable-next-line require-atomic-updates
 								inputRef.current.value = "";
 
 								setIsLoading(isLoading.filter((x) => x !== "adding tag"));
@@ -86,22 +86,19 @@ export default function EditableTagsField({ groupId, activities, selectedActivit
 					<span
 						key={tag}
 						className="tag"
-						onClick={async (evt) => {
+						onClick={async () => {
 							if (!isEditing) return;
 
 							setIsLoading([...isLoading, `removing tag: ${tag}`]);
 
-							const res = await fetch(
-								`${backendURL}/api/groups/${groupId}/activities/${selectedActivity._id}`,
-								{
-									headers: {
-										Authorization: `Bearer ${localStorage.getItem("JWT")}`,
-										"Content-Type": "application/json",
-									},
-									method: "PATCH",
-									body: JSON.stringify({ tags: selectedActivity.tags.filter((actTag) => actTag !== tag) }),
+							const res = await fetch(`${backendURL}/api/groups/${groupId}/activities/${selectedActivity._id}`, {
+								headers: {
+									Authorization: `Bearer ${localStorage.getItem("JWT")}`,
+									"Content-Type": "application/json",
 								},
-							);
+								method: "PATCH",
+								body: JSON.stringify({ tags: selectedActivity.tags.filter((actTag) => actTag !== tag) }),
+							});
 
 							if (!res.ok) return alert("Failed to remove tag");
 							else onUpdate(await res.json());

@@ -1,0 +1,55 @@
+name: Lint, format, & test PRs
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  lint-format-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+
+      - name: Install dependencies
+        run: (cd front-end && npm install) & (cd back-end && npm install)
+
+      - name: Lint Frontend
+        run: |
+          cd front-end
+          npx eslint --fix .
+
+      - name: Lint Backend
+        run: |
+          cd back-end
+          npx eslint --fix .
+
+      - name: Format all
+        run: |
+          npx prettier --write .
+
+      - name: Test Backend
+        run: |
+          cd back-end
+          npm run test
+
+      - name: Configure Git
+        run: |
+          git config --global user.name 'PR CI'
+          git config --global user.email ''
+
+      - name: Commit changes (if any)
+        run: |
+          if git diff --quiet; then
+            echo "Nice, code is already linted & formatted."
+          else
+            git commit -am "PR CI: Lint & format fixes"
+            git push
+          fi
