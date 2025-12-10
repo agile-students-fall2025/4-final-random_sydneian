@@ -43,8 +43,9 @@ export default function ActivityDetailsModal({ groupId, activities, selectedActi
 
 			{/* Images */}
 			{/* TODO: Use Deema's gallery, and add ability to add & remove pictures */}
+			{/* I give up, for now. I'll just show a single image, and deal with multiple images, editing, etc, later */}
 			<section>
-				<h3>Images</h3>
+				<h3>Image</h3>
 
 				<img
 					width="300"
