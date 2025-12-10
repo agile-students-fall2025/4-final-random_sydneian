@@ -63,6 +63,15 @@ const UserSchema = new mongoose.Schema(
 	{ timestamps: true },
 );
 
+// Comment Schema - for individual comments on memories
+const CommentSchema = new mongoose.Schema(
+	{
+		user: { type: mongoose.ObjectId, ref: "User", required: true },
+		text: { type: String, required: true, maxlength: 500 },
+	},
+	{ timestamps: true },
+);
+
 const MemorySchema = new mongoose.Schema(
 	{
 		title: { type: String, required: true },
@@ -73,11 +82,7 @@ const MemorySchema = new mongoose.Schema(
 			max: 5, 
 			default: 0 
 		},
-		comment: { 
-			type: String, 
-			maxlength: 500,
-			default: ""
-		},	
+		comments: [CommentSchema]
 	},
 	{ timestamps: true },
 );
