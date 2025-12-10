@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Heart, LoaderCircle } from "lucide-react";
 import EditableTextField from "./EditableTextField";
 import "./ActivityDetailsModal.css";
+import EditableTagsField from "./EditableTagsField";
 
 export default function ActivityDetailsModal({ groupId, activities, selectedActivity, onUpdate, ref }) {
 	const [isLoading, setIsLoading] = useState([]);
@@ -21,20 +22,38 @@ export default function ActivityDetailsModal({ groupId, activities, selectedActi
 				<EditableTextField
 					value={selectedActivity.name}
 					placeholder="Activity name"
-					onEdit={(newVal) => {
-						// TODO
-						console.log("New val:", newVal);
+					onEdit={async (newVal) => {
+						const res = await fetch(
+							`${import.meta.env.VITE_BACKEND_ORIGIN}/api/groups/${groupId}/activities/${selectedActivity._id}`,
+							{
+								headers: {
+									Authorization: `Bearer ${localStorage.getItem("JWT")}`,
+									"Content-Type": "application/json",
+								},
+								method: "PATCH",
+								body: JSON.stringify({ name: newVal }),
+							},
+						);
+
+						if (!res.ok) return alert("Failed to change name");
+						else onUpdate(await res.json());
 					}}
 				/>
 			</section>
 
 			{/* Images */}
 			{/* TODO: Use Deema's gallery, and add ability to add & remove pictures */}
-			<img
-				width="300"
-				height="150"
-				src={selectedActivity.images?.at(0) ? selectedActivity.images[0] : "https://placehold.co/300x150"}
-			/>
+			<section>
+				<h3>Images</h3>
+
+				<img
+					width="300"
+					height="150"
+					src={selectedActivity.images?.at(0) ? selectedActivity.images[0] : "https://placehold.co/300x150"}
+				/>
+
+				{/* <GalleryModal photos={galleryPhotos} startIndex={galleryStartIndex} onClose={() => setOpenGallery(false)} /> */}
+			</section>
 
 			{/* Category */}
 			<section>
@@ -44,25 +63,30 @@ export default function ActivityDetailsModal({ groupId, activities, selectedActi
 					value={selectedActivity.category}
 					placeholder="Category"
 					autosuggestList={categories}
-					onEdit={(newVal) => {
-						// TODO
-						console.log("New val:", newVal);
+					onEdit={async (newVal) => {
+						const res = await fetch(
+							`${import.meta.env.VITE_BACKEND_ORIGIN}/api/groups/${groupId}/activities/${selectedActivity._id}`,
+							{
+								headers: {
+									Authorization: `Bearer ${localStorage.getItem("JWT")}`,
+									"Content-Type": "application/json",
+								},
+								method: "PATCH",
+								body: JSON.stringify({ category: newVal }),
+							},
+						);
+
+						if (!res.ok) return alert("Failed to change category");
+						else onUpdate(await res.json());
 					}}
 				/>
 			</section>
 
 			{/* Tags */}
-			{/* TODO: Adding & removing tags (autosave (send PATCH req) with loading state on each change) */}
 			<section>
 				<h3>Tags</h3>
 
-				<div className="card-tags">
-					{selectedActivity.tags?.map((tag) => (
-						<span key={tag} className="tag">
-							#{tag}
-						</span>
-					))}
-				</div>
+				<EditableTagsField {...{ groupId, activities, selectedActivity, onUpdate }} />
 			</section>
 
 			{/* Likes */}
@@ -112,7 +136,7 @@ export default function ActivityDetailsModal({ groupId, activities, selectedActi
 											"Content-Type": "application/json",
 										},
 										method: "PATCH",
-										body: JSON.stringify({ done: evt.target.checked }),
+										body: JSON.stringify({ tags: evt.target.checked }),
 									},
 								);
 

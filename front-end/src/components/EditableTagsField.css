@@ -1,7 +1,9 @@
-.editable-text-field {
+.editable-tags-field {
 	display: flex;
 	gap: 4px;
 	justify-content: space-between;
+	position: relative;
+	padding-right: 8px;
 
 	input {
 		border-radius: 8px;
@@ -9,7 +11,11 @@
 	}
 
 	.edit-icon {
-		justify-self: flex-end;
+		position: absolute;
+		right: 0;
+		top: 0;
+		z-index: 1;
+		background: white;
 	}
 
 	button {
@@ -35,4 +41,6 @@
 	.edit-field-save {
 		background: #ebf8f6;
 	}
+
+	margin-bottom: 16px;
 }

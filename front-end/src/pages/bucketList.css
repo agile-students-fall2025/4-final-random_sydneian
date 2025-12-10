@@ -318,6 +318,9 @@
 }
 
 .tag {
+	display: flex;
+	justify-content: center;
+	align-items: center;
 	padding: 6px 14px;
 	font-size: 12px;
 	font-weight: 600;

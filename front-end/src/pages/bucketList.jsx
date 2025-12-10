@@ -3,7 +3,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Heart, Plus, MapPin } from "lucide-react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import "./bucketList.css";
 import Header from "../components/Header";
 import Button from "../components/Button";
 import ActivityDetailsModal from "../components/ActivityDetailsModal";

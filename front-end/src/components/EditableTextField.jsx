@@ -9,7 +9,7 @@ export default function EditableTextField({ value, placeholder, autosuggestList,
 	const autosuggestListId = useId();
 
 	return (
-		<div className="editable-field" onClick={() => setIsEditing(true)}>
+		<div className="editable-text-field" onClick={() => setIsEditing(true)}>
 			{!isEditing ? (
 				<>
 					{value}
@@ -23,6 +23,7 @@ export default function EditableTextField({ value, placeholder, autosuggestList,
 						placeholder={placeholder}
 						list={autosuggestListId}
 						disabled={isLoading}
+						ref={inputRef}
 					/>
 
 					{autosuggestList && (
@@ -34,6 +35,20 @@ export default function EditableTextField({ value, placeholder, autosuggestList,
 					)}
 
 					<button
+						className="edit-field-save"
+						onClick={async (evt) => {
+							evt.stopPropagation();
+							if (inputRef.current.value.length === 0) return alert("Please enter something, it cannot be blank");
+							setIsLoading(true);
+							await onEdit(inputRef.current.value);
+							setIsLoading(false);
+							setIsEditing(false);
+						}}
+					>
+						{isLoading ? <LoaderCircle className="spin-loader" color="#07a287" /> : <Check color="#07a287" />}
+					</button>
+
+					<button
 						disabled={isLoading}
 						className="edit-field-discard"
 						onClick={(evt) => {
@@ -42,18 +57,6 @@ export default function EditableTextField({ value, placeholder, autosuggestList,
 						}}
 					>
 						<X color={isLoading ? undefined : "#f12f55"} />
-					</button>
-
-					<button
-						className="edit-field-save"
-						onClick={(evt) => {
-							evt.stopPropagation();
-							if (inputRef.current.value.length === 0) return alert("Please enter something, it cannot be blank");
-							setIsEditing(false);
-							onEdit(inputRef.current.value);
-						}}
-					>
-						{isLoading ? <LoaderCircle className="spin-loader" color="#07a287" /> : <Check color="#07a287" />}
 					</button>
 				</>
 			)}
