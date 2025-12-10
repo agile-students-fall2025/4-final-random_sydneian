@@ -28,7 +28,7 @@ jobs:
 
       - name: Lint Backend
         run: |
-          cd backend
+          cd back-end
           npx eslint --fix .
 
       - name: Format all
@@ -37,7 +37,7 @@ jobs:
 
       - name: Test Backend
         run: |
-          cd backend
+          cd back-end
           npm run test
 
       - name: Configure Git
