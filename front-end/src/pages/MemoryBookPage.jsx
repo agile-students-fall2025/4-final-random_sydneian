@@ -280,8 +280,8 @@ export default function MemoryBookPage() {
 								</div>
 
 								<div className="memory-actions-icons">
-									<Pencil size={18} className="icon edit-icon" onClick={() => handleEditMemory(index)} />
-									<Trash2 size={18} className="icon delete-icon" onClick={() => handleDeleteMemory(index)} />
+									<Pencil size={24} className="icon edit-icon" onClick={() => handleEditMemory(index)} />
+									<Trash2 size={24} className="icon delete-icon" onClick={() => handleDeleteMemory(index)} />
 								</div>
 							</div>
 						))}

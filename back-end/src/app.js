@@ -9,8 +9,28 @@ import { User, Memory, Activity, Group } from "./db.js";
 import { sendEmail } from "./sendEmail.js";
 import OpenAI from "openai";
 import puppeteer from "puppeteer";
-
+import { uploadToS3, generateUniqueFileName, deleteFromS3 } from "./s3.js";
 const app = express();
+
+const dataUriRegex = /^data:([^;]+);base64,(.+)$/;
+
+async function uploadIfDataUri(value, folder) {
+	if (typeof value !== "string") return value;
+	const match = value.match(dataUriRegex);
+	if (!match) return value;
+	const mimeType = match[1];
+	const base64Data = match[2];
+	const extension = mimeType.split("/")[1] || "bin";
+	const fileName = generateUniqueFileName(`upload.${extension}`, folder);
+	const buffer = Buffer.from(base64Data, "base64");
+	return uploadToS3(buffer, fileName, mimeType);
+}
+
+async function uploadArrayDataUris(values, folder) {
+	if (!Array.isArray(values)) return values;
+	return Promise.all(values.map((item) => uploadIfDataUri(item, folder)));
+}
+
 
 // --- Middleware ---
 
@@ -42,13 +62,6 @@ app.post("/api/login", [body("username").notEmpty(), body("password").notEmpty()
 			return res.status(404).json({ error: "Invalid username or password" });
 		}
 
-		// Note: Email verification check removed - users can login after verifying once
-		// If you want to enforce email verification on every login, uncomment below:
-		// if (!user.emailVerified) {
-		// 	return res.json({ redirect: "/verify-email" });
-		// }
-
-		// Send JWT on successful authentication (using MongoDB ObjectId)
 		res.json({
 			JWT: jwt.sign({ id: user._id.toString(), username: user.username }, process.env.JWT_SECRET, { expiresIn: "1d" }),
 		});
@@ -249,22 +262,34 @@ app.put("/api/users/:id", async (req, res) => {
 		}
 
 		const { username, email, profilePicture } = req.body;
-		const updateData = {};
+	const user = await User.findById(userId);
 
-		if (username) updateData.username = username;
-		if (email) updateData.email = email;
-		if (profilePicture !== undefined) updateData.profilePicture = profilePicture;
+	if (!user) {
+		return res.status(404).json({ error: "User not found" });
+	}
 
-		const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
-			new: true,
-			runValidators: true,
-		}).select("-password -OTP -OTPTimestamp");
-
-		if (!updatedUser) {
-			return res.status(404).json({ error: "User not found" });
+	if (username) user.username = username;
+	if (email) user.email = email;
+	if (profilePicture !== undefined) {
+		const newProfileUrl = await uploadIfDataUri(profilePicture, "profiles");
+		if (newProfileUrl && newProfileUrl !== user.profilePicture && user.profilePicture?.includes("amazonaws.com")) {
+			try {
+				await deleteFromS3(user.profilePicture);
+			} catch (err) {
+				console.error("Failed to delete old profile picture:", err);
+			}
 		}
+		user.profilePicture = newProfileUrl;
+	}
 
-		res.json(updatedUser);
+	await user.save();
+
+	const sanitized = user.toObject();
+	delete sanitized.password;
+	delete sanitized.OTP;
+	delete sanitized.OTPTimestamp;
+
+	res.json(sanitized);
 	} catch (error) {
 		console.error("Update user error:", error);
 		if (error.code === 11000) {
@@ -332,7 +357,7 @@ app.post("/api/groups", async (req, res) => {
 		const newGroup = new Group({
 			name: req.body.name,
 			desc: req.body.desc || "",
-			icon: req.body.icon || undefined,
+		icon: req.body.icon ? await uploadIfDataUri(req.body.icon, "groups") : undefined,
 			owner: req.user.id,
 			members: [req.user.id],
 			admins: [req.user.id],
@@ -341,6 +366,25 @@ app.post("/api/groups", async (req, res) => {
 		});
 
 		await newGroup.save();
+
+if (invitedMemberIds.length > 0) {
+    const invitedUsers = await User.find({ _id: { $in: invitedMemberIds } });
+
+    for (const invitedUser of invitedUsers) {
+        await sendEmail(
+            invitedUser.email,
+            "You’ve been invited to join a group on Rendezvous",
+            `Hello ${invitedUser.username},
+
+You were invited to join the new group "${newGroup.name.trim()}".
+
+Please log in to your account to accept the invitation!
+
+— The Rendezvous Team`
+        );
+    }
+}
+
 
 		await newGroup.populate("owner", "username profilePicture");
 		await newGroup.populate("members", "username profilePicture");
@@ -612,6 +656,54 @@ app.get("/api/groups/:id", async (req, res) => {
 	}
 });
 
+// Update activity
+app.patch(
+	"/api/groups/:groupId/activities/:activityId",
+	// TODO: express-validation verification
+	// - Each field should be validated and sanitised
+	// - Authz check (user is member of group)
+	// - (actually, should probably start nesting routes so we don't have to duplicate the checks, fetching group, etc)
+	async (req, res) => {
+		try {
+			const group = await Group.findById(req.params.groupId);
+
+			if (!group) {
+				return res.status(404).json({ error: "Group not found" });
+			}
+
+			const isMember = group.members.some((memberId) => memberId.toString() === req.user.id);
+			if (!isMember) {
+				return res.status(403).json({ error: "Only members can update activities" });
+			}
+
+			const activity = group.activities.id(req.params.activityId);
+			if (!activity) return res.status(404).json({ error: "Activity not found" });
+
+			for (const field of ["name", "images", "category", "tags", "location", "done"]) {
+				if (req.body[field] !== undefined) {
+					activity[field] = req.body[field];
+				}
+			}
+
+			// Note: Use boolean liked instead of the usual likes array, to simplify & only allow users to modify their own like (prevents race condition)
+			if (req.body.liked !== undefined) {
+				if (req.body.liked) {
+					if (!activity.likes.includes(req.user.id)) activity.likes.push(req.user.id);
+				} else {
+					activity.likes.remove(req.user.id);
+				}
+			}
+
+			await group.save();
+			await group.populate("activities.likes", "username profilePicture");
+			res.json(activity);
+		} catch (error) {
+			console.error("Error getting specific activity:", error);
+			res.status(500).json({ error: "Internal server error" });
+		}
+	},
+);
+
 // Add item to group bucket list (MongoDB)
 app.post("/api/groups/:groupId/activities", async (req, res) => {
 	try {
@@ -688,7 +780,15 @@ app.put("/api/groups/:id", async (req, res) => {
 		}
 
 		if (req.body.icon !== undefined) {
-			group.icon = req.body.icon;
+		const newIcon = await uploadIfDataUri(req.body.icon, "groups");
+		if (newIcon && newIcon !== group.icon && group.icon?.includes("amazonaws.com")) {
+			try {
+				await deleteFromS3(group.icon);
+			} catch (err) {
+				console.error("Failed to delete old group icon:", err);
+			}
+		}
+		group.icon = newIcon;
 		}
 
 		await group.save();
@@ -763,15 +863,29 @@ app.post("/api/groups/:id/invite", async (req, res) => {
 			return res.status(409).json({ error: "User is already invited" });
 		}
 
+		// Add to invited members
 		group.invitedMembers.push(req.body.userId);
 		await group.save();
 
+		await sendEmail(
+			userToInvite.email,
+			"You’ve been invited to join a group on Rendezvous",
+			`Hello ${userToInvite.username},
+
+You have been invited to join the group "${group.name}".
+
+Please log in to your account to accept the invitation!
+
+— The Rendezvous Team`
+		);
+
+		// Re-populate fields for frontend
 		await group.populate("owner", "username profilePicture");
 		await group.populate("members", "username profilePicture");
 		await group.populate("admins", "username profilePicture");
 		await group.populate("invitedMembers", "username profilePicture");
 
-		res.json({ message: "User invited successfully", group });
+		res.json({ message: "User invited successfully and email sent", group });
 	} catch (error) {
 		console.error("Invite user error:", error);
 		res.status(500).json({ error: "Internal server error" });
@@ -994,6 +1108,7 @@ app.post("/api/groups/:groupId/memories", async (req, res) => {
 	}
 
 	try {
+		const uploadedImages = await uploadArrayDataUris(images, "memories");
 		const group = await Group.findById(req.params.groupId);
 		if (!group) return res.status(404).json({ error: "Group not found" });
 
@@ -1002,7 +1117,7 @@ app.post("/api/groups/:groupId/memories", async (req, res) => {
 
 		const newMemory = {
 			title: title || "Untitled Memory",
-			images,
+			images: uploadedImages,
 			rating: rating || 0,
 			comments: [],
 			createdAt: new Date(),
@@ -1046,7 +1161,7 @@ app.put("/api/groups/:groupId/memories/:memoryId", async (req, res) => {
 		if (!foundMemory) return res.status(404).json({ error: "Memory not found" });
 
 		if (req.body.images && Array.isArray(req.body.images)) {
-			foundMemory.images = req.body.images;
+		foundMemory.images = await uploadArrayDataUris(req.body.images, "memories");
 		}
 
 		if (req.body.title) {
