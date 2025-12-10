@@ -4,22 +4,24 @@
 	"version": "0.0.0",
 	"type": "module",
 	"scripts": {
-		"dev": "node --env-file .env --watch src/app.js",
+		"dev": "node --env-file .env --watch src/server.js",
 		"lint-format-all": "eslint --fix . && prettier --write .",
 		"fix-format-lint": "npm run lint-format-all",
-		"start": "node --env-file .env src/server.js",
+		"start": "node --env-file-if-exists .env src/server.js",
 		"test": "NODE_ENV=test c8 mocha 'test/**/*.test.js' --timeout 20000",
 		"test:coverage": "NODE_ENV=test c8 --reporter=text --reporter=html mocha 'test/**/*.test.js' --timeout 20000"
 	},
 	"dependencies": {
+		"@aws-sdk/client-s3": "^3.948.0",
+		"@aws-sdk/s3-request-presigner": "^3.948.0",
 		"@google/generative-ai": "^0.24.1",
 		"bcryptjs": "^3.0.3",
 		"cors": "^2.8.5",
-		"dotenv": "^17.2.3",
 		"express": "^5.1.0",
 		"express-validator": "^7.3.1",
 		"jsonwebtoken": "^9.0.2",
 		"mongoose": "^9.0.0",
+		"multer": "^2.0.2",
 		"nodemailer": "^7.0.11",
 		"openai": "^6.9.1",
 		"puppeteer": "^24.31.0"

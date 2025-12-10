@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useLayoutEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Heart, Plus, MapPin } from "lucide-react";
+import { Heart, Plus, MapPin, LoaderCircle } from "lucide-react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import "./bucketList.css";
@@ -19,6 +19,7 @@ export default function BucketList() {
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
 	const [showAddPopup, setShowAddPopup] = useState(false);
+	const [isXLoading, setIsXLoading] = useState([]);
 	const containerRef = useRef(null);
 	const cardRefs = useRef([]);
 	const currentExpandedCardRef = useRef(null);
@@ -56,7 +57,11 @@ export default function BucketList() {
 				}
 
 				const group = await response.json();
-				setActivities(group.activities || []);
+				const mapped = (group.activities || []).map((a) => ({
+					...a,
+					imageUrl: Array.isArray(a.images) && a.images.length > 0 ? a.images[0] : "",
+				}));
+				setActivities(mapped);
 			} catch (err) {
 				console.error("Failed to get activities. Error:", err.message);
 				setError("Couldn't get activities :(");
@@ -72,62 +77,62 @@ export default function BucketList() {
 		let rafId = null;
 		let scrollHandler = null;
 		let contentArea = null;
-		
+
 		const updateExpandedCard = () => {
 			if (rafId) return;
-			
+
 			rafId = requestAnimationFrame(() => {
 				const viewportCenter = window.innerHeight * 0.5;
 				let bestCard = null;
 				let bestDistance = Infinity;
-				
-				const validCards = cardRefs.current.filter(card => card !== null && card !== undefined);
+
+				const validCards = cardRefs.current.filter((card) => card !== null && card !== undefined);
 				const firstCard = validCards[0];
 				const lastCard = validCards[validCards.length - 1];
-				
-				const contentArea = containerRef.current?.querySelector('.content-area');
+
+				const contentArea = containerRef.current?.querySelector(".content-area");
 				const scrollTop = contentArea?.scrollTop || window.scrollY;
 				const scrollHeight = contentArea?.scrollHeight || document.documentElement.scrollHeight;
 				const clientHeight = contentArea?.clientHeight || window.innerHeight;
-				
+
 				const isScrollingDown = scrollTop > lastScrollTopRef.current;
 				lastScrollTopRef.current = scrollTop;
-				
+
 				const cardData = [];
 				cardRefs.current.forEach((card, idx) => {
 					if (!card) return;
 
 					const rect = card.getBoundingClientRect();
-					
+
 					const visibleTop = Math.max(0, rect.top);
 					const visibleBottom = Math.min(window.innerHeight, rect.bottom);
 					const visibleHeight = Math.max(0, visibleBottom - visibleTop);
 					const visibilityRatio = visibleHeight / rect.height;
-					
+
 					const isFirst = card === firstCard;
 					const isLast = card === lastCard;
-					const minVisibility = (isFirst || isLast) ? 0.15 : 0.2;
-					
+					const minVisibility = isFirst || isLast ? 0.15 : 0.2;
+
 					if (visibilityRatio < minVisibility) return;
-					
+
 					const cardCenter = rect.top + rect.height / 2;
 					const rawDistance = Math.abs(cardCenter - viewportCenter);
-					
+
 					cardData.push({ card, rawDistance, visibilityRatio, isFirst, isLast });
 				});
-				
+
 				// Second pass: apply bonuses and select winner
 				cardData.forEach(({ card, rawDistance, visibilityRatio, isFirst, isLast }) => {
 					let distance = rawDistance;
-					
+
 					// Hysteresis when scrolling down
 					if (card === currentExpandedCardRef.current && isScrollingDown) {
 						distance = distance * 0.9;
 					}
-					
+
 					// First card bonus
 					if (isFirst && scrollTop < 50) {
-						distance = distance * 0.1; 
+						distance = distance * 0.1;
 					}
 					// Last card bonus - only when at absolute bottom and second-to-last isn't closer
 					else if (isLast && scrollTop + clientHeight > scrollHeight - 5 && isScrollingDown && visibilityRatio > 0.5) {
@@ -151,14 +156,14 @@ export default function BucketList() {
 				cardRefs.current.forEach((card) => {
 					if (card) {
 						if (card === bestCard && bestCard) {
-							card.classList.add('in-view');
+							card.classList.add("in-view");
 							currentExpandedCardRef.current = card; // Track current expanded card
 						} else {
-							card.classList.remove('in-view');
+							card.classList.remove("in-view");
 						}
 					}
 				});
-				
+
 				rafId = null;
 			});
 		};
@@ -166,8 +171,8 @@ export default function BucketList() {
 		// Wait for cards to be rendered
 		const timer = setTimeout(() => {
 			// Clear existing ScrollTriggers
-			ScrollTrigger.getAll().forEach(st => st.kill());
-			
+			ScrollTrigger.getAll().forEach((st) => st.kill());
+
 			// Create a single ScrollTrigger that updates on scroll
 			ScrollTrigger.create({
 				trigger: containerRef.current || document.body,
@@ -178,11 +183,11 @@ export default function BucketList() {
 
 			// Also listen to scroll events directly for more reliable updates
 			scrollHandler = () => updateExpandedCard();
-			contentArea = containerRef.current?.querySelector('.content-area');
+			contentArea = containerRef.current?.querySelector(".content-area");
 			if (contentArea) {
-				contentArea.addEventListener('scroll', scrollHandler, { passive: true });
+				contentArea.addEventListener("scroll", scrollHandler, { passive: true });
 			}
-			window.addEventListener('scroll', scrollHandler, { passive: true });
+			window.addEventListener("scroll", scrollHandler, { passive: true });
 
 			// Initial check
 			updateExpandedCard();
@@ -195,11 +200,11 @@ export default function BucketList() {
 			if (rafId) cancelAnimationFrame(rafId);
 			if (scrollHandler) {
 				if (contentArea) {
-					contentArea.removeEventListener('scroll', scrollHandler);
+					contentArea.removeEventListener("scroll", scrollHandler);
 				}
-				window.removeEventListener('scroll', scrollHandler);
+				window.removeEventListener("scroll", scrollHandler);
 			}
-			ScrollTrigger.getAll().forEach(st => st.kill());
+			ScrollTrigger.getAll().forEach((st) => st.kill());
 		};
 	}, [activities, activeTab, loading]);
 
@@ -228,6 +233,7 @@ export default function BucketList() {
 		return date.toLocaleDateString(); // Fallback to date for older items
 	};
 
+	const userId = JSON.parse(atob(localStorage.getItem("JWT").split(".")[1])).id;
 	const toDoActivities = activities.filter((activity) => !activity.done);
 	const doneActivities = activities.filter((activity) => activity.done);
 
@@ -334,11 +340,7 @@ export default function BucketList() {
 				<div className="content-list">
 					{(activeTab === "todo" ? filteredActivities : filteredCompletedActivities).length > 0 ? (
 						(activeTab === "todo" ? filteredActivities : filteredCompletedActivities).map((activity, index) => (
-							<div
-								key={activity._id}
-								ref={(el) => (cardRefs.current[index] = el)}
-								className="activity-card"
-							>
+							<div key={activity._id} ref={(el) => (cardRefs.current[index] = el)} className="activity-card">
 								{/* Image container - expands when in view */}
 								<div className="card-image-container">
 									{activity.imageUrl ? (
@@ -353,9 +355,49 @@ export default function BucketList() {
 								{/* Title and Likes Row */}
 								<div className="card-header">
 									<h3 className={"card-title" + (activeTab === "done" ? " completed" : "")}>{activity.name}</h3>
-									<div className="likes-container">
-										<Heart size={16} fill="currentColor" className="heart-icon" />
-										<span className="likes-count">{activity.likes?.length || 0}</span>
+									<div
+										className={`likes-container ${activity.likes.some((user) => user._id === userId) ? "liked" : ""}`}
+										onClick={async () => {
+											setIsXLoading([...isXLoading, `${activity._id}-like`]);
+
+											const res = await fetch(
+												`${import.meta.env.VITE_BACKEND_ORIGIN}/api/groups/${groupId}/activities/${activity._id}`,
+												{
+													headers: {
+														Authorization: `Bearer ${localStorage.getItem("JWT")}`,
+														"Content-Type": "application/json",
+													},
+													method: "PATCH",
+													body: JSON.stringify({ liked: !activity.likes.some((user) => user._id === userId) }),
+												},
+											);
+
+											if (!res.ok) return alert("Failed to like activity");
+
+											const updatedActivity = await res.json();
+											const mappedActivity = {
+												...updatedActivity,
+												imageUrl:
+													Array.isArray(updatedActivity.images) && updatedActivity.images.length > 0
+														? updatedActivity.images[0]
+														: "",
+											};
+
+											setActivities(
+												activities.map((activity) =>
+													activity._id === mappedActivity._id ? mappedActivity : activity,
+												),
+											);
+
+											setIsXLoading(isXLoading.filter((x) => x !== `${activity._id}-like`));
+										}}
+									>
+										<Heart size={16} className="heart-icon" />
+										{isXLoading.includes(`${activity._id}-like`) ? (
+											<LoaderCircle strokeWidth="6" color="currentColor" size="8" className="spin-loader" />
+										) : (
+											<span className="likes-count">{activity.likes?.length || 0}</span>
+										)}
 									</div>
 								</div>
 

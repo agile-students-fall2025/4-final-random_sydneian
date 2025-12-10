@@ -1,47 +1,51 @@
 import mongoose from "mongoose";
-import { MongoMemoryServer } from "mongodb-memory-server";
+
+let MongoMemoryServer;
+if (process.env.NODE_ENV === "test") {
+	const { MongoMemoryServer: MMS } = await import("mongodb-memory-server");
+	MongoMemoryServer = MMS;
+}
 
 let mongoServer = null;
 
 async function connectDB() {
-    try {
-        // If in test mode, use in-memory MongoDB
-        if (process.env.NODE_ENV === "test") {
-            mongoServer = await MongoMemoryServer.create();
-            const uri = mongoServer.getUri();
+	try {
+		// If in test mode, use in-memory MongoDB
+		if (process.env.NODE_ENV === "test") {
+			mongoServer = await MongoMemoryServer.create();
+			const uri = mongoServer.getUri();
 
-            await mongoose.connect(uri);
-            console.log("Connected to In-Memory MongoDB for testing");
-            return;
-        }
+			await mongoose.connect(uri);
+			console.log("Connected to In-Memory MongoDB for testing");
+			return;
+		}
 
-        // Otherwise connect to real Mongo Atlas
-        await mongoose.connect(process.env.MONGODB_URI);
-        console.log("Connected to MongoDB Atlas");
-    } catch (err) {
-        console.error("MongoDB connection error:", err);
-        process.exit(1);
-    }
+		// Otherwise connect to real Mongo Atlas
+		await mongoose.connect(process.env.MONGODB_URI);
+		console.log("Connected to MongoDB Atlas");
+	} catch (err) {
+		console.error("MongoDB connection error:", err);
+		process.exit(1);
+	}
 }
 
 async function disconnectDB() {
-    if (process.env.NODE_ENV === "test") {
-        // Safe to drop DB because it's in-memory
-        await mongoose.connection.dropDatabase().catch(() => {});
-        await mongoose.connection.close();
+	if (process.env.NODE_ENV === "test") {
+		// Safe to drop DB because it's in-memory
+		await mongoose.connection.dropDatabase().catch(() => {});
+		await mongoose.connection.close();
 
-        if (mongoServer) {
-            await mongoServer.stop();
-        }
+		if (mongoServer) {
+			await mongoServer.stop();
+		}
 
-        console.log("Test DB disconnected safely");
-    } else {
-        // Never drop data in real environments
-        await mongoose.connection.close();
-        console.log("MongoDB connection closed (no drop)");
-    }
+		console.log("Test DB disconnected safely");
+	} else {
+		// Never drop data in real environments
+		await mongoose.connection.close();
+		console.log("MongoDB connection closed (no drop)");
+	}
 }
-
 
 const UserSchema = new mongoose.Schema(
 	{
