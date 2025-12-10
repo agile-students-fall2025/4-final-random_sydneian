@@ -6,6 +6,7 @@ import EditableTagsField from "./EditableTagsField";
 
 export default function ActivityDetailsModal({ groupId, activities, selectedActivity, onUpdate, ref }) {
 	const [isLoading, setIsLoading] = useState([]);
+	const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
 
 	const userId = JSON.parse(atob(localStorage.getItem("JWT").split(".")[1])).id;
 	let categories = activities.map((activity) => activity.category);
@@ -24,7 +25,7 @@ export default function ActivityDetailsModal({ groupId, activities, selectedActi
 					placeholder="Activity name"
 					onEdit={async (newVal) => {
 						const res = await fetch(
-							`${import.meta.env.VITE_BACKEND_ORIGIN}/api/groups/${groupId}/activities/${selectedActivity._id}`,
+							`${backendURL}/api/groups/${groupId}/activities/${selectedActivity._id}`,
 							{
 								headers: {
 									Authorization: `Bearer ${localStorage.getItem("JWT")}`,
@@ -66,7 +67,7 @@ export default function ActivityDetailsModal({ groupId, activities, selectedActi
 					autosuggestList={categories}
 					onEdit={async (newVal) => {
 						const res = await fetch(
-							`${import.meta.env.VITE_BACKEND_ORIGIN}/api/groups/${groupId}/activities/${selectedActivity._id}`,
+							`${backendURL}/api/groups/${groupId}/activities/${selectedActivity._id}`,
 							{
 								headers: {
 									Authorization: `Bearer ${localStorage.getItem("JWT")}`,
@@ -130,7 +131,7 @@ export default function ActivityDetailsModal({ groupId, activities, selectedActi
 
 								// await new Promise((r) => setTimeout(r, 2000));
 								const res = await fetch(
-									`${import.meta.env.VITE_BACKEND_ORIGIN}/api/groups/${groupId}/activities/${selectedActivity._id}`,
+									`${backendURL}/api/groups/${groupId}/activities/${selectedActivity._id}`,
 									{
 										headers: {
 											Authorization: `Bearer ${localStorage.getItem("JWT")}`,
