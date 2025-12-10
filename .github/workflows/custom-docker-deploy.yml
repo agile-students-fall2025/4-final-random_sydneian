@@ -3,6 +3,7 @@ name: Deploy to DigitalOcean Droplet
 on:
   push:
     branches:
+      - master
       - feat/custom-docker-deployment
       # Add other branches you want to auto-deploy below:
       # - staging
