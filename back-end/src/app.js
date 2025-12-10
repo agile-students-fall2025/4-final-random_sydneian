@@ -9,8 +9,28 @@ import { User, Memory, Activity, Group } from "./db.js";
 import { sendEmail } from "./sendEmail.js";
 import OpenAI from "openai";
 import puppeteer from "puppeteer";
-
+import { uploadToS3, generateUniqueFileName, deleteFromS3 } from "./s3.js";
 const app = express();
+
+const dataUriRegex = /^data:([^;]+);base64,(.+)$/;
+
+async function uploadIfDataUri(value, folder) {
+	if (typeof value !== "string") return value;
+	const match = value.match(dataUriRegex);
+	if (!match) return value;
+	const mimeType = match[1];
+	const base64Data = match[2];
+	const extension = mimeType.split("/")[1] || "bin";
+	const fileName = generateUniqueFileName(`upload.${extension}`, folder);
+	const buffer = Buffer.from(base64Data, "base64");
+	return uploadToS3(buffer, fileName, mimeType);
+}
+
+async function uploadArrayDataUris(values, folder) {
+	if (!Array.isArray(values)) return values;
+	return Promise.all(values.map((item) => uploadIfDataUri(item, folder)));
+}
+
 
 // --- Middleware ---
 
@@ -42,13 +62,6 @@ app.post("/api/login", [body("username").notEmpty(), body("password").notEmpty()
 			return res.status(404).json({ error: "Invalid username or password" });
 		}
 
-		// Note: Email verification check removed - users can login after verifying once
-		// If you want to enforce email verification on every login, uncomment below:
-		// if (!user.emailVerified) {
-		// 	return res.json({ redirect: "/verify-email" });
-		// }
-
-		// Send JWT on successful authentication (using MongoDB ObjectId)
 		res.json({
 			JWT: jwt.sign({ id: user._id.toString(), username: user.username }, process.env.JWT_SECRET, { expiresIn: "1d" }),
 		});
@@ -249,22 +262,34 @@ app.put("/api/users/:id", async (req, res) => {
 		}
 
 		const { username, email, profilePicture } = req.body;
-		const updateData = {};
+	const user = await User.findById(userId);
 
-		if (username) updateData.username = username;
-		if (email) updateData.email = email;
-		if (profilePicture !== undefined) updateData.profilePicture = profilePicture;
+	if (!user) {
+		return res.status(404).json({ error: "User not found" });
+	}
 
-		const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
-			new: true,
-			runValidators: true,
-		}).select("-password -OTP -OTPTimestamp");
-
-		if (!updatedUser) {
-			return res.status(404).json({ error: "User not found" });
+	if (username) user.username = username;
+	if (email) user.email = email;
+	if (profilePicture !== undefined) {
+		const newProfileUrl = await uploadIfDataUri(profilePicture, "profiles");
+		if (newProfileUrl && newProfileUrl !== user.profilePicture && user.profilePicture?.includes("amazonaws.com")) {
+			try {
+				await deleteFromS3(user.profilePicture);
+			} catch (err) {
+				console.error("Failed to delete old profile picture:", err);
+			}
 		}
+		user.profilePicture = newProfileUrl;
+	}
 
-		res.json(updatedUser);
+	await user.save();
+
+	const sanitized = user.toObject();
+	delete sanitized.password;
+	delete sanitized.OTP;
+	delete sanitized.OTPTimestamp;
+
+	res.json(sanitized);
 	} catch (error) {
 		console.error("Update user error:", error);
 		if (error.code === 11000) {
@@ -332,7 +357,7 @@ app.post("/api/groups", async (req, res) => {
 		const newGroup = new Group({
 			name: req.body.name,
 			desc: req.body.desc || "",
-			icon: req.body.icon || undefined,
+		icon: req.body.icon ? await uploadIfDataUri(req.body.icon, "groups") : undefined,
 			owner: req.user.id,
 			members: [req.user.id],
 			admins: [req.user.id],
@@ -688,7 +713,15 @@ app.put("/api/groups/:id", async (req, res) => {
 		}
 
 		if (req.body.icon !== undefined) {
-			group.icon = req.body.icon;
+		const newIcon = await uploadIfDataUri(req.body.icon, "groups");
+		if (newIcon && newIcon !== group.icon && group.icon?.includes("amazonaws.com")) {
+			try {
+				await deleteFromS3(group.icon);
+			} catch (err) {
+				console.error("Failed to delete old group icon:", err);
+			}
+		}
+		group.icon = newIcon;
 		}
 
 		await group.save();
@@ -835,7 +868,6 @@ app.post("/api/groups/join-by-code", async (req, res) => {
 	}
 });
 
-// Get all memories for a group (across all activities)
 app.get("/api/groups/:groupId/memories", async (req, res) => {
 	try {
 		const group = await Group.findById(req.params.groupId).select("activities");
@@ -871,6 +903,7 @@ app.post("/api/groups/:groupId/memories", async (req, res) => {
 	}
 
 	try {
+		const uploadedImages = await uploadArrayDataUris(images, "memories");
 		const group = await Group.findById(req.params.groupId);
 		if (!group) return res.status(404).json({ error: "Group not found" });
 
@@ -879,7 +912,7 @@ app.post("/api/groups/:groupId/memories", async (req, res) => {
 
 		const newMemory = {
 			title: title || "Untitled Memory",
-			images,
+			images: uploadedImages,
 			createdAt: new Date(),
 			updatedAt: new Date(),
 		};
@@ -921,7 +954,7 @@ app.put("/api/groups/:groupId/memories/:memoryId", async (req, res) => {
 		if (!foundMemory) return res.status(404).json({ error: "Memory not found" });
 
 		if (req.body.images && Array.isArray(req.body.images)) {
-			foundMemory.images = req.body.images;
+		foundMemory.images = await uploadArrayDataUris(req.body.images, "memories");
 		}
 		if (req.body.title) {
 			foundMemory.title = req.body.title;

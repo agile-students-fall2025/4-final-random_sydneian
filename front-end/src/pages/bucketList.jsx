@@ -56,7 +56,11 @@ export default function BucketList() {
 				}
 
 				const group = await response.json();
-				setActivities(group.activities || []);
+				const mapped = (group.activities || []).map((a) => ({
+					...a,
+					imageUrl: Array.isArray(a.images) && a.images.length > 0 ? a.images[0] : "",
+				}));
+				setActivities(mapped);
 			} catch (err) {
 				console.error("Failed to get activities. Error:", err.message);
 				setError("Couldn't get activities :(");
