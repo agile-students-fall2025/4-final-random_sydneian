@@ -497,6 +497,9 @@ export default function BucketList() {
 					);
 					setSelectedActivity(updatedActivity);
 				}}
+				onDelete={(deletedActivityId) => {
+					setActivities(activities.filter((activity) => activity._id !== deletedActivityId));
+				}}
 			/>
 		</div>
 	);
