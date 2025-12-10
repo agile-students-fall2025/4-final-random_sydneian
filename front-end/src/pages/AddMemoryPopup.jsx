@@ -16,7 +16,6 @@ export default function AddMemoryPopup({ onClose, onAdd, onEdit, memoryToEdit })
 	const [selectedPlace, setSelectedPlace] = useState(memoryToEdit?.title || "");
 	const [photos, setPhotos] = useState(memoryToEdit?.photos || []);
 	const [rating, setRating] = useState(memoryToEdit?.rating || 0);
-	const [comment, setComment] = useState(memoryToEdit?.comment || "");
 	const [error, setError] = useState("");
 	const [activities, setActivities] = useState([]);
 	const [hoverRating, setHoverRating] = useState(0);
@@ -122,7 +121,6 @@ export default function AddMemoryPopup({ onClose, onAdd, onEdit, memoryToEdit })
 			images: photos,
 			activityId,
 			rating,
-			comment: comment.trim(),
 		};
 
 		if (isEditing) {
@@ -190,20 +188,6 @@ export default function AddMemoryPopup({ onClose, onAdd, onEdit, memoryToEdit })
 							/>
 						))}
 					</div>
-				</div>
-
-				{/* Comment Section */}
-				<div className="comment-section">
-					<label className="comment-label">Add a comment (optional)</label>
-					<textarea
-						className="comment-textarea"
-						placeholder="Share your thoughts about this place..."
-						value={comment}
-						onChange={(e) => setComment(e.target.value)}
-						rows={4}
-						maxLength={500}
-					/>
-					<div className="char-count">{comment.length}/500</div>
 				</div>
 
 				{/* Error message */}

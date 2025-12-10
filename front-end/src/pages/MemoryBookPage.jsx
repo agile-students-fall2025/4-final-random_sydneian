@@ -6,10 +6,13 @@ import Header from "../components/Header";
 import { Pencil, Trash2 } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 import GalleryModal from "../components/GalleryModal";
+import CommentsModal from "./CommentsModal";
 
 const normalizeMemory = (m) => ({
 	...m,
 	photos: m.images,
+	rating: m.rating || 0,
+	comments: m.comments || [],
 	dateAdded: new Date(m.createdAt).toLocaleDateString("en-US", {
 		day: "numeric",
 		month: "long",
@@ -28,7 +31,11 @@ export default function MemoryBookPage() {
 	// Gallery State
 	const [openGallery, setOpenGallery] = useState(false);
 	const [galleryPhotos, setGalleryPhotos] = useState([]);
-	const [galleryStartIndex, setGalleryStartIndex] = useState(0); // New State
+	const [galleryStartIndex, setGalleryStartIndex] = useState(0);
+
+	// Comments State
+	const [openComments, setOpenComments] = useState(false);
+	const [selectedMemory, setSelectedMemory] = useState(null);
 
 	const { groupId } = useParams();
 	const navigate = useNavigate();
@@ -174,6 +181,27 @@ export default function MemoryBookPage() {
 		setOpenGallery(true);
 	};
 
+	const openCommentsHandler = (memory) => {
+		setSelectedMemory(memory);
+		setOpenComments(true);
+	};
+
+	const handleCommentAdded = (memoryId, newComment) => {
+		setMemories((prev) =>
+			prev.map((m) =>
+				m._id === memoryId ? { ...m, comments: [...m.comments, newComment] } : m
+			)
+		);
+	};
+
+	const handleCommentDeleted = (memoryId, commentId) => {
+		setMemories((prev) =>
+			prev.map((m) =>
+				m._id === memoryId ? { ...m, comments: m.comments.filter((c) => c._id !== commentId) } : m
+			)
+		);
+	};
+
 	const filteredMemories = memories.filter((memory) =>
 		(memory.title || "").toLowerCase().includes(searchTerm.toLowerCase()),
 	);
@@ -244,12 +272,12 @@ export default function MemoryBookPage() {
 									)}
 								</div>
 
-								{memory.comment && (
-									<div className="memory-comment">
-										<p className="comment-label">Comment:</p>
-										<p className="comment-text">{memory.comment}</p>
-									</div>
-								)}
+								<div className="memory-footer">
+									<button className="comments-btn" onClick={() => openCommentsHandler(memory)}>
+										<MessageCircle size={18} />
+										<span>{memory.comments.length} {memory.comments.length === 1 ? 'comment' : 'comments'}</span>
+									</button>
+								</div>
 
 								<div className="memory-actions-icons">
 									<Pencil size={18} className="icon edit-icon" onClick={() => handleEditMemory(index)} />
@@ -274,6 +302,19 @@ export default function MemoryBookPage() {
 
 				{openGallery && (
 					<GalleryModal photos={galleryPhotos} startIndex={galleryStartIndex} onClose={() => setOpenGallery(false)} />
+				)}
+
+				{openComments && selectedMemory && (
+					<CommentsModal
+						memory={selectedMemory}
+						groupId={groupId}
+						onClose={() => {
+							setOpenComments(false);
+							setSelectedMemory(null);
+						}}
+						onCommentAdded={handleCommentAdded}
+						onCommentDeleted={handleCommentDeleted}
+					/>
 				)}
 			</div>
 

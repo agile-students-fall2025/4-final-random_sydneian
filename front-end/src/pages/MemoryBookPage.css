@@ -309,3 +309,35 @@
 .delete-icon {
 	color: #dc2626;
 }
+
+/* Memory Footer for Comments Button */
+.memory-footer {
+	margin-top: 12px;
+	padding-top: 12px;
+	border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.comments-btn {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	background: none;
+	border: none;
+	cursor: pointer;
+	color: #666;
+	font-size: 14px;
+	font-weight: 500;
+	padding: 6px 12px;
+	border-radius: 8px;
+	transition: background-color 0.2s ease, color 0.2s ease;
+	font-family: system-ui, -apple-system, sans-serif;
+}
+
+.comments-btn:hover {
+	background: rgba(0, 0, 0, 0.05);
+	color: var(--color-primary);
+}
+
+.comments-btn:active {
+	transform: scale(0.98);
+}
