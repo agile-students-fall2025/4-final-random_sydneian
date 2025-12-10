@@ -45,9 +45,18 @@
 }
 
 @keyframes shakeError {
-	0%, 100% { transform: translateX(0); }
-	20%, 60% { transform: translateX(-8px); }
-	40%, 80% { transform: translateX(8px); }
+	0%,
+	100% {
+		transform: translateX(0);
+	}
+	20%,
+	60% {
+		transform: translateX(-8px);
+	}
+	40%,
+	80% {
+		transform: translateX(8px);
+	}
 }
 
 .register-form {
@@ -63,8 +72,7 @@
 	border-radius: 12px;
 	background: rgba(255, 255, 255, 0.9);
 	backdrop-filter: blur(8px);
-	-webkit-backdrop-filter: blur(8px);
-	transition: 
+	transition:
 		box-shadow 0.2s ease,
 		background-color 0.2s ease;
 }
@@ -105,17 +113,6 @@
 	font-size: 0.875rem;
 	color: var(--color-neutral);
 	animation: fadeInUp 0.4s ease-out 0.2s both;
-}
-
-@keyframes fadeInUp {
-	from {
-		opacity: 0;
-		transform: translateY(10px);
-	}
-	to {
-		opacity: 1;
-		transform: translateY(0);
-	}
 }
 
 .bottom-text a {
@@ -170,7 +167,7 @@
 	padding: 0;
 	/* Gradient text for auth title */
 	background: linear-gradient(135deg, #2d3748 0%, #4a5568 50%, #718096 100%);
-	-webkit-background-clip: text;
+	background-clip: text;
 	-webkit-text-fill-color: transparent;
 	background-clip: text;
 }

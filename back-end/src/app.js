@@ -31,7 +31,6 @@ async function uploadArrayDataUris(values, folder) {
 	return Promise.all(values.map((item) => uploadIfDataUri(item, folder)));
 }
 
-
 // --- Middleware ---
 
 app.use(express.static(path.join(import.meta.dirname, "../public")));
@@ -262,34 +261,34 @@ app.put("/api/users/:id", async (req, res) => {
 		}
 
 		const { username, email, profilePicture } = req.body;
-	const user = await User.findById(userId);
+		const user = await User.findById(userId);
 
-	if (!user) {
-		return res.status(404).json({ error: "User not found" });
-	}
-
-	if (username) user.username = username;
-	if (email) user.email = email;
-	if (profilePicture !== undefined) {
-		const newProfileUrl = await uploadIfDataUri(profilePicture, "profiles");
-		if (newProfileUrl && newProfileUrl !== user.profilePicture && user.profilePicture?.includes("amazonaws.com")) {
-			try {
-				await deleteFromS3(user.profilePicture);
-			} catch (err) {
-				console.error("Failed to delete old profile picture:", err);
-			}
+		if (!user) {
+			return res.status(404).json({ error: "User not found" });
 		}
-		user.profilePicture = newProfileUrl;
-	}
 
-	await user.save();
+		if (username) user.username = username;
+		if (email) user.email = email;
+		if (profilePicture !== undefined) {
+			const newProfileUrl = await uploadIfDataUri(profilePicture, "profiles");
+			if (newProfileUrl && newProfileUrl !== user.profilePicture && user.profilePicture?.includes("amazonaws.com")) {
+				try {
+					await deleteFromS3(user.profilePicture);
+				} catch (err) {
+					console.error("Failed to delete old profile picture:", err);
+				}
+			}
+			user.profilePicture = newProfileUrl;
+		}
 
-	const sanitized = user.toObject();
-	delete sanitized.password;
-	delete sanitized.OTP;
-	delete sanitized.OTPTimestamp;
+		await user.save();
 
-	res.json(sanitized);
+		const sanitized = user.toObject();
+		delete sanitized.password;
+		delete sanitized.OTP;
+		delete sanitized.OTPTimestamp;
+
+		res.json(sanitized);
 	} catch (error) {
 		console.error("Update user error:", error);
 		if (error.code === 11000) {
@@ -357,7 +356,7 @@ app.post("/api/groups", async (req, res) => {
 		const newGroup = new Group({
 			name: req.body.name,
 			desc: req.body.desc || "",
-		icon: req.body.icon ? await uploadIfDataUri(req.body.icon, "groups") : undefined,
+			icon: req.body.icon ? await uploadIfDataUri(req.body.icon, "groups") : undefined,
 			owner: req.user.id,
 			members: [req.user.id],
 			admins: [req.user.id],
@@ -656,6 +655,11 @@ app.get("/api/groups/:id", async (req, res) => {
 	}
 });
 
+// Get specific activity
+// app.get("/api/groups/:groupId/activities/:activityId", async (req, res) => {
+//
+// });
+
 // Update activity
 app.patch(
 	"/api/groups/:groupId/activities/:activityId",
@@ -780,15 +784,15 @@ app.put("/api/groups/:id", async (req, res) => {
 		}
 
 		if (req.body.icon !== undefined) {
-		const newIcon = await uploadIfDataUri(req.body.icon, "groups");
-		if (newIcon && newIcon !== group.icon && group.icon?.includes("amazonaws.com")) {
-			try {
-				await deleteFromS3(group.icon);
-			} catch (err) {
-				console.error("Failed to delete old group icon:", err);
+			const newIcon = await uploadIfDataUri(req.body.icon, "groups");
+			if (newIcon && newIcon !== group.icon && group.icon?.includes("amazonaws.com")) {
+				try {
+					await deleteFromS3(group.icon);
+				} catch (err) {
+					console.error("Failed to delete old group icon:", err);
+				}
 			}
-		}
-		group.icon = newIcon;
+			group.icon = newIcon;
 		}
 
 		await group.save();
@@ -1161,7 +1165,7 @@ app.put("/api/groups/:groupId/memories/:memoryId", async (req, res) => {
 		if (!foundMemory) return res.status(404).json({ error: "Memory not found" });
 
 		if (req.body.images && Array.isArray(req.body.images)) {
-		foundMemory.images = await uploadArrayDataUris(req.body.images, "memories");
+			foundMemory.images = await uploadArrayDataUris(req.body.images, "memories");
 		}
 
 		if (req.body.title) {

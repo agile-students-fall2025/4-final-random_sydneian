@@ -24,7 +24,7 @@ export default function AddMemoryPopup({ onClose, onAdd, onEdit, memoryToEdit })
 
 	const { groupId } = useParams();
 	const navigate = useNavigate();
-	const BACKEND = "http://localhost:8000";
+	const BACKEND = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
 
 	useEffect(() => {
 		const fetchActivities = async () => {
