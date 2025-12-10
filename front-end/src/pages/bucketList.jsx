@@ -372,8 +372,6 @@ export default function BucketList() {
 
 											const updatedActivity = await res.json();
 
-											await new Promise((r) => setTimeout(r, 2000));
-
 											setActivities(
 												activities.map((activity) =>
 													activity._id === updatedActivity._id ? updatedActivity : activity,
@@ -385,7 +383,7 @@ export default function BucketList() {
 									>
 										<Heart size={16} fill="currentColor" className="heart-icon" />
 										{isXLoading.includes(`${activity._id}-like`) ? (
-											<LoaderCircle color="currentColor" size="12" className="spin-loader" />
+											<LoaderCircle strokeWidth="6" color="currentColor" size="8" className="spin-loader" />
 										) : (
 											<span className="likes-count">{activity.likes?.length || 0}</span>
 										)}
