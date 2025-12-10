@@ -440,9 +440,9 @@ export default function BucketList() {
 							onClick={() => navigate(`/groups/${groupId}/activities/add/manual`)}
 						/>
 
-						<div style={{ marginTop: "10px" }}>
+						{/* <div style={{ marginTop: "10px" }}>
 							<Button text="Cancel" buttonType="danger" onClick={() => setShowAddPopup(false)} />
-						</div>
+						</div> */}
 					</div>
 				</div>
 			)}
