@@ -23,7 +23,7 @@ export default function JoinGroupPage() {
 				return;
 			}
 
-			const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+			const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
 
 			try {
 				// Get list of invite IDs
@@ -93,7 +93,7 @@ export default function JoinGroupPage() {
 					return;
 				}
 
-				const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+				const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
 				const response = await fetch(`${backendURL}/api/groups/${selectedGroup._id}/accept`, {
 					method: "POST",
 					headers: {
@@ -145,7 +145,7 @@ export default function JoinGroupPage() {
 				return;
 			}
 
-			const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+			const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
 			const response = await fetch(`${backendURL}/api/groups/join-by-code`, {
 				method: "POST",
 				headers: {

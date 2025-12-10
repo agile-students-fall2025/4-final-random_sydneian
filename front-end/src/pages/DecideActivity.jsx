@@ -171,9 +171,9 @@ export default function DecideActivity() {
 	const confettiInstanceRef = useRef(null);
 	const confettiCanvasRef = useRef(null);
 
-	const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
 	const jwt = localStorage.getItem("JWT");
 	const userPayload = jwt ? JSON.parse(atob(jwt.split(".")[1])) : null;
+	const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
 
 	useEffect(() => {
 		(async () => {

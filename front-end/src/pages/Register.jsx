@@ -20,10 +20,7 @@ function Register() {
 		}
 
 		try {
-			const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
-
-			console.log("Registering user... at " + backendURL + "/api/register");
-
+			const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
 			const response = await fetch(`${backendURL}/api/register`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },

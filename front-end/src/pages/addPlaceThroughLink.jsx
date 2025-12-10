@@ -29,7 +29,7 @@ export default function AddPlaceThroughLink() {
 		setIsLoading(true);
 		try {
 			const JWT = localStorage.getItem("JWT");
-			const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+			const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
 
 			const headers = { "Content-Type": "application/json" };
 			if (JWT) headers["Authorization"] = `Bearer ${JWT}`;
@@ -83,7 +83,7 @@ export default function AddPlaceThroughLink() {
 
 		(async () => {
 			try {
-				const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+				const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
 				const response = await fetch(`${backendURL}/api/groups/${groupId}/activities`, {
 					method: "POST",
 					headers: {
@@ -95,6 +95,7 @@ export default function AddPlaceThroughLink() {
 						category: "Uncategorised",
 						tags: previewData.tags, // changed from tags
 						locationDescription: previewData.location, // added location
+						images: previewData.photo ? [previewData.photo] : [], // Send the photo from link
 					}),
 				});
 

@@ -24,7 +24,7 @@ function ProfileSettings() {
 			}
 
 			try {
-				const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+				const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
 
 				// Decode JWT to get user ID
 				const payload = JSON.parse(atob(JWT.split(".")[1]));
@@ -80,7 +80,7 @@ function ProfileSettings() {
 		}
 
 		try {
-			const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+			const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
 
 			// Decode JWT to get user ID
 			const payload = JSON.parse(atob(JWT.split(".")[1]));

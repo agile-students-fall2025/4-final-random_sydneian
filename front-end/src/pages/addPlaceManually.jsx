@@ -81,7 +81,7 @@ export default function AddPlaceManually() {
 
 		(async () => {
 			try {
-				const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+				const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
 				const response = await fetch(`${backendURL}/api/groups/${groupId}/activities`, {
 					method: "POST",
 					headers: {
@@ -94,6 +94,7 @@ export default function AddPlaceManually() {
 						tags,
 						latitude: coordinates.lat,
 						longitude: coordinates.lng,
+						images: photos, // Send the uploaded photos
 					}),
 				});
 

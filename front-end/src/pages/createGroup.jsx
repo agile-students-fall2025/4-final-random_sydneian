@@ -41,7 +41,7 @@ export default function CreateGroupPage() {
 
 			try {
 				const JWT = localStorage.getItem("JWT");
-				const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+				const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
 				const response = await fetch(`${backendURL}/api/users/search/${encodeURIComponent(searchQuery)}`, {
 					headers: {
 						Authorization: `Bearer ${JWT}`,
@@ -102,7 +102,7 @@ export default function CreateGroupPage() {
 				return;
 			}
 
-			const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+			const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
 			const response = await fetch(`${backendURL}/api/groups`, {
 				method: "POST",
 				headers: {

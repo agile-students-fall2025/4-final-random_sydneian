@@ -40,7 +40,7 @@ export default function MemoryBookPage() {
 	const { groupId } = useParams();
 	const navigate = useNavigate();
 
-	const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+	const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
 	const API_BASE = `${backendURL}/api/groups/${groupId}/memories`;
 
 	useEffect(() => {

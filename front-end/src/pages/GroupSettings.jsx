@@ -39,7 +39,7 @@ export default function GroupSettings() {
 				return;
 			}
 
-			const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+			const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
 
 			try {
 				const response = await fetch(`${backendURL}/api/groups/${groupId}`, {
@@ -87,7 +87,7 @@ export default function GroupSettings() {
 
 			try {
 				const JWT = localStorage.getItem("JWT");
-				const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+				const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
 				const response = await fetch(`${backendURL}/api/users/search/${encodeURIComponent(searchQuery)}`, {
 					headers: {
 						Authorization: `Bearer ${JWT}`,
@@ -113,8 +113,7 @@ export default function GroupSettings() {
 	const handleGenerateInviteCode = async () => {
 		try {
 			const JWT = localStorage.getItem("JWT");
-			const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
-
+			const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
 			const response = await fetch(`${backendURL}/api/groups/${groupId}/invite-code/generate`, {
 				method: "POST",
 				headers: {
@@ -145,8 +144,7 @@ export default function GroupSettings() {
 	const handleInviteUser = async (userId) => {
 		try {
 			const JWT = localStorage.getItem("JWT");
-			const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
-
+			const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
 			const response = await fetch(`${backendURL}/api/groups/${groupId}/invite`, {
 				method: "POST",
 				headers: {
@@ -180,8 +178,7 @@ export default function GroupSettings() {
 
 		try {
 			const JWT = localStorage.getItem("JWT");
-			const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
-
+			const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
 			const response = await fetch(`${backendURL}/api/groups/${groupId}/remove-member`, {
 				method: "POST",
 				headers: {
@@ -208,8 +205,7 @@ export default function GroupSettings() {
 	const handlePromoteToAdmin = async (userId) => {
 		try {
 			const JWT = localStorage.getItem("JWT");
-			const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
-
+			const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
 			const response = await fetch(`${backendURL}/api/groups/${groupId}/promote-admin`, {
 				method: "POST",
 				headers: {
@@ -240,8 +236,7 @@ export default function GroupSettings() {
 
 		try {
 			const JWT = localStorage.getItem("JWT");
-			const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
-
+			const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
 			const response = await fetch(`${backendURL}/api/groups/${groupId}/demote-admin`, {
 				method: "POST",
 				headers: {

@@ -45,7 +45,7 @@ export default function BucketList() {
 			}
 
 			try {
-				const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+				const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
 				const response = await fetch(`${backendURL}/api/groups/${groupId}`, {
 					headers: { Authorization: `Bearer ${JWT}` },
 				});
@@ -342,7 +342,7 @@ export default function BucketList() {
 							>
 								{/* Image container - expands when in view */}
 								<div className="card-image-container">
-									{Array.isArray(activity.images) && activity.images.length > 0 ? (
+									{activity.images && activity.images.length > 0 ? (
 										<img src={activity.images[0]} alt={activity.name} className="card-image" />
 									) : (
 										<div className="card-image-placeholder">

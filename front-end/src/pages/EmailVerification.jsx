@@ -37,7 +37,7 @@ function EmailVerification() {
 		}
 
 		try {
-			const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+			const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
 			const response = await fetch(`${backendURL}/api/register/verify-email`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
@@ -68,8 +68,7 @@ function EmailVerification() {
 		}
 
 		try {
-			const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
-
+			const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
 			const response = await fetch(`${backendURL}/api/register/renew-otp`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
