@@ -95,6 +95,7 @@ export default function AddPlaceThroughLink() {
 						category: "Uncategorised",
 						tags: previewData.tags, // changed from tags
 						locationDescription: previewData.location, // added location
+						images: previewData.photo ? [previewData.photo] : [], // Send the photo from link
 					}),
 				});
 

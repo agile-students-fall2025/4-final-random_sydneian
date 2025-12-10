@@ -343,8 +343,8 @@ export default function BucketList() {
 							<div key={activity._id} ref={(el) => (cardRefs.current[index] = el)} className="activity-card">
 								{/* Image container - expands when in view */}
 								<div className="card-image-container">
-									{activity.imageUrl ? (
-										<img src={activity.imageUrl} alt={activity.name} className="card-image" />
+									{activity.images && activity.images.length > 0 ? (
+										<img src={activity.images[0]} alt={activity.name} className="card-image" />
 									) : (
 										<div className="card-image-placeholder">
 											<MapPin size={24} />

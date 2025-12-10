@@ -94,6 +94,7 @@ export default function AddPlaceManually() {
 						tags,
 						latitude: coordinates.lat,
 						longitude: coordinates.lng,
+						images: photos, // Send the uploaded photos
 					}),
 				});
 

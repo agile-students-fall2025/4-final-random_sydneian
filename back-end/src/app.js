@@ -703,13 +703,17 @@ app.post("/api/groups/:groupId/activities", async (req, res) => {
 			return res.status(403).json({ error: "Only group members can add activities" });
 		}
 
-		const { name, category, tags, locationDescription, latitude, longitude } = req.body;
+		const { name, category, tags, locationDescription, latitude, longitude, images } = req.body;
 		if (!name) {
 			return res.status(400).json({ error: "Name is required" });
 		}
 
+		// Upload images if provided
+		const uploadedImages = images && Array.isArray(images) ? await uploadArrayDataUris(images, "activities") : [];
+
 		const newActivity = {
 			name,
+			images: uploadedImages,
 			category: category || "Uncategorised",
 			tags: Array.isArray(tags)
 				? tags
