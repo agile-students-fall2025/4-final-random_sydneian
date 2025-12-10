@@ -1,0 +1,31 @@
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Gradient for the pin shape -->
+    <linearGradient id="pinGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#E8B4D4;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#C5A8E8;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#9BB8E8;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Location pin shape -->
+  <path d="M50 10 C65 10 77 22 77 37 C77 52 50 75 50 75 C50 75 23 52 23 37 C23 22 35 10 50 10 Z" 
+        fill="url(#pinGradient)" 
+        stroke="none"/>
+  
+  <!-- Smiley face circle (white background) -->
+  <circle cx="50" cy="37" r="18" fill="white"/>
+  
+  <!-- Left eye -->
+  <circle cx="44" cy="33" r="3" fill="url(#pinGradient)"/>
+  
+  <!-- Right eye -->
+  <circle cx="56" cy="33" r="3" fill="url(#pinGradient)"/>
+  
+  <!-- Smile (curved path) -->
+  <path d="M 42 40 Q 50 46 58 40" 
+        stroke="url(#pinGradient)" 
+        stroke-width="2.5" 
+        fill="none" 
+        stroke-linecap="round"/>
+</svg>
