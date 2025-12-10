@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useLayoutEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Heart, Plus, MapPin } from "lucide-react";
+import { Heart, Plus, MapPin, LoaderCircle } from "lucide-react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Header from "../components/Header";
@@ -20,6 +20,7 @@ export default function BucketList() {
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
 	const [showAddPopup, setShowAddPopup] = useState(false);
+	const [isXLoading, setIsXLoading] = useState([]);
 	const [selectedActivity, setSelectedActivity] = useState({});
 	const activityDetailsModalRef = useRef();
 	const containerRef = useRef(null);
@@ -59,7 +60,11 @@ export default function BucketList() {
 				}
 
 				const group = await response.json();
-				setActivities(group.activities || []);
+				const mapped = (group.activities || []).map((a) => ({
+					...a,
+					imageUrl: Array.isArray(a.images) && a.images.length > 0 ? a.images[0] : "",
+				}));
+				setActivities(mapped);
 			} catch (err) {
 				console.error("Failed to get activities. Error:", err.message);
 				setError("Couldn't get activities :(");
@@ -223,6 +228,7 @@ export default function BucketList() {
 		return date.toLocaleDateString(); // Fallback to date for older items
 	};
 
+	const userId = JSON.parse(atob(localStorage.getItem("JWT").split(".")[1])).id;
 	const toDoActivities = activities.filter((activity) => !activity.done);
 	const doneActivities = activities.filter((activity) => activity.done);
 
@@ -352,9 +358,47 @@ export default function BucketList() {
 								{/* Title and Likes Row */}
 								<div className="card-header">
 									<h3 className={"card-title" + (activeTab === "done" ? " completed" : "")}>{activity.name}</h3>
-									<div className="likes-container">
-										<Heart size={16} fill="currentColor" className="heart-icon" />
-										<span className="likes-count">{activity.likes?.length || 0}</span>
+									<div
+										className={`likes-container ${activity.likes.some((user) => user._id === userId) ? "liked" : ""}`}
+										onClick={async () => {
+											setIsXLoading([...isXLoading, `${activity._id}-like`]);
+
+											const res = await fetch(
+												`${import.meta.env.VITE_BACKEND_ORIGIN}/api/groups/${groupId}/activities/${activity._id}`,
+												{
+													headers: {
+														Authorization: `Bearer ${localStorage.getItem("JWT")}`,
+														"Content-Type": "application/json",
+													},
+													method: "PATCH",
+													body: JSON.stringify({ liked: !activity.likes.some((user) => user._id === userId) }),
+												},
+											);
+
+											if (!res.ok) return alert("Failed to like activity");
+
+											const updatedActivity = await res.json();
+											const mappedActivity = {
+												...updatedActivity,
+												imageUrl:
+													Array.isArray(updatedActivity.images) && updatedActivity.images.length > 0
+														? updatedActivity.images[0]
+														: "",
+											};
+
+											setActivities(
+												activities.map((activity) => (activity._id === mappedActivity._id ? mappedActivity : activity)),
+											);
+
+											setIsXLoading(isXLoading.filter((x) => x !== `${activity._id}-like`));
+										}}
+									>
+										<Heart size={16} className="heart-icon" />
+										{isXLoading.includes(`${activity._id}-like`) ? (
+											<LoaderCircle strokeWidth="6" color="currentColor" size="8" className="spin-loader" />
+										) : (
+											<span className="likes-count">{activity.likes?.length || 0}</span>
+										)}
 									</div>
 								</div>
 
