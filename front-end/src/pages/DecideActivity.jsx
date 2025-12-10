@@ -6,7 +6,7 @@ import "./DecideActivity.css";
 import { ImageIcon } from "lucide-react";
 
 const activityChosenPhrases = ["The wheel has spoken, the universe has chosen..."];
-
+const palette = ["#e37c7c", "#f0e2c9", "#f9d77e"]; // coral, light beige, soft yellow
 function mapRange(n, start1, stop1, start2, stop2, withinBounds) {
 	const newval = ((n - start1) / (stop1 - start1)) * (stop2 - start2) + start2;
 	if (!withinBounds) {
@@ -20,71 +20,94 @@ function mapRange(n, start1, stop1, start2, stop2, withinBounds) {
 }
 
 class Wheel {
-	constructor(
-		/** @type CanvasRenderingContext2D */
-		ctx,
-		center = { x: 0, y: 0 },
-		radius = 100,
-		activities = [{}],
-		colors = ["lightgray", "gray"],
-		activitySelectedCb,
-	) {
+	constructor(ctx, center = { x: 0, y: 0 }, radius = 100, activities = [{}], weights = [], colors = palette, activitySelectedCb) {
 		this.ctx = ctx;
 		this.center = center;
 		this.radius = radius;
 		this.activities = activities;
+		this.weights = weights.length ? weights : activities.map(() => 1);
 		this.colors = colors;
 		this.angle = 0;
 		this.speed = 0;
 		this.activitySelectedCb = activitySelectedCb;
+		this._buildSegments();
+	}
+
+	_buildSegments() {
+		const usable = this.activities
+			.map((a, idx) => ({ activity: a, weight: this.weights[idx] || 0 }))
+			.filter((x) => x.weight > 0);
+
+		const list = usable.length > 0 ? usable : this.activities.map((a) => ({ activity: a, weight: 1 }));
+
+		const total = list.reduce((sum, w) => sum + w.weight, 0) || 1;
+		let start = 0;
+		const colorSeq = list.map((_, idx) => this.colors[idx % this.colors.length]);
+		if (colorSeq.length > 1 && colorSeq[colorSeq.length - 1] === colorSeq[0]) {
+			colorSeq[colorSeq.length - 1] = this.colors[(this.colors.indexOf(colorSeq[colorSeq.length - 1]) + 1) % this.colors.length];
+		}
+
+		this.segments = list.map((entry, idx) => {
+			const slice = (entry.weight / total) * Math.PI * 2;
+			const seg = {
+				activity: entry.activity,
+				start,
+				end: start + slice,
+				color: colorSeq[idx],
+			};
+			start += slice;
+			return seg;
+		});
+	}
+
+	_pickActivity(normalizedAngle) {
+		for (const seg of this.segments) {
+			if (normalizedAngle >= seg.start && normalizedAngle < seg.end) return seg.activity;
+		}
+		return this.activities[0];
 	}
 
 	update() {
 		if (0 < this.speed && this.speed < 0.00025) {
 			this.speed = 0;
-
 			const normalizedAngle = (3.5 * Math.PI - (this.angle % (2 * Math.PI))) % (2 * Math.PI);
-			this.activitySelectedCb(this.activities[Math.floor(normalizedAngle / ((2 * Math.PI) / this.activities.length))]);
-		} else this.speed *= 0.995;
+			this.activitySelectedCb(this._pickActivity(normalizedAngle));
+		} else this.speed *= 0.990;
 
 		this.angle += this.speed;
 	}
 
 	draw() {
-		this.ctx.globalAlpha = mapRange(this.speed, 0.05, 0, 0.1, 0.5, true);
+		this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+		this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+		this.ctx.globalAlpha = 1;
 		this.ctx.translate(this.center.x, this.center.y);
-
-		this.ctx.beginPath();
-		this.ctx.arc(0, 0, this.radius + 8, 0, 2 * Math.PI);
-		this.ctx.strokeStyle = "#0072B2"; // --color-primary
-		this.ctx.lineWidth = 4;
-		this.ctx.stroke();
-		this.ctx.lineWidth = 1;
 
 		this.ctx.save();
 		this.ctx.rotate(this.angle);
-		// Draw each segment
-		for (let i = 0; i < this.activities.length; i++) {
+
+		for (const seg of this.segments) {
 			this.ctx.beginPath();
 			this.ctx.moveTo(0, 0);
-			this.ctx.arc(0, 0, this.radius, 0, 2 * Math.PI * (1 / this.activities.length));
-			this.ctx.fillStyle =
-				this.colors[
-					this.activities.length % this.colors.length === 1 && i === this.activities.length - 1
-						? 1
-						: i % this.colors.length // Avoid 2 adjacent slices having the same colours
-				];
+			this.ctx.arc(0, 0, this.radius, seg.start, seg.end);
+			this.ctx.closePath();
+			this.ctx.fillStyle = seg.color;
 			this.ctx.fill();
+			this.ctx.strokeStyle = "#4a3325"; 
+			this.ctx.lineWidth = 2;
+			this.ctx.stroke();
 
+			const mid = (seg.start + seg.end) / 2;
 			this.ctx.save();
-			this.ctx.rotate(Math.PI / this.activities.length);
-			this.ctx.fillStyle = "black";
+			this.ctx.rotate(mid);
+			this.ctx.fillStyle = "#3b2b2b";
 			this.ctx.globalAlpha = 1;
-			this.ctx.font = "32px Inter";
-			this.ctx.fillText(this.activities[i].name, 64, 8, this.radius * 0.75);
+			this.ctx.font = "20px Inter";
+			this.ctx.textAlign = "center";
+			this.ctx.textBaseline = "middle";
+			const text = (seg.activity.name || "").slice(0, 22);
+			this.ctx.fillText(text, this.radius * 0.55, 0, this.radius * 0.9);
 			this.ctx.restore();
-
-			this.ctx.rotate((2 * Math.PI) / this.activities.length);
 		}
 		this.ctx.restore();
 
@@ -92,12 +115,12 @@ class Wheel {
 
 		this.ctx.beginPath();
 		this.ctx.arc(0, 0, 40, 0, 2 * Math.PI);
-		this.ctx.fillStyle = "white";
+		this.ctx.fillStyle = "#f2e8da";
 		this.ctx.fill();
 
 		this.ctx.beginPath();
 		this.ctx.arc(0, 0, 32, 0, 2 * Math.PI);
-		this.ctx.fillStyle = "black";
+		this.ctx.fillStyle = "#3f3a32";
 		this.ctx.fill();
 
 		this.ctx.beginPath();
@@ -105,7 +128,7 @@ class Wheel {
 		this.ctx.lineTo(0, -60);
 		this.ctx.lineTo(16, -28);
 		this.ctx.closePath();
-		this.ctx.fillStyle = "black";
+		this.ctx.fillStyle = "#e89b9b";
 		this.ctx.fill();
 
 		this.ctx.resetTransform();
@@ -119,14 +142,19 @@ export default function DecideActivity() {
 	const dialogRef = useRef();
 	const drawables = useRef([]);
 	const animId = useRef();
+	const baseActivitiesRef = useRef([]);
 	const [activity, setActivity] = useState({});
+	const [mode, setMode] = useState("equal"); // "equal" or "likes"
+	const confettiInstanceRef = useRef(null);
+	const confettiCanvasRef = useRef(null);
+
+	const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+	const jwt = localStorage.getItem("JWT");
+	const userPayload = jwt ? JSON.parse(atob(jwt.split(".")[1])) : null;
 
 	useEffect(() => {
 		(async () => {
-			let activities;
-
-			const JWT = localStorage.getItem("JWT");
-			if (!JWT) {
+			if (!jwt) {
 				console.log("Not authenticated, please login or register");
 				return navigate("/login");
 			}
@@ -138,9 +166,8 @@ export default function DecideActivity() {
 			}
 
 			try {
-				const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
 				const response = await fetch(`${backendURL}/api/groups/${groupId}`, {
-					headers: { Authorization: `Bearer ${JWT}` },
+					headers: { Authorization: `Bearer ${jwt}` },
 				});
 
 				if (!response.ok) {
@@ -153,54 +180,119 @@ export default function DecideActivity() {
 				}
 
 				const group = await response.json();
-				activities = (group.activities || []).filter((activity) => !activity.done);
-
-				if (!activities.length) {
+				const baseActivities = (group.activities || []).filter((activity) => !activity.done);
+				if (!baseActivities.length) {
 					alert("No activities to decide between yet. Try adding some first.");
 					return;
 				}
+				baseActivitiesRef.current = baseActivities;
+				buildWheel(baseActivitiesRef.current, mode);
 			} catch (err) {
 				console.error("Failed to get activities. Error:", err.message);
-				alert("Couldn't get activities :("); // Strongly dislike using alert, but there's no custom app-wide notification/toast system yet
+				alert("Couldn't get activities :(");
 				return;
 			}
-
-			drawables.current = [
-				new Wheel(
-					canvasRef.current.getContext("2d"),
-					{ x: canvasRef.current.width / 2, y: canvasRef.current.height / 2 },
-					256,
-					activities,
-					["#0072B2", "#9ad2f2", "hsl(202, 80%, 50%)"], // primary, accent, and in between colors (need min 3 to avoid 2 adjacent slices having the same colours)
-					(activity) => {
-						setActivity(activity);
-						dialogRef.current.showModal();
-					},
-				),
-			];
-
-			function updateLoop() {
-				animId.current = requestAnimationFrame(updateLoop);
-				drawables.current.forEach((e) => {
-					e.update();
-				});
-				drawables.current.forEach((e) => {
-					e.draw();
-				});
-			}
-
-			updateLoop();
 		})();
 
 		return () => {
 			cancelAnimationFrame(animId.current);
 		};
-	}, [navigate, groupId]);
+	}, [navigate, groupId, backendURL, jwt, mode]);
+
+	useEffect(() => {
+		if (!baseActivitiesRef.current.length) return;
+		buildWheel(baseActivitiesRef.current, mode);
+	}, [mode]);
+
+	function buildWheel(baseActivities, mode) {
+		if (!canvasRef.current) return;
+		cancelAnimationFrame(animId.current);
+		const rawWeights =
+			mode === "likes" ? baseActivities.map((a) => Math.max(0, (a.likes || []).length)) : baseActivities.map(() => 1);
+		const total = rawWeights.reduce((s, w) => s + w, 0);
+		const weights = total === 0 ? baseActivities.map(() => 1) : rawWeights;
+
+		drawables.current = [
+			new Wheel(
+				canvasRef.current.getContext("2d"),
+				{ x: canvasRef.current.width / 2, y: canvasRef.current.height / 2 },
+				256,
+				baseActivities,
+				weights,
+				palette,
+				(activity) => {
+					setActivity(activity);
+					dialogRef.current.showModal();
+					triggerConfetti();
+				},
+			),
+		];
+
+		function updateLoop() {
+			animId.current = requestAnimationFrame(updateLoop);
+			drawables.current.forEach((e) => e.update());
+			drawables.current.forEach((e) => e.draw());
+		}
+
+		updateLoop();
+	}
+
+	async function triggerConfetti() {
+		const { default: confetti } = await import("canvas-confetti");
+		
+		let canvas = confettiCanvasRef.current;
+		if (!canvas) {
+			canvas = document.createElement("canvas");
+			canvas.className = "confetti-canvas";
+			confettiCanvasRef.current = canvas;
+		}
+		
+		Object.assign(canvas.style, {
+			position: "fixed",
+			inset: "0",
+			width: "100%",
+			height: "100%",
+			pointerEvents: "none",
+			zIndex: "2147483647",
+		});
+		
+		if (canvas.parentElement) {
+			canvas.parentElement.removeChild(canvas);
+		}
+		document.body.appendChild(canvas);
+		
+		const ci = confetti.create(canvas, { resize: true, useWorker: true });
+		const burst = (x) =>
+			ci({
+				particleCount: 70,
+				spread: 75,
+				startVelocity: 38,
+				origin: { x, y: 0.35 },
+				colors: ["#e37c7c", "#f0e2c9", "#f9d77e", "#ffffff"],
+				scalar: 1.1,
+			});
+		burst(0.25);
+		burst(0.75);
+	}
 
 	return (
 		<>
 			<div className="decision-container">
 				<Header backPath={`/groups/${groupId}/activities`} title="Decision Wheel" />
+				<div className="mode-row">
+					<div className="mode-buttons">
+						<Button
+							text="Equal Chance"
+							buttonType={mode === "equal" ? "primary" : "secondary"}
+							onClick={() => setMode("equal")}
+						/>
+						<Button
+							text="Weighted by Likes"
+							buttonType={mode === "likes" ? "primary" : "secondary"}
+							onClick={() => setMode("likes")}
+						/>
+					</div>
+				</div>
 				<canvas width="600" height="600" ref={canvasRef} className="decision-wheel">
 					A spinning wheel to get a random activity {/* Alt text */}
 				</canvas>
