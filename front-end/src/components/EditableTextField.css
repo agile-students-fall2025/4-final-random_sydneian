@@ -1,0 +1,38 @@
+.editable-text-field {
+	display: flex;
+	gap: 4px;
+	justify-content: space-between;
+
+	input {
+		border-radius: 8px;
+		flex: 1;
+	}
+
+	.edit-icon {
+		justify-self: flex-end;
+	}
+
+	button {
+		background: none;
+		border: none;
+		/* margin-left: auto; */
+		border-radius: 8px;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 32px;
+		height: 32px;
+
+		&:disabled {
+			background: #ddd;
+		}
+	}
+
+	.edit-field-discard {
+		background: #fff1f4;
+	}
+
+	.edit-field-save {
+		background: #ebf8f6;
+	}
+}

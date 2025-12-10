@@ -1,11 +1,12 @@
-import React, { useEffect, useState, useRef, useLayoutEffect } from "react";
+import React, { useEffect, useRef, useState, useLayoutEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Heart, Plus, MapPin, LoaderCircle } from "lucide-react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import "./bucketList.css";
 import Header from "../components/Header";
 import Button from "../components/Button";
+import ActivityDetailsModal from "../components/ActivityDetailsModal";
+import "./bucketList.css";
 
 // Register GSAP plugin
 gsap.registerPlugin(ScrollTrigger);
@@ -20,6 +21,8 @@ export default function BucketList() {
 	const [error, setError] = useState(null);
 	const [showAddPopup, setShowAddPopup] = useState(false);
 	const [isXLoading, setIsXLoading] = useState([]);
+	const [selectedActivity, setSelectedActivity] = useState({});
+	const activityDetailsModalRef = useRef();
 	const containerRef = useRef(null);
 	const cardRefs = useRef([]);
 	const currentExpandedCardRef = useRef(null);
@@ -57,11 +60,7 @@ export default function BucketList() {
 				}
 
 				const group = await response.json();
-				const mapped = (group.activities || []).map((a) => ({
-					...a,
-					imageUrl: Array.isArray(a.images) && a.images.length > 0 ? a.images[0] : "",
-				}));
-				setActivities(mapped);
+				setActivities(group.activities || []);
 			} catch (err) {
 				console.error("Failed to get activities. Error:", err.message);
 				setError("Couldn't get activities :(");
@@ -208,14 +207,6 @@ export default function BucketList() {
 		};
 	}, [activities, activeTab, loading]);
 
-	const getDaysAgoText = (days) => {
-		if (days === 1) return "1 day ago";
-		if (days === 7) return "1 week ago";
-		if (days === 14) return "2 weeks ago";
-		if (days === 21) return "3 weeks ago";
-		return `${days} days ago`;
-	};
-
 	const getTimeAgo = (dateString) => {
 		const date = new Date(dateString);
 		const now = new Date();
@@ -340,11 +331,19 @@ export default function BucketList() {
 				<div className="content-list">
 					{(activeTab === "todo" ? filteredActivities : filteredCompletedActivities).length > 0 ? (
 						(activeTab === "todo" ? filteredActivities : filteredCompletedActivities).map((activity, index) => (
-							<div key={activity._id} ref={(el) => (cardRefs.current[index] = el)} className="activity-card">
+							<div
+								key={activity._id}
+								ref={(el) => (cardRefs.current[index] = el)}
+								className="activity-card"
+								onClick={(evt) => {
+									setSelectedActivity(activity);
+									activityDetailsModalRef.current.showModal();
+								}}
+							>
 								{/* Image container - expands when in view */}
 								<div className="card-image-container">
-									{activity.imageUrl ? (
-										<img src={activity.imageUrl} alt={activity.name} className="card-image" />
+									{Array.isArray(activity.images) && activity.images.length > 0 ? (
+										<img src={activity.images[0]} alt={activity.name} className="card-image" />
 									) : (
 										<div className="card-image-placeholder">
 											<MapPin size={24} />
@@ -375,17 +374,10 @@ export default function BucketList() {
 											if (!res.ok) return alert("Failed to like activity");
 
 											const updatedActivity = await res.json();
-											const mappedActivity = {
-												...updatedActivity,
-												imageUrl:
-													Array.isArray(updatedActivity.images) && updatedActivity.images.length > 0
-														? updatedActivity.images[0]
-														: "",
-											};
 
 											setActivities(
 												activities.map((activity) =>
-													activity._id === mappedActivity._id ? mappedActivity : activity,
+													activity._id === updatedActivity._id ? updatedActivity : activity,
 												),
 											);
 
@@ -482,12 +474,26 @@ export default function BucketList() {
 							onClick={() => navigate(`/groups/${groupId}/activities/add/manual`)}
 						/>
 
-						<div style={{ marginTop: "10px" }}>
+						{/* <div style={{ marginTop: "10px" }}>
 							<Button text="Cancel" buttonType="danger" onClick={() => setShowAddPopup(false)} />
-						</div>
+						</div> */}
 					</div>
 				</div>
 			)}
+
+			{/* Activity details & editing popup */}
+			<ActivityDetailsModal
+				groupId={groupId}
+				activities={activities}
+				selectedActivity={selectedActivity}
+				ref={activityDetailsModalRef}
+				onUpdate={(updatedActivity) => {
+					setActivities(
+						activities.map((activity) => (activity._id === updatedActivity._id ? updatedActivity : activity)),
+					);
+					setSelectedActivity(updatedActivity);
+				}}
+			/>
 		</div>
 	);
 }
