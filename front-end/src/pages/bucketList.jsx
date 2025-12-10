@@ -28,6 +28,8 @@ export default function BucketList() {
 	const currentExpandedCardRef = useRef(null);
 	const lastScrollTopRef = useRef(0);
 
+	const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
+
 	useEffect(() => {
 		const fetchActivities = async () => {
 			const JWT = localStorage.getItem("JWT");
@@ -45,7 +47,6 @@ export default function BucketList() {
 			}
 
 			try {
-				const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
 				const response = await fetch(`${backendURL}/api/groups/${groupId}`, {
 					headers: { Authorization: `Bearer ${JWT}` },
 				});
@@ -356,11 +357,14 @@ export default function BucketList() {
 									<h3 className={"card-title" + (activeTab === "done" ? " completed" : "")}>{activity.name}</h3>
 									<div
 										className={`likes-container ${activity.likes.some((user) => user._id === userId) ? "liked" : ""}`}
-										onClick={async () => {
+										onClick={async (e) => {
+											// prevent opening the activity details when liking
+											e.stopPropagation();
+
 											setIsXLoading([...isXLoading, `${activity._id}-like`]);
 
 											const res = await fetch(
-												`${import.meta.env.VITE_BACKEND_ORIGIN}/api/groups/${groupId}/activities/${activity._id}`,
+												`${backendURL}/api/groups/${groupId}/activities/${activity._id}`,
 												{
 													headers: {
 														Authorization: `Bearer ${localStorage.getItem("JWT")}`,

@@ -5,6 +5,7 @@ import "./EditableTagsField.css";
 export default function EditableTagsField({ groupId, activities, selectedActivity, onUpdate }) {
 	const [isEditing, setIsEditing] = useState(false);
 	const [isLoading, setIsLoading] = useState([]);
+	const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
 	const inputRef = useRef();
 	const autosuggestListId = useId();
 
@@ -42,7 +43,7 @@ export default function EditableTagsField({ groupId, activities, selectedActivit
 								setIsLoading([...isLoading, "adding tag"]);
 
 								const res = await fetch(
-									`${import.meta.env.VITE_BACKEND_ORIGIN}/api/groups/${groupId}/activities/${selectedActivity._id}`,
+									`${backendURL}/api/groups/${groupId}/activities/${selectedActivity._id}`,
 									{
 										headers: {
 											Authorization: `Bearer ${localStorage.getItem("JWT")}`,
@@ -91,7 +92,7 @@ export default function EditableTagsField({ groupId, activities, selectedActivit
 							setIsLoading([...isLoading, `removing tag: ${tag}`]);
 
 							const res = await fetch(
-								`${import.meta.env.VITE_BACKEND_ORIGIN}/api/groups/${groupId}/activities/${selectedActivity._id}`,
+								`${backendURL}/api/groups/${groupId}/activities/${selectedActivity._id}`,
 								{
 									headers: {
 										Authorization: `Bearer ${localStorage.getItem("JWT")}`,
