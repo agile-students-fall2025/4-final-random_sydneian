@@ -47,6 +47,11 @@ app.use(
 
 // --- Routes ---
 
+// Health check endpoint for Docker healthcheck and monitoring
+app.get("/api/health", (req, res) => {
+	res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
+});
+
 app.post("/api/login", [body("username").notEmpty(), body("password").notEmpty()], async (req, res) => {
 	const errors = validationResult(req);
 	if (!errors.isEmpty()) {
