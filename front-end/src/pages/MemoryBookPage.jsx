@@ -3,13 +3,16 @@ import "./MemoryBookPage.css";
 import "../components/Button.css";
 import AddMemoryPopup from "./AddMemoryPopup";
 import Header from "../components/Header";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, Star, MessageCircle } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 import GalleryModal from "../components/GalleryModal";
+import CommentsModal from "./CommentsModal";
 
 const normalizeMemory = (m) => ({
 	...m,
 	photos: m.images,
+	rating: m.rating || 0,
+	comments: m.comments || [],
 	dateAdded: new Date(m.createdAt).toLocaleDateString("en-US", {
 		day: "numeric",
 		month: "long",
@@ -28,7 +31,11 @@ export default function MemoryBookPage() {
 	// Gallery State
 	const [openGallery, setOpenGallery] = useState(false);
 	const [galleryPhotos, setGalleryPhotos] = useState([]);
-	const [galleryStartIndex, setGalleryStartIndex] = useState(0); // New State
+	const [galleryStartIndex, setGalleryStartIndex] = useState(0);
+
+	// Comments State
+	const [openComments, setOpenComments] = useState(false);
+	const [selectedMemory, setSelectedMemory] = useState(null);
 
 	const { groupId } = useParams();
 	const navigate = useNavigate();
@@ -86,8 +93,6 @@ export default function MemoryBookPage() {
 			}
 
 			const createdMemory = await res.json();
-
-			// Normalize it the same way fetch API does
 			const normalized = normalizeMemory(createdMemory);
 
 			setMemories((prev) => [...prev, normalized]);
@@ -145,6 +150,7 @@ export default function MemoryBookPage() {
 				body: JSON.stringify({
 					title: edited.title,
 					images: edited.images,
+					rating: edited.rating,
 				}),
 			});
 
@@ -176,9 +182,45 @@ export default function MemoryBookPage() {
 		setOpenGallery(true);
 	};
 
+	const openCommentsHandler = (memory) => {
+		setSelectedMemory(memory);
+		setOpenComments(true);
+	};
+
+	const handleCommentAdded = (memoryId, newComment) => {
+		setMemories((prev) =>
+			prev.map((m) =>
+				m._id === memoryId ? { ...m, comments: [...m.comments, newComment] } : m
+			)
+		);
+	};
+
+	const handleCommentDeleted = (memoryId, commentId) => {
+		setMemories((prev) =>
+			prev.map((m) =>
+				m._id === memoryId ? { ...m, comments: m.comments.filter((c) => c._id !== commentId) } : m
+			)
+		);
+	};
+
 	const filteredMemories = memories.filter((memory) =>
 		(memory.title || "").toLowerCase().includes(searchTerm.toLowerCase()),
 	);
+
+	const renderStars = (rating) => {
+		return (
+			<div className="star-rating-display">
+				{[1, 2, 3, 4, 5].map((star) => (
+					<Star
+						key={star}
+						size={16}
+						className={star <= rating ? "star-filled" : "star-empty"}
+						fill={star <= rating ? "currentColor" : "none"}
+					/>
+				))}
+			</div>
+		);
+	};
 
 	if (loading) return <div className="memory-empty">Loading...</div>;
 
@@ -210,7 +252,10 @@ export default function MemoryBookPage() {
 						{filteredMemories.map((memory, index) => (
 							<div key={index} className="memory-card">
 								<div className="memory-card-header">
+									<div>
 									<h2 className="memory-title">{memory.title}</h2>
+									{memory.rating > 0 && renderStars(memory.rating)}
+									</div>
 									<p className="memory-date">Added on {memory.dateAdded}</p>
 								</div>
 
@@ -226,6 +271,13 @@ export default function MemoryBookPage() {
 											+{memory.photos.length - 3} more
 										</div>
 									)}
+								</div>
+
+								<div className="memory-footer">
+									<button className="comments-btn" onClick={() => openCommentsHandler(memory)}>
+										<MessageCircle size={18} />
+										<span>{memory.comments.length} {memory.comments.length === 1 ? 'comment' : 'comments'}</span>
+									</button>
 								</div>
 
 								<div className="memory-actions-icons">
@@ -251,6 +303,19 @@ export default function MemoryBookPage() {
 
 				{openGallery && (
 					<GalleryModal photos={galleryPhotos} startIndex={galleryStartIndex} onClose={() => setOpenGallery(false)} />
+				)}
+
+				{openComments && selectedMemory && (
+					<CommentsModal
+						memory={selectedMemory}
+						groupId={groupId}
+						onClose={() => {
+							setOpenComments(false);
+							setSelectedMemory(null);
+						}}
+						onCommentAdded={handleCommentAdded}
+						onCommentDeleted={handleCommentDeleted}
+					/>
 				)}
 			</div>
 

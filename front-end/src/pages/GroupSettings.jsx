@@ -344,60 +344,62 @@ export default function GroupSettings() {
 				<div className="settings-section">
 					<h3 className="section-title">Members ({group?.members?.length || 0})</h3>
 					<div className="members-list">
-						{group?.members?.map((member) => {
-							const isOwner = group?.owner?._id === member._id;
-							const isAdmin = group?.admins?.some((admin) => admin._id === member._id);
-							const isCurrentUserOwner = group?.owner?._id === currentUserId;
-							const isCurrentUserAdmin = group?.admins?.some((admin) => admin._id === currentUserId);
-							const isCurrentUser = member._id === currentUserId;
+						{group?.members
+							?.toSorted((user1, user2) => (user1._id === currentUserId ? -1 : user2._id === currentUserId ? 1 : 0))
+							.map((member) => {
+								const isOwner = group?.owner?._id === member._id;
+								const isAdmin = group?.admins?.some((admin) => admin._id === member._id);
+								const isCurrentUserOwner = group?.owner?._id === currentUserId;
+								const isCurrentUserAdmin = group?.admins?.some((admin) => admin._id === currentUserId);
+								const isCurrentUser = member._id === currentUserId;
 
-							return (
-								<div key={member._id} className="member-item">
-									<img
-										src={member.profilePicture || "https://placehold.co/48"}
-										alt={member.username}
-										className="member-avatar"
-									/>
-									<div className="member-info">
-										<span className="member-username">{member.username}</span>
-										{isOwner && <span className="owner-badge">Owner</span>}
-										{!isOwner && isAdmin && <span className="admin-badge">Admin</span>}
-									</div>
-									{isCurrentUserAdmin && !isCurrentUser && !isOwner && (
-										<div className="member-actions">
-											{isAdmin ? (
-												// Only owner can demote admins
-												isCurrentUserOwner && (
-													<button
-														className="action-button demote-button"
-														onClick={() => handleDemoteAdmin(member._id)}
-														title="Remove admin"
-													>
-														<ShieldMinus size={18} />
-													</button>
-												)
-											) : (
-												// All admins can promote to admin
-												<button
-													className="action-button promote-button"
-													onClick={() => handlePromoteToAdmin(member._id)}
-													title="Make admin"
-												>
-													<ShieldPlus size={18} />
-												</button>
-											)}
-											<button
-												className="action-button remove-button"
-												onClick={() => handleRemoveMember(member._id)}
-												title="Remove member"
-											>
-												<UserMinus size={18} />
-											</button>
+								return (
+									<div key={member._id} className="member-item">
+										<img
+											src={member.profilePicture || "https://placehold.co/48"}
+											alt={member.username}
+											className="member-avatar"
+										/>
+										<div className="member-info">
+											<span className="member-username">{isCurrentUser ? "You" : member.username}</span>
+											{isOwner && <span className="owner-badge">Owner</span>}
+											{!isOwner && isAdmin && <span className="admin-badge">Admin</span>}
 										</div>
-									)}
-								</div>
-							);
-						})}
+										{isCurrentUserAdmin && !isCurrentUser && !isOwner && (
+											<div className="member-actions">
+												{isAdmin ? (
+													// Only owner can demote admins
+													isCurrentUserOwner && (
+														<button
+															className="action-button demote-button"
+															onClick={() => handleDemoteAdmin(member._id)}
+															title="Remove admin"
+														>
+															<ShieldMinus size={18} />
+														</button>
+													)
+												) : (
+													// All admins can promote to admin
+													<button
+														className="action-button promote-button"
+														onClick={() => handlePromoteToAdmin(member._id)}
+														title="Make admin"
+													>
+														<ShieldPlus size={18} />
+													</button>
+												)}
+												<button
+													className="action-button remove-button"
+													onClick={() => handleRemoveMember(member._id)}
+													title="Remove member"
+												>
+													<UserMinus size={18} />
+												</button>
+											</div>
+										)}
+									</div>
+								);
+							})}
 					</div>
 				</div>
 

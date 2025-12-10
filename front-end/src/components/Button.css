@@ -59,7 +59,6 @@
 		color: var(--color-primary);
 		background: rgba(255, 255, 255, 0.9);
 		backdrop-filter: blur(8px);
-		-webkit-backdrop-filter: blur(8px);
 		border: 2px solid var(--color-primary);
 
 		.arrow {
@@ -88,7 +87,7 @@
 	&.danger {
 		background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
 		border-color: #dc2626;
-		
+
 		&:active {
 			transform: scale(0.98);
 			background: #991b1b;

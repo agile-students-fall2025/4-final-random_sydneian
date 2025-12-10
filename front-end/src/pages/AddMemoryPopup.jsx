@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Star } from "lucide-react";
 import "./AddMemoryPopup.css";
 import { useParams, useNavigate } from "react-router-dom";
 
-// Simple internal Button component to avoid import errors
 const Button = ({ text, onClick, buttonType }) => {
 	const className = buttonType === "primary" ? "btn-base btn-primary" : "btn-base btn-secondary";
 	return (
@@ -16,8 +15,10 @@ const Button = ({ text, onClick, buttonType }) => {
 export default function AddMemoryPopup({ onClose, onAdd, onEdit, memoryToEdit }) {
 	const [selectedPlace, setSelectedPlace] = useState(memoryToEdit?.title || "");
 	const [photos, setPhotos] = useState(memoryToEdit?.photos || []);
+	const [rating, setRating] = useState(memoryToEdit?.rating || 0);
 	const [error, setError] = useState("");
 	const [activities, setActivities] = useState([]);
+	const [hoverRating, setHoverRating] = useState(0);
 	const fileInputRef = useRef(null);
 	const isEditing = !!memoryToEdit;
 
@@ -80,14 +81,16 @@ export default function AddMemoryPopup({ onClose, onAdd, onEdit, memoryToEdit })
 	};
 
 	const handleRemovePhoto = (index) => {
-		// Confirmation dialog added here
 		if (window.confirm("Are you sure you want to delete this photo?")) {
 			setPhotos((prev) => prev.filter((_, i) => i !== index));
 		}
 	};
 
+	const handleStarClick = (starValue) => {
+		setRating(starValue);
+	};
+
 	const handleSubmit = () => {
-		// Only require selecting a place when ADDING
 		if (!isEditing && !selectedPlace.trim()) {
 			setError("Please select a place before adding a memory.");
 			return;
@@ -117,6 +120,7 @@ export default function AddMemoryPopup({ onClose, onAdd, onEdit, memoryToEdit })
 			title: selectedPlace,
 			images: photos,
 			activityId,
+			rating,
 		};
 
 		if (isEditing) {
@@ -129,6 +133,7 @@ export default function AddMemoryPopup({ onClose, onAdd, onEdit, memoryToEdit })
 		// Reset & close
 		setSelectedPlace("");
 		setPhotos([]);
+		setRating(0);
 		setError("");
 		onClose();
 	};
@@ -144,6 +149,8 @@ export default function AddMemoryPopup({ onClose, onAdd, onEdit, memoryToEdit })
 					multiple
 					style={{ display: "none" }}
 				/>
+
+
 				{/* Select place dropdown */}
 				<div className="select-place-container">
 					<select
@@ -162,6 +169,24 @@ export default function AddMemoryPopup({ onClose, onAdd, onEdit, memoryToEdit })
 						))}
 					</select>
 					<ChevronDown className="select-place-chevron" size={20} />
+				</div>
+
+				{/* Star Rating */}
+				<div className="rating-section">
+					<label className="rating-label">Rate this place</label>
+					<div className="star-rating">
+						{[1, 2, 3, 4, 5].map((star) => (
+							<Star
+								key={star}
+								size={32}
+								className={`star ${star <= (hoverRating || rating) ? "star-active" : "star-inactive"}`}
+								fill={star <= (hoverRating || rating) ? "currentColor" : "none"}
+								onClick={() => handleStarClick(star)}
+								onMouseEnter={() => setHoverRating(star)}
+								onMouseLeave={() => setHoverRating(0)}
+							/>
+						))}
+					</div>
 				</div>
 
 				{/* Error message */}
@@ -191,7 +216,7 @@ export default function AddMemoryPopup({ onClose, onAdd, onEdit, memoryToEdit })
 								</div>
 							))}
 
-							{/* This is the small square button that appears at the end of the list */}
+
 							<div className="add-more-photos-tile" onClick={handleAddPhoto}>
 								<span className="add-photos-plus small">+</span>
 								<span className="add-photos-text small">Add</span>

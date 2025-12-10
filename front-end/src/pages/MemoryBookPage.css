@@ -26,8 +26,7 @@
 	box-sizing: border-box;
 	background: rgba(255, 255, 255, 0.9);
 	backdrop-filter: blur(8px);
-	-webkit-backdrop-filter: blur(8px);
-	transition: 
+	transition:
 		box-shadow 0.2s ease,
 		background-color 0.2s ease;
 }
@@ -51,11 +50,6 @@
 	position: relative;
 	min-height: 100vh;
 	animation: fadeIn 0.4s ease-out;
-}
-
-@keyframes fadeIn {
-	from { opacity: 0; }
-	to { opacity: 1; }
 }
 
 .memory-header {
@@ -88,12 +82,11 @@
 	position: relative;
 	background: rgba(255, 255, 255, 0.85);
 	backdrop-filter: blur(8px);
-	-webkit-backdrop-filter: blur(8px);
 	border: 2px solid var(--color-primary);
 	border-radius: 16px;
 	padding: 16px;
 	margin-bottom: 16px;
-	transition: 
+	transition:
 		transform 0.3s ease,
 		box-shadow 0.3s ease;
 	animation: cardSlideIn 0.4s ease-out both;
@@ -110,11 +103,21 @@
 	}
 }
 
-.memory-card:nth-child(1) { animation-delay: 0.1s; }
-.memory-card:nth-child(2) { animation-delay: 0.15s; }
-.memory-card:nth-child(3) { animation-delay: 0.2s; }
-.memory-card:nth-child(4) { animation-delay: 0.25s; }
-.memory-card:nth-child(5) { animation-delay: 0.3s; }
+.memory-card:nth-child(1) {
+	animation-delay: 0.1s;
+}
+.memory-card:nth-child(2) {
+	animation-delay: 0.15s;
+}
+.memory-card:nth-child(3) {
+	animation-delay: 0.2s;
+}
+.memory-card:nth-child(4) {
+	animation-delay: 0.25s;
+}
+.memory-card:nth-child(5) {
+	animation-delay: 0.3s;
+}
 
 .memory-card-header {
 	display: flex;
@@ -127,12 +130,54 @@
 .memory-title {
 	font-size: 18px;
 	font-weight: 700;
+	margin-bottom: 4px;
 }
 
 .memory-date {
 	font-size: 14px;
 	color: #666;
 	font-weight: 500;
+}
+
+/* Star Rating Display */
+.star-rating-display {
+	display: flex;
+	gap: 2px;
+	margin-top: 4px;
+}
+
+.star-filled {
+	color: #fbbf24;
+}
+
+.star-empty {
+	color: #d1d5db;
+}
+
+/* Comment Section */
+.memory-comment {
+	margin-top: 12px;
+	padding: 12px;
+	background: rgba(249, 250, 251, 0.8);
+	border-radius: 8px;
+	border-left: 3px solid var(--color-primary);
+}
+
+.comment-label {
+	font-size: 12px;
+	font-weight: 600;
+	color: #666;
+	margin: 0 0 4px 0;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.comment-text {
+	font-size: 14px;
+	color: #333;
+	margin: 0;
+	line-height: 1.5;
+	word-wrap: break-word;
 }
 
 .more-photos-btn {
@@ -145,7 +190,9 @@
 	border: 2px solid var(--color-primary);
 	cursor: pointer;
 	color: var(--color-primary);
-	transition: transform 0.2s ease, background-color 0.2s ease;
+	transition:
+		transform 0.2s ease,
+		background-color 0.2s ease;
 }
 
 .more-photos-btn:active {
@@ -171,7 +218,9 @@
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	transition: transform 0.2s ease, box-shadow 0.2s ease;
+	transition:
+		transform 0.2s ease,
+		box-shadow 0.2s ease;
 }
 
 .photo-item:active {
@@ -185,9 +234,9 @@
 	object-fit: cover;
 }
 
-/* Floating + button — inside iPhone layout */
+/* Floating + button */
 .add-memory-btn {
-	position: fixed; /* stays in place while scrolling */
+	position: fixed;
 	bottom: 100px;
 	right: 24px;
 	width: 60px;
@@ -200,7 +249,7 @@
 	font-weight: 600;
 	cursor: pointer;
 	box-shadow: 0 4px 20px rgba(74, 85, 104, 0.35);
-	z-index: 1000; /* So it stays above cards */
+	z-index: 1000;
 	transition:
 		transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
 		box-shadow 0.25s ease;
@@ -208,7 +257,8 @@
 }
 
 @keyframes fabPulse {
-	0%, 100% {
+	0%,
+	100% {
 		box-shadow: 0 4px 20px rgba(74, 85, 104, 0.35);
 	}
 	50% {
@@ -267,4 +317,36 @@
 
 .delete-icon {
 	color: #dc2626;
+}
+
+/* Memory Footer for Comments Button */
+.memory-footer {
+	margin-top: 12px;
+	padding-top: 12px;
+	border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.comments-btn {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	background: none;
+	border: none;
+	cursor: pointer;
+	color: #666;
+	font-size: 14px;
+	font-weight: 500;
+	padding: 6px 12px;
+	border-radius: 8px;
+	transition: background-color 0.2s ease, color 0.2s ease;
+	font-family: system-ui, -apple-system, sans-serif;
+}
+
+.comments-btn:hover {
+	background: rgba(0, 0, 0, 0.05);
+	color: var(--color-primary);
+}
+
+.comments-btn:active {
+	transform: scale(0.98);
 }

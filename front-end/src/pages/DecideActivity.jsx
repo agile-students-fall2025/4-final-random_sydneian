@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { ImageIcon } from "lucide-react";
 import Header from "../components/Header";
 import Button from "../components/Button";
 import "./DecideActivity.css";
-import { ImageIcon } from "lucide-react";
 
 const activityChosenPhrases = ["The wheel has spoken, the universe has chosen..."];
 const palette = ["#e37c7c", "#f0e2c9", "#f9d77e"]; // coral, light beige, soft yellow
+
+// From p5js
 function mapRange(n, start1, stop1, start2, stop2, withinBounds) {
 	const newval = ((n - start1) / (stop1 - start1)) * (stop2 - start2) + start2;
 	if (!withinBounds) {
@@ -20,7 +22,15 @@ function mapRange(n, start1, stop1, start2, stop2, withinBounds) {
 }
 
 class Wheel {
-	constructor(ctx, center = { x: 0, y: 0 }, radius = 100, activities = [{}], weights = [], colors = palette, activitySelectedCb) {
+	constructor(
+		ctx,
+		center = { x: 0, y: 0 },
+		radius = 100,
+		activities = [{}],
+		weights = [],
+		colors = palette,
+		activitySelectedCb,
+	) {
 		this.ctx = ctx;
 		this.center = center;
 		this.radius = radius;
@@ -44,7 +54,8 @@ class Wheel {
 		let start = 0;
 		const colorSeq = list.map((_, idx) => this.colors[idx % this.colors.length]);
 		if (colorSeq.length > 1 && colorSeq[colorSeq.length - 1] === colorSeq[0]) {
-			colorSeq[colorSeq.length - 1] = this.colors[(this.colors.indexOf(colorSeq[colorSeq.length - 1]) + 1) % this.colors.length];
+			colorSeq[colorSeq.length - 1] =
+				this.colors[(this.colors.indexOf(colorSeq[colorSeq.length - 1]) + 1) % this.colors.length];
 		}
 
 		this.segments = list.map((entry, idx) => {
@@ -70,9 +81,11 @@ class Wheel {
 	update() {
 		if (0 < this.speed && this.speed < 0.00025) {
 			this.speed = 0;
+
+			// Normalize angle to be within 0 - 2 PI, adjusting for clockwise rotation. Also, offset by -90 deg, as 0 deg is horizontal instead of vertical (E vs N)
 			const normalizedAngle = (3.5 * Math.PI - (this.angle % (2 * Math.PI))) % (2 * Math.PI);
 			this.activitySelectedCb(this._pickActivity(normalizedAngle));
-		} else this.speed *= 0.990;
+		} else this.speed *= 0.99;
 
 		this.angle += this.speed;
 	}
@@ -82,6 +95,14 @@ class Wheel {
 		this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
 		this.ctx.globalAlpha = 1;
 		this.ctx.translate(this.center.x, this.center.y);
+
+		// Background circle
+		this.ctx.beginPath();
+		this.ctx.arc(0, 0, this.radius + 8, 0, 2 * Math.PI);
+		this.ctx.strokeStyle = "#0072B2"; // --color-primary
+		this.ctx.lineWidth = 4;
+		this.ctx.stroke();
+		this.ctx.lineWidth = 1;
 
 		this.ctx.save();
 		this.ctx.rotate(this.angle);
@@ -93,10 +114,11 @@ class Wheel {
 			this.ctx.closePath();
 			this.ctx.fillStyle = seg.color;
 			this.ctx.fill();
-			this.ctx.strokeStyle = "#4a3325"; 
+			this.ctx.strokeStyle = "#4a3325";
 			this.ctx.lineWidth = 2;
 			this.ctx.stroke();
 
+			// Text
 			const mid = (seg.start + seg.end) / 2;
 			this.ctx.save();
 			this.ctx.rotate(mid);
@@ -111,6 +133,7 @@ class Wheel {
 		}
 		this.ctx.restore();
 
+		// Center parts
 		this.ctx.globalAlpha = 1;
 
 		this.ctx.beginPath();
@@ -239,14 +262,14 @@ export default function DecideActivity() {
 
 	async function triggerConfetti() {
 		const { default: confetti } = await import("canvas-confetti");
-		
+
 		let canvas = confettiCanvasRef.current;
 		if (!canvas) {
 			canvas = document.createElement("canvas");
 			canvas.className = "confetti-canvas";
 			confettiCanvasRef.current = canvas;
 		}
-		
+
 		Object.assign(canvas.style, {
 			position: "fixed",
 			inset: "0",
@@ -255,12 +278,12 @@ export default function DecideActivity() {
 			pointerEvents: "none",
 			zIndex: "2147483647",
 		});
-		
+
 		if (canvas.parentElement) {
 			canvas.parentElement.removeChild(canvas);
 		}
 		document.body.appendChild(canvas);
-		
+
 		const ci = confetti.create(canvas, { resize: true, useWorker: true });
 		const burst = (x) =>
 			ci({
