@@ -953,9 +953,133 @@ app.post("/api/groups/join-by-code", async (req, res) => {
 	}
 });
 
+// Add a comment to a memory
+app.post("/api/groups/:groupId/memories/:memoryId/comments", async (req, res) => {
+	try {
+		const { text } = req.body;
+		
+		if (!text || !text.trim()) {
+			return res.status(400).json({ error: "Comment text is required" });
+		}
+
+		const group = await Group.findById(req.params.groupId);
+		if (!group) return res.status(404).json({ error: "Group not found" });
+
+		// Check if user is a member
+		const isMember = group.members.some((memberId) => memberId.toString() === req.user.id);
+		if (!isMember) {
+			return res.status(403).json({ error: "Only group members can comment" });
+		}
+
+		let foundMemory = null;
+		let foundActivity = null;
+
+		// Find the memory across all activities
+		for (const activity of group.activities || []) {
+			const mem = activity.memories.id(req.params.memoryId);
+			if (mem) {
+				foundMemory = mem;
+				foundActivity = activity;
+				break;
+			}
+		}
+
+		if (!foundMemory) return res.status(404).json({ error: "Memory not found" });
+
+		// Add the comment
+		const newComment = {
+			user: req.user.id,
+			text: text.trim(),
+		};
+
+		foundMemory.comments.push(newComment);
+		await group.save();
+
+		// Populate the user info for the new comment
+		await group.populate("activities.memories.comments.user", "username profilePicture");
+
+		const createdComment = foundMemory.comments[foundMemory.comments.length - 1];
+		
+		res.status(201).json(createdComment);
+	} catch (error) {
+		console.error("Add comment error:", error);
+		res.status(500).json({ error: "Internal server error" });
+	}
+});
+
+// Get all comments for a memory
+app.get("/api/groups/:groupId/memories/:memoryId/comments", async (req, res) => {
+	try {
+		const group = await Group.findById(req.params.groupId)
+			.populate("activities.memories.comments.user", "username profilePicture");
+		
+		if (!group) return res.status(404).json({ error: "Group not found" });
+
+		let foundMemory = null;
+
+		for (const activity of group.activities || []) {
+			const mem = activity.memories.id(req.params.memoryId);
+			if (mem) {
+				foundMemory = mem;
+				break;
+			}
+		}
+
+		if (!foundMemory) return res.status(404).json({ error: "Memory not found" });
+
+		res.json(foundMemory.comments || []);
+	} catch (error) {
+		console.error("Get comments error:", error);
+		res.status(500).json({ error: "Internal server error" });
+	}
+});
+
+// Delete a comment (only the comment author or group admin can delete)
+app.delete("/api/groups/:groupId/memories/:memoryId/comments/:commentId", async (req, res) => {
+	try {
+		const group = await Group.findById(req.params.groupId);
+		if (!group) return res.status(404).json({ error: "Group not found" });
+
+		let foundMemory = null;
+
+		for (const activity of group.activities || []) {
+			const mem = activity.memories.id(req.params.memoryId);
+			if (mem) {
+				foundMemory = mem;
+				break;
+			}
+		}
+
+		if (!foundMemory) return res.status(404).json({ error: "Memory not found" });
+
+		const comment = foundMemory.comments.id(req.params.commentId);
+		if (!comment) return res.status(404).json({ error: "Comment not found" });
+
+		// Check if user is the comment author or a group admin
+		const isAuthor = comment.user.toString() === req.user.id;
+		const isAdmin = group.admins.some((adminId) => adminId.toString() === req.user.id);
+
+		if (!isAuthor && !isAdmin) {
+			return res.status(403).json({ error: "Only comment author or group admins can delete comments" });
+		}
+
+		comment.deleteOne();
+		await group.save();
+
+		res.sendStatus(204);
+	} catch (error) {
+		console.error("Delete comment error:", error);
+		res.status(500).json({ error: "Internal server error" });
+	}
+});
+
+// Get all memories for a group (across all activities)
 app.get("/api/groups/:groupId/memories", async (req, res) => {
 	try {
-		const group = await Group.findById(req.params.groupId).select("activities");
+		const group = await Group.findById(req.params.groupId)
+		.populate("activities.memories.comments.user", "username profilePicture")
+		.select("activities");
+
 		if (!group) return res.status(404).json({ error: "Group not found" });
 
 		const allMemories = [];
@@ -978,7 +1102,7 @@ app.get("/api/groups/:groupId/memories", async (req, res) => {
 
 // Add a memory to a specific activity in a group
 app.post("/api/groups/:groupId/memories", async (req, res) => {
-	const { activityId, images, title } = req.body;
+	const { activityId, images, title, rating } = req.body;
 
 	if (!activityId) {
 		return res.status(400).json({ error: "Missing required field: activityId" });
@@ -998,6 +1122,8 @@ app.post("/api/groups/:groupId/memories", async (req, res) => {
 		const newMemory = {
 			title: title || "Untitled Memory",
 			images: uploadedImages,
+			rating: rating || 0,
+			comments: [],
 			createdAt: new Date(),
 			updatedAt: new Date(),
 		};
@@ -1041,9 +1167,16 @@ app.put("/api/groups/:groupId/memories/:memoryId", async (req, res) => {
 		if (req.body.images && Array.isArray(req.body.images)) {
 			foundMemory.images = await uploadArrayDataUris(req.body.images, "memories");
 		}
+
 		if (req.body.title) {
 			foundMemory.title = req.body.title;
 		}
+
+		// Update rating if provided
+		if (req.body.rating !== undefined) {
+			foundMemory.rating = req.body.rating;
+		}
+		
 		foundMemory.updatedAt = new Date();
 
 		await group.save();
