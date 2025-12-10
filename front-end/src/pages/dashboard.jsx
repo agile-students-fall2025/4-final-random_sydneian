@@ -1,7 +1,7 @@
 import Button from "../components/Button";
 import { MoreVertical, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import "./dashboard.css";
 
 export default function DashboardPage() {
@@ -35,7 +35,9 @@ export default function DashboardPage() {
 				return;
 			}
 
-			const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
+			const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION
+				? ""
+				: import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
 
 			try {
 				const JWT = localStorage.getItem("JWT");
@@ -80,7 +82,7 @@ export default function DashboardPage() {
 					throw new Error("Failed to fetch invites");
 				}
 
-				const inviteIds = await inviteIdsResponse.json();
+				// const inviteIds = await inviteIdsResponse.json();
 
 				// Fetch full details for each group and invite
 				const groupDetails = await Promise.all(
@@ -120,7 +122,9 @@ export default function DashboardPage() {
 	const handleLeaveGroup = async (groupId) => {
 		try {
 			const JWT = localStorage.getItem("JWT");
-			const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
+			const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION
+				? ""
+				: import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
 
 			const response = await fetch(`${backendURL}/api/groups/${groupId}/leave`, {
 				method: "POST",
@@ -157,7 +161,9 @@ export default function DashboardPage() {
 
 		try {
 			const JWT = localStorage.getItem("JWT");
-			const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
+			const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION
+				? ""
+				: import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
 			const response = await fetch(`${backendURL}/api/groups/${groupId}`, {
 				method: "DELETE",
 				headers: {

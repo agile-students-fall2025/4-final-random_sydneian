@@ -18,6 +18,166 @@ export default function GroupSettings() {
 	const [currentUserId, setCurrentUserId] = useState(null);
 	const suggestionsRef = useRef(null);
 
+	const handleGenerateInviteCode = async () => {
+		try {
+			const JWT = localStorage.getItem("JWT");
+			const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION
+				? ""
+				: import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+			const response = await fetch(`${backendURL}/api/groups/${groupId}/invite-code/generate`, {
+				method: "POST",
+				headers: {
+					Authorization: `Bearer ${JWT}`,
+				},
+			});
+
+			if (!response.ok) {
+				throw new Error("Failed to generate invite code");
+			}
+
+			const data = await response.json();
+			setGroup((prev) => ({ ...prev, inviteCode: data.inviteCode }));
+		} catch (error) {
+			console.error("Error generating invite code:", error);
+			alert("Failed to generate invite code");
+		}
+	};
+
+	const handleCopyInviteCode = () => {
+		if (group?.inviteCode) {
+			navigator.clipboard.writeText(group.inviteCode);
+			setCopied(true);
+			setTimeout(() => setCopied(false), 2000);
+		}
+	};
+
+	const handleInviteUser = async (userId) => {
+		try {
+			const JWT = localStorage.getItem("JWT");
+			const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION
+				? ""
+				: import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+			const response = await fetch(`${backendURL}/api/groups/${groupId}/invite`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${JWT}`,
+				},
+				body: JSON.stringify({ userId }),
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(errorData.error || "Failed to invite user");
+			}
+
+			const updatedGroup = await response.json();
+			setGroup(updatedGroup.group);
+			setSearchQuery("");
+			setUserSuggestions([]);
+			setShowSuggestions(false);
+			alert("User invited successfully!");
+		} catch (error) {
+			console.error("Error inviting user:", error);
+			alert(error.message);
+		}
+	};
+
+	const handleRemoveMember = async (userId) => {
+		if (!window.confirm("Are you sure you want to remove this member?")) {
+			return;
+		}
+
+		try {
+			const JWT = localStorage.getItem("JWT");
+			const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION
+				? ""
+				: import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+			const response = await fetch(`${backendURL}/api/groups/${groupId}/remove-member`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${JWT}`,
+				},
+				body: JSON.stringify({ userId }),
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(errorData.error || "Failed to remove member");
+			}
+
+			const result = await response.json();
+			setGroup(result.group);
+			alert("Member removed successfully!");
+		} catch (error) {
+			console.error("Error removing member:", error);
+			alert(error.message);
+		}
+	};
+
+	const handlePromoteToAdmin = async (userId) => {
+		try {
+			const JWT = localStorage.getItem("JWT");
+			const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION
+				? ""
+				: import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+			const response = await fetch(`${backendURL}/api/groups/${groupId}/promote-admin`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${JWT}`,
+				},
+				body: JSON.stringify({ userId }),
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(errorData.error || "Failed to promote user");
+			}
+
+			const result = await response.json();
+			setGroup(result.group);
+			alert("User promoted to admin!");
+		} catch (error) {
+			console.error("Error promoting user:", error);
+			alert(error.message);
+		}
+	};
+
+	const handleDemoteAdmin = async (userId) => {
+		if (!window.confirm("Are you sure you want to remove admin privileges from this user?")) {
+			return;
+		}
+
+		try {
+			const JWT = localStorage.getItem("JWT");
+			const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION
+				? ""
+				: import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+			const response = await fetch(`${backendURL}/api/groups/${groupId}/demote-admin`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${JWT}`,
+				},
+				body: JSON.stringify({ userId }),
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(errorData.error || "Failed to demote admin");
+			}
+
+			const result = await response.json();
+			setGroup(result.group);
+			alert("Admin demoted successfully!");
+		} catch (error) {
+			console.error("Error demoting admin:", error);
+			alert(error.message);
+		}
+	};
+
 	// Decode JWT to get current user ID
 	useEffect(() => {
 		const JWT = localStorage.getItem("JWT");
@@ -39,7 +199,9 @@ export default function GroupSettings() {
 				return;
 			}
 
-			const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
+			const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION
+				? ""
+				: import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
 
 			try {
 				const response = await fetch(`${backendURL}/api/groups/${groupId}`, {
@@ -87,7 +249,9 @@ export default function GroupSettings() {
 
 			try {
 				const JWT = localStorage.getItem("JWT");
-				const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
+				const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION
+					? ""
+					: import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
 				const response = await fetch(`${backendURL}/api/users/search/${encodeURIComponent(searchQuery)}`, {
 					headers: {
 						Authorization: `Bearer ${JWT}`,
@@ -109,156 +273,6 @@ export default function GroupSettings() {
 		const timeoutId = setTimeout(searchUsers, 300);
 		return () => clearTimeout(timeoutId);
 	}, [searchQuery, group]);
-
-	const handleGenerateInviteCode = async () => {
-		try {
-			const JWT = localStorage.getItem("JWT");
-			const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
-			const response = await fetch(`${backendURL}/api/groups/${groupId}/invite-code/generate`, {
-				method: "POST",
-				headers: {
-					Authorization: `Bearer ${JWT}`,
-				},
-			});
-
-			if (!response.ok) {
-				throw new Error("Failed to generate invite code");
-			}
-
-			const data = await response.json();
-			setGroup((prev) => ({ ...prev, inviteCode: data.inviteCode }));
-		} catch (error) {
-			console.error("Error generating invite code:", error);
-			alert("Failed to generate invite code");
-		}
-	};
-
-	const handleCopyInviteCode = () => {
-		if (group?.inviteCode) {
-			navigator.clipboard.writeText(group.inviteCode);
-			setCopied(true);
-			setTimeout(() => setCopied(false), 2000);
-		}
-	};
-
-	const handleInviteUser = async (userId) => {
-		try {
-			const JWT = localStorage.getItem("JWT");
-			const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
-			const response = await fetch(`${backendURL}/api/groups/${groupId}/invite`, {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-					Authorization: `Bearer ${JWT}`,
-				},
-				body: JSON.stringify({ userId }),
-			});
-
-			if (!response.ok) {
-				const errorData = await response.json();
-				throw new Error(errorData.error || "Failed to invite user");
-			}
-
-			const updatedGroup = await response.json();
-			setGroup(updatedGroup.group);
-			setSearchQuery("");
-			setUserSuggestions([]);
-			setShowSuggestions(false);
-			alert("User invited successfully!");
-		} catch (error) {
-			console.error("Error inviting user:", error);
-			alert(error.message);
-		}
-	};
-
-	const handleRemoveMember = async (userId) => {
-		if (!window.confirm("Are you sure you want to remove this member?")) {
-			return;
-		}
-
-		try {
-			const JWT = localStorage.getItem("JWT");
-			const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
-			const response = await fetch(`${backendURL}/api/groups/${groupId}/remove-member`, {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-					Authorization: `Bearer ${JWT}`,
-				},
-				body: JSON.stringify({ userId }),
-			});
-
-			if (!response.ok) {
-				const errorData = await response.json();
-				throw new Error(errorData.error || "Failed to remove member");
-			}
-
-			const result = await response.json();
-			setGroup(result.group);
-			alert("Member removed successfully!");
-		} catch (error) {
-			console.error("Error removing member:", error);
-			alert(error.message);
-		}
-	};
-
-	const handlePromoteToAdmin = async (userId) => {
-		try {
-			const JWT = localStorage.getItem("JWT");
-			const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
-			const response = await fetch(`${backendURL}/api/groups/${groupId}/promote-admin`, {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-					Authorization: `Bearer ${JWT}`,
-				},
-				body: JSON.stringify({ userId }),
-			});
-
-			if (!response.ok) {
-				const errorData = await response.json();
-				throw new Error(errorData.error || "Failed to promote user");
-			}
-
-			const result = await response.json();
-			setGroup(result.group);
-			alert("User promoted to admin!");
-		} catch (error) {
-			console.error("Error promoting user:", error);
-			alert(error.message);
-		}
-	};
-
-	const handleDemoteAdmin = async (userId) => {
-		if (!window.confirm("Are you sure you want to remove admin privileges from this user?")) {
-			return;
-		}
-
-		try {
-			const JWT = localStorage.getItem("JWT");
-			const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
-			const response = await fetch(`${backendURL}/api/groups/${groupId}/demote-admin`, {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-					Authorization: `Bearer ${JWT}`,
-				},
-				body: JSON.stringify({ userId }),
-			});
-
-			if (!response.ok) {
-				const errorData = await response.json();
-				throw new Error(errorData.error || "Failed to demote admin");
-			}
-
-			const result = await response.json();
-			setGroup(result.group);
-			alert("Admin demoted successfully!");
-		} catch (error) {
-			console.error("Error demoting admin:", error);
-			alert(error.message);
-		}
-	};
 
 	if (loading) {
 		return (

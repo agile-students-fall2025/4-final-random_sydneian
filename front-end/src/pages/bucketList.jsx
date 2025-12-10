@@ -76,7 +76,7 @@ export default function BucketList() {
 		};
 
 		fetchActivities();
-	}, [navigate, groupId]);
+	}, [navigate, groupId, backendURL]);
 
 	useLayoutEffect(() => {
 		let rafId = null;
@@ -104,7 +104,7 @@ export default function BucketList() {
 				lastScrollTopRef.current = scrollTop;
 
 				const cardData = [];
-				cardRefs.current.forEach((card, idx) => {
+				cardRefs.current.forEach((card) => {
 					if (!card) return;
 
 					const rect = card.getBoundingClientRect();
@@ -341,7 +341,7 @@ export default function BucketList() {
 								key={activity._id}
 								ref={(el) => (cardRefs.current[index] = el)}
 								className="activity-card"
-								onClick={(evt) => {
+								onClick={() => {
 									setSelectedActivity(activity);
 									activityDetailsModalRef.current.showModal();
 								}}

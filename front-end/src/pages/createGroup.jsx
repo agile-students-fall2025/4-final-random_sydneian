@@ -8,7 +8,7 @@ export default function CreateGroupPage() {
 	const navigate = useNavigate();
 	const [groupName, setGroupName] = useState("");
 	const [groupDescription, setGroupDescription] = useState("");
-	const [inviteFriends, setInviteFriends] = useState("");
+	// const [inviteFriends, setInviteFriends] = useState("");
 	const [profileImage, setProfileImage] = useState("https://placehold.co/48");
 	const [searchQuery, setSearchQuery] = useState("");
 	const [userSuggestions, setUserSuggestions] = useState([]);
@@ -41,7 +41,9 @@ export default function CreateGroupPage() {
 
 			try {
 				const JWT = localStorage.getItem("JWT");
-				const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
+				const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION
+					? ""
+					: import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
 				const response = await fetch(`${backendURL}/api/users/search/${encodeURIComponent(searchQuery)}`, {
 					headers: {
 						Authorization: `Bearer ${JWT}`,
@@ -102,7 +104,9 @@ export default function CreateGroupPage() {
 				return;
 			}
 
-			const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
+			const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION
+				? ""
+				: import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
 			const response = await fetch(`${backendURL}/api/groups`, {
 				method: "POST",
 				headers: {

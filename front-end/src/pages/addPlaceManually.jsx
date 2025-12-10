@@ -58,7 +58,7 @@ export default function AddPlaceManually() {
 	const navigate = useNavigate();
 	const { groupId } = useParams();
 	const [placeName, setPlaceName] = useState("");
-	const [location, setLocation] = useState("");
+	const [_, setLocation] = useState(""); // [location, setLocation], but location wasn't used
 	const [category, setCategory] = useState("");
 	const [description, setDescription] = useState("");
 	const [tags, setTags] = useState("");
@@ -81,7 +81,9 @@ export default function AddPlaceManually() {
 
 		(async () => {
 			try {
-				const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
+				const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION
+					? ""
+					: import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
 				const response = await fetch(`${backendURL}/api/groups/${groupId}/activities`, {
 					method: "POST",
 					headers: {
