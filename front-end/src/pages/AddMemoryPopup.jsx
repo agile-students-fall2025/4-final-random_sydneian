@@ -134,7 +134,6 @@ export default function AddMemoryPopup({ onClose, onAdd, onEdit, memoryToEdit })
 		setSelectedPlace("");
 		setPhotos([]);
 		setRating(0);
-		setComment("");
 		setError("");
 		onClose();
 	};
