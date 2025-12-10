@@ -371,24 +371,23 @@ app.post("/api/groups", async (req, res) => {
 
 		await newGroup.save();
 
-if (invitedMemberIds.length > 0) {
-    const invitedUsers = await User.find({ _id: { $in: invitedMemberIds } });
+		if (invitedMemberIds.length > 0) {
+			const invitedUsers = await User.find({ _id: { $in: invitedMemberIds } });
 
-    for (const invitedUser of invitedUsers) {
-        await sendEmail(
-            invitedUser.email,
-            "You’ve been invited to join a group on Rendezvous",
-            `Hello ${invitedUser.username},
+			for (const invitedUser of invitedUsers) {
+				await sendEmail(
+					invitedUser.email,
+					"You’ve been invited to join a group on Rendezvous",
+					`Hello ${invitedUser.username},
 
 You were invited to join the new group "${newGroup.name.trim()}".
 
 Please log in to your account to accept the invitation!
 
-— The Rendezvous Team`
-        );
-    }
-}
-
+— The Rendezvous Team`,
+				);
+			}
+		}
 
 		await newGroup.populate("owner", "username profilePicture");
 		await newGroup.populate("members", "username profilePicture");
@@ -767,6 +766,32 @@ app.post("/api/groups/:groupId/activities", async (req, res) => {
 	}
 });
 
+// Delete activity
+app.delete("/api/groups/:groupId/activities/:activityId", async (req, res) => {
+	try {
+		const group = await Group.findById(req.params.groupId);
+
+		if (!group) {
+			return res.status(404).json({ error: "Group not found" });
+		}
+
+		const isMember = group.members.some((memberId) => memberId.toString() === req.user.id);
+		if (!isMember) {
+			return res.status(403).json({ error: "Only members can delete activities" });
+		}
+
+		const activity = group.activities.id(req.params.activityId);
+		await activity.deleteOne();
+
+		await group.save();
+		await group.populate("activities.likes", "username profilePicture");
+		res.json(group.activities);
+	} catch (error) {
+		console.error("Error deleting activity:", error);
+		res.status(500).json({ error: "Internal server error" });
+	}
+});
+
 // Update group details
 app.put("/api/groups/:id", async (req, res) => {
 	try {
@@ -889,7 +914,7 @@ You have been invited to join the group "${group.name}".
 
 Please log in to your account to accept the invitation!
 
-— The Rendezvous Team`
+— The Rendezvous Team`,
 		);
 
 		// Re-populate fields for frontend
@@ -967,7 +992,7 @@ app.post("/api/groups/join-by-code", async (req, res) => {
 app.post("/api/groups/:groupId/memories/:memoryId/comments", async (req, res) => {
 	try {
 		const { text } = req.body;
-		
+
 		if (!text || !text.trim()) {
 			return res.status(400).json({ error: "Comment text is required" });
 		}
@@ -1009,7 +1034,7 @@ app.post("/api/groups/:groupId/memories/:memoryId/comments", async (req, res) =>
 		await group.populate("activities.memories.comments.user", "username profilePicture");
 
 		const createdComment = foundMemory.comments[foundMemory.comments.length - 1];
-		
+
 		res.status(201).json(createdComment);
 	} catch (error) {
 		console.error("Add comment error:", error);
@@ -1020,9 +1045,11 @@ app.post("/api/groups/:groupId/memories/:memoryId/comments", async (req, res) =>
 // Get all comments for a memory
 app.get("/api/groups/:groupId/memories/:memoryId/comments", async (req, res) => {
 	try {
-		const group = await Group.findById(req.params.groupId)
-			.populate("activities.memories.comments.user", "username profilePicture");
-		
+		const group = await Group.findById(req.params.groupId).populate(
+			"activities.memories.comments.user",
+			"username profilePicture",
+		);
+
 		if (!group) return res.status(404).json({ error: "Group not found" });
 
 		let foundMemory = null;
@@ -1087,8 +1114,8 @@ app.delete("/api/groups/:groupId/memories/:memoryId/comments/:commentId", async 
 app.get("/api/groups/:groupId/memories", async (req, res) => {
 	try {
 		const group = await Group.findById(req.params.groupId)
-		.populate("activities.memories.comments.user", "username profilePicture")
-		.select("activities");
+			.populate("activities.memories.comments.user", "username profilePicture")
+			.select("activities");
 
 		if (!group) return res.status(404).json({ error: "Group not found" });
 
@@ -1181,12 +1208,12 @@ app.put("/api/groups/:groupId/memories/:memoryId", async (req, res) => {
 		if (req.body.title) {
 			foundMemory.title = req.body.title;
 		}
-		
+
 		// Update rating if provided
 		if (req.body.rating !== undefined) {
 			foundMemory.rating = req.body.rating;
 		}
-		
+
 		foundMemory.updatedAt = new Date();
 
 		await group.save();
