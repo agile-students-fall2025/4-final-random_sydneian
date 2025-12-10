@@ -18,7 +18,7 @@ export default defineConfig([
 		},
 		rules: {
 			"no-unused-vars": ["error", { varsIgnorePattern: "^[A-Z_]" }],
-			"array-callback-return": ["error", { checkForEach: true }],
+			"array-callback-return": ["error"],
 			"no-constructor-return": "error",
 			"no-duplicate-imports": "error",
 			"no-promise-executor-return": "error",
