@@ -10,6 +10,10 @@ ENV NODE_ENV=docker-production
 COPY package*.json ./
 RUN npm install --omit=dev && npm cache clean --force
 
+# Install Chromium for Puppeteer
+RUN apk add --no-cache chromium nss freetype harfbuzz ca-certificates ttf-freefont
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+
 # Copy application source
 COPY . .
 
