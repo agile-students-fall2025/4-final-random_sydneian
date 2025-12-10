@@ -279,14 +279,27 @@
 	padding: 8px 12px;
 	border-radius: 20px;
 	background: rgba(74, 85, 104, 0.08);
+	outline: 2px solid transparent; /* So that it can fade in instead of growing out */
 	transition:
 		transform 0.2s ease,
-		background-color 0.2s ease;
+		background-color 0.5s ease,
+		outline 0.5s ease,
+		color 0.5s ease;
 
 	&.liked {
 		background: hsla(336, 100%, 50%, 0.1);
 		outline: 2px solid hsla(336, 100%, 50%, 1);
 		color: #3a0a0a;
+	}
+
+	svg,
+	span {
+		scale: 1;
+		transition: scale 200ms ease-in-out;
+
+		@starting-style {
+			scale: 0 1;
+		}
 	}
 }
 
