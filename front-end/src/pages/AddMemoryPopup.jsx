@@ -23,8 +23,7 @@ export default function AddMemoryPopup({ onClose, onAdd, onEdit, memoryToEdit })
 
 	const { groupId } = useParams();
 	const navigate = useNavigate();
-	// Fixed: Removed import.meta to prevent build errors
-	const BACKEND = "http://localhost:8000";
+	const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
 
 	useEffect(() => {
 		const fetchActivities = async () => {
@@ -41,7 +40,7 @@ export default function AddMemoryPopup({ onClose, onAdd, onEdit, memoryToEdit })
 			}
 
 			try {
-				const res = await fetch(`${BACKEND}/api/groups/${groupId}`, {
+				const res = await fetch(`${backendURL}/api/groups/${groupId}`, {
 					headers: {
 						Authorization: `Bearer ${JWT}`,
 					},
@@ -61,7 +60,7 @@ export default function AddMemoryPopup({ onClose, onAdd, onEdit, memoryToEdit })
 		};
 
 		fetchActivities();
-	}, [BACKEND, groupId, navigate]);
+	}, [backendURL, groupId, navigate]);
 
 	const handleAddPhoto = () => {
 		fileInputRef.current?.click();

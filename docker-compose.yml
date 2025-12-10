@@ -7,7 +7,7 @@ services:
     env_file:
       - ./back-end/.env
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=docker-production
       - PORT=8000
     expose:
       - "8000"

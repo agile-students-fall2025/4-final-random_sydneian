@@ -42,7 +42,7 @@ export default function BucketList() {
 			}
 
 			try {
-				const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+				const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
 				const response = await fetch(`${backendURL}/api/groups/${groupId}`, {
 					headers: { Authorization: `Bearer ${JWT}` },
 				});

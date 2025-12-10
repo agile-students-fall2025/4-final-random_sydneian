@@ -35,7 +35,7 @@ export default function DashboardPage() {
 				return;
 			}
 
-			const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+			const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
 
 			try {
 				const JWT = localStorage.getItem("JWT");
@@ -120,7 +120,7 @@ export default function DashboardPage() {
 	const handleLeaveGroup = async (groupId) => {
 		try {
 			const JWT = localStorage.getItem("JWT");
-			const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+			const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
 
 			const response = await fetch(`${backendURL}/api/groups/${groupId}/leave`, {
 				method: "POST",
@@ -157,8 +157,7 @@ export default function DashboardPage() {
 
 		try {
 			const JWT = localStorage.getItem("JWT");
-			const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
-
+			const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
 			const response = await fetch(`${backendURL}/api/groups/${groupId}`, {
 				method: "DELETE",
 				headers: {

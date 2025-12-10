@@ -4,7 +4,7 @@ FROM node:20-alpine
 WORKDIR /usr/src/app
 
 # Set production environment
-ENV NODE_ENV=production
+ENV NODE_ENV=docker-production
 
 # Install dependencies
 COPY package*.json ./

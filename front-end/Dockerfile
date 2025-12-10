@@ -12,6 +12,9 @@ RUN npm install
 # Copy source code
 COPY . .
 
+# Set environment variable for Docker production build
+ENV VITE_DOCKER_PRODUCTION=true
+
 # Build the application
 RUN npm run build
 
