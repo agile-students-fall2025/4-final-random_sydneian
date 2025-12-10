@@ -67,6 +67,17 @@ const MemorySchema = new mongoose.Schema(
 	{
 		title: { type: String, required: true },
 		images: [String],
+		rating: { 
+			type: Number, 
+			min: 0, 
+			max: 5, 
+			default: 0 
+		},
+		comment: { 
+			type: String, 
+			maxlength: 500,
+			default: ""
+		},	
 	},
 	{ timestamps: true },
 );

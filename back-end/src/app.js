@@ -861,7 +861,7 @@ app.get("/api/groups/:groupId/memories", async (req, res) => {
 
 // Add a memory to a specific activity in a group
 app.post("/api/groups/:groupId/memories", async (req, res) => {
-	const { activityId, images, title } = req.body;
+	const { activityId, images, title, rating, comment } = req.body;
 
 	if (!activityId) {
 		return res.status(400).json({ error: "Missing required field: activityId" });
@@ -880,6 +880,8 @@ app.post("/api/groups/:groupId/memories", async (req, res) => {
 		const newMemory = {
 			title: title || "Untitled Memory",
 			images,
+			rating: rating || 0,
+			comment: comment || "",
 			createdAt: new Date(),
 			updatedAt: new Date(),
 		};
@@ -923,9 +925,21 @@ app.put("/api/groups/:groupId/memories/:memoryId", async (req, res) => {
 		if (req.body.images && Array.isArray(req.body.images)) {
 			foundMemory.images = req.body.images;
 		}
+
 		if (req.body.title) {
 			foundMemory.title = req.body.title;
 		}
+
+		// Update rating if provided
+		if (req.body.rating !== undefined) {
+			foundMemory.rating = req.body.rating;
+		}
+		
+		// Update comment if provided
+		if (req.body.comment !== undefined) {
+			foundMemory.comment = req.body.comment;
+		}
+		
 		foundMemory.updatedAt = new Date();
 
 		await group.save();
