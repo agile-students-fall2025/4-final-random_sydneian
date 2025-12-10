@@ -99,10 +99,6 @@ class Wheel {
 		// Background circle
 		this.ctx.beginPath();
 		this.ctx.arc(0, 0, this.radius + 8, 0, 2 * Math.PI);
-		this.ctx.strokeStyle = "#0072B2"; // --color-primary
-		this.ctx.lineWidth = 4;
-		this.ctx.stroke();
-		this.ctx.lineWidth = 1;
 
 		this.ctx.save();
 		this.ctx.rotate(this.angle);

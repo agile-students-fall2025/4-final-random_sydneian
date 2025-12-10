@@ -1242,8 +1242,12 @@ app.post("/api/extract-link-details", async (req, res) => {
 
 	let browser = null;
 	try {
-		// 1. Launch Browser
-		browser = await puppeteer.launch({ headless: "new" });
+		// 1. Launch Browser (use packaged Chromium in Docker, disable sandbox for container)
+		browser = await puppeteer.launch({
+			headless: "new",
+			executablePath: process.env.PUPPETEER_EXECUTABLE_PATH,
+			args: ["--no-sandbox", "--disable-setuid-sandbox"],
+		});
 		const page = await browser.newPage();
 
 		// Set timeout to 15s to be faster, and realistic user agent
