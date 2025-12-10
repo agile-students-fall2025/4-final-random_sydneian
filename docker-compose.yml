@@ -6,6 +6,8 @@ services:
     container_name: random_sydneian_backend
     env_file:
       - ./back-end/.env
+    volumes:
+      - ./back-end/.env:/usr/src/app/.env:ro
     environment:
       - NODE_ENV=docker-production
       - PORT=8000
