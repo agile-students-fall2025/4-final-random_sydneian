@@ -342,6 +342,25 @@ app.post("/api/groups", async (req, res) => {
 
 		await newGroup.save();
 
+if (invitedMemberIds.length > 0) {
+    const invitedUsers = await User.find({ _id: { $in: invitedMemberIds } });
+
+    for (const invitedUser of invitedUsers) {
+        await sendEmail(
+            invitedUser.email,
+            "You’ve been invited to join a group on Rendezvous",
+            `Hello ${invitedUser.username},
+
+You were invited to join the new group "${newGroup.name.trim()}".
+
+Please log in to your account to accept the invitation!
+
+— The Rendezvous Team`
+        );
+    }
+}
+
+
 		await newGroup.populate("owner", "username profilePicture");
 		await newGroup.populate("members", "username profilePicture");
 		await newGroup.populate("admins", "username profilePicture");
@@ -763,15 +782,29 @@ app.post("/api/groups/:id/invite", async (req, res) => {
 			return res.status(409).json({ error: "User is already invited" });
 		}
 
+		// Add to invited members
 		group.invitedMembers.push(req.body.userId);
 		await group.save();
 
+		await sendEmail(
+			userToInvite.email,
+			"You’ve been invited to join a group on Rendezvous",
+			`Hello ${userToInvite.username},
+
+You have been invited to join the group "${group.name}".
+
+Please log in to your account to accept the invitation!
+
+— The Rendezvous Team`
+		);
+
+		// Re-populate fields for frontend
 		await group.populate("owner", "username profilePicture");
 		await group.populate("members", "username profilePicture");
 		await group.populate("admins", "username profilePicture");
 		await group.populate("invitedMembers", "username profilePicture");
 
-		res.json({ message: "User invited successfully", group });
+		res.json({ message: "User invited successfully and email sent", group });
 	} catch (error) {
 		console.error("Invite user error:", error);
 		res.status(500).json({ error: "Internal server error" });
