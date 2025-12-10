@@ -24,7 +24,9 @@ html {
 }
 
 /* Smooth scroll for all scrollable containers */
-body, #root, .content-area {
+body,
+#root,
+.content-area {
 	scroll-behavior: smooth;
 }
 
@@ -36,11 +38,9 @@ body {
 		/* soft warm beige / cream */
 		radial-gradient(circle at 0% 0%, rgba(245, 222, 179, 0.4) 0, transparent 55%),
 		radial-gradient(circle at 100% 0%, rgba(255, 216, 190, 0.3) 0, transparent 55%),
-		/* soft pink / coral */
-		radial-gradient(circle at 15% 80%, rgba(255, 160, 170, 0.22) 0, transparent 55%),
+		/* soft pink / coral */ radial-gradient(circle at 15% 80%, rgba(255, 160, 170, 0.22) 0, transparent 55%),
 		radial-gradient(circle at 85% 100%, rgba(255, 140, 180, 0.18) 0, transparent 55%),
-		/* soft grays / slate */
-		radial-gradient(circle at 15% 20%, rgba(74, 85, 104, 0.12) 0, transparent 55%),
+		/* soft grays / slate */ radial-gradient(circle at 15% 20%, rgba(74, 85, 104, 0.12) 0, transparent 55%),
 		radial-gradient(circle at 85% 25%, rgba(113, 128, 150, 0.1) 0, transparent 55%),
 		radial-gradient(circle at 20% 85%, rgba(160, 174, 192, 0.08) 0, transparent 55%),
 		radial-gradient(circle at 80% 80%, rgba(74, 85, 104, 0.1) 0, transparent 55%);
@@ -102,6 +102,26 @@ body {
 	margin-bottom: 16px;
 }
 
+/* More realistic loading spinner with 2 overlapping rotations with different speed & easings */
+
+@keyframes spin1 {
+	to {
+		rotate: 360deg;
+	}
+}
+
+@keyframes spin2 {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+.spin-loader {
+	animation:
+		spin1 1s ease-in-out infinite,
+		spin2 2s linear infinite;
+}
+
 /* Global page transition animations */
 @keyframes fadeInUp {
 	from {
@@ -159,8 +179,18 @@ body {
 }
 
 /* Staggered animation delays for lists */
-.stagger-1 { animation-delay: 0.05s; }
-.stagger-2 { animation-delay: 0.1s; }
-.stagger-3 { animation-delay: 0.15s; }
-.stagger-4 { animation-delay: 0.2s; }
-.stagger-5 { animation-delay: 0.25s; }
+.stagger-1 {
+	animation-delay: 0.05s;
+}
+.stagger-2 {
+	animation-delay: 0.1s;
+}
+.stagger-3 {
+	animation-delay: 0.15s;
+}
+.stagger-4 {
+	animation-delay: 0.2s;
+}
+.stagger-5 {
+	animation-delay: 0.25s;
+}

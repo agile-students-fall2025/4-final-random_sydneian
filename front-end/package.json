@@ -13,16 +13,17 @@
 		"fix-format-lint": "npm run lint-format-all"
 	},
 	"dependencies": {
-		"vite": "^7.1.7",
 		"@vitejs/plugin-react": "^5.0.4",
 		"babel-plugin-react-compiler": "^19.1.0-rc.3",
+		"canvas-confetti": "^1.9.4",
 		"gsap": "^3.13.0",
 		"lucide-react": "^0.548.0",
 		"modern-normalize": "^3.0.1",
 		"react": "^19.1.1",
 		"react-dom": "^19.1.1",
 		"react-router-dom": "^7.9.4",
-		"use-places-autocomplete": "^4.0.1"
+		"use-places-autocomplete": "^4.0.1",
+		"vite": "^7.1.7"
 	},
 	"devDependencies": {
 		"@eslint/js": "^9.36.0",

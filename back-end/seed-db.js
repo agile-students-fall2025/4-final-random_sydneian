@@ -2,8 +2,44 @@ import { User, Group } from "./src/db.js";
 import bcrypt from "bcryptjs";
 import crypto from "node:crypto";
 import mongoose from "mongoose";
+import https from "node:https";
+import { uploadToS3, generateUniqueFileName } from "./src/s3.js";
 
 const COMMON_PASSWORD = "password123";
+
+async function downloadImage(url) {
+	return new Promise((resolve, reject) => {
+		https
+			.get(url, (res) => {
+				if (res.statusCode === 301 || res.statusCode === 302 || res.statusCode === 307 || res.statusCode === 308) {
+					downloadImage(res.headers.location).then(resolve).catch(reject);
+					return;
+				}
+				if (res.statusCode !== 200) {
+					reject(new Error(`Failed to download: ${res.statusCode}`));
+					return;
+				}
+				const chunks = [];
+				res.on("data", (chunk) => chunks.push(chunk));
+				res.on("end", () => resolve(Buffer.concat(chunks)));
+			})
+			.on("error", reject);
+	});
+}
+
+async function uploadImageToS3(imageUrl, folder) {
+	try {
+		console.log(`  Downloading ${imageUrl}...`);
+		const buffer = await downloadImage(imageUrl);
+		const fileName = generateUniqueFileName("image.jpg", folder);
+		const s3Url = await uploadToS3(buffer, fileName, "image/jpeg");
+		console.log(`  ✓ Uploaded to S3`);
+		return s3Url;
+	} catch (error) {
+		console.error(`  ✗ Failed to upload ${imageUrl}:`, error.message);
+		throw error;
+	}
+}
 
 const users = [
 	{ username: "Alice", email: "alice@example.com", pic: "https://i.pravatar.cc/150?img=1" },
@@ -90,6 +126,19 @@ const memoryImages = [
 	"https://picsum.photos/seed/mem20/800/600",
 ];
 
+const activityImages = [
+	"https://picsum.photos/seed/act1/640/480",
+	"https://picsum.photos/seed/act2/640/480",
+	"https://picsum.photos/seed/act3/640/480",
+	"https://picsum.photos/seed/act4/640/480",
+	"https://picsum.photos/seed/act5/640/480",
+	"https://picsum.photos/seed/act6/640/480",
+	"https://picsum.photos/seed/act7/640/480",
+	"https://picsum.photos/seed/act8/640/480",
+	"https://picsum.photos/seed/act9/640/480",
+	"https://picsum.photos/seed/act10/640/480",
+];
+
 function getRandomItems(array, count) {
 	const shuffled = [...array].sort(() => 0.5 - Math.random());
 	return shuffled.slice(0, count);
@@ -109,28 +158,27 @@ async function seedDatabase() {
 			}
 		});
 
-		console.log("Connected to MongoDB");
-		// console.log("Cleaning database...\n");
+		console.log("Connected to MongoDB\n");
 
 		// await User.deleteMany({});
 		// await Group.deleteMany({});
-
-		// console.log("Database cleaned\n");
-		// console.log("Creating 5 users...\n");
+		// console.log("Cleared users and groups\n");
 
 		const hashedPassword = bcrypt.hashSync(COMMON_PASSWORD, 10);
 		const createdUsers = [];
 
+		console.log("=== SEEDING USERS ===\n");
 		for (const userData of users) {
-			// Check if user already exists
 			let user = await User.findOne({ email: userData.email });
 
+			console.log(`Processing user: ${userData.username}`);
+			const s3ProfilePic = await uploadImageToS3(userData.pic, "profiles");
+
 			if (user) {
-				// Update existing user
 				user.username = userData.username;
 				user.password = hashedPassword;
 				user.emailVerified = true;
-				user.profilePicture = userData.pic;
+				user.profilePicture = s3ProfilePic;
 				if (!user.preferences) {
 					user.preferences = {
 						notifications: {
@@ -141,15 +189,14 @@ async function seedDatabase() {
 					};
 				}
 				await user.save();
-				console.log(`Updated: ${user.username} (${user.email})`);
+				console.log(`✓ Updated: ${user.username}\n`);
 			} else {
-				// Create new user
 				user = new User({
 					username: userData.username,
 					password: hashedPassword,
 					email: userData.email,
 					emailVerified: true,
-					profilePicture: userData.pic,
+					profilePicture: s3ProfilePic,
 					preferences: {
 						notifications: {
 							eventNextDay: true,
@@ -159,27 +206,24 @@ async function seedDatabase() {
 					},
 				});
 				await user.save();
-				console.log(`Created: ${user.username} (${user.email})`);
+				console.log(`✓ Created: ${user.username}\n`);
 			}
 			createdUsers.push(user);
 		}
 
-		console.log("Updating existing groups and creating new ones...\n");
+		console.log("\n=== SEEDING GROUPS ===\n");
 
-		// Update existing groups to add owner and admins fields if missing
 		const existingGroups = await Group.find({});
 		let updatedCount = 0;
 
 		for (const group of existingGroups) {
 			let needsUpdate = false;
 
-			// If no owner, set first member as owner
 			if (!group.owner && group.members.length > 0) {
 				group.owner = group.members[0];
 				needsUpdate = true;
 			}
 
-			// If no admins array or empty, add owner to admins
 			if (!group.admins || group.admins.length === 0) {
 				if (group.owner) {
 					group.admins = [group.owner];
@@ -190,7 +234,6 @@ async function seedDatabase() {
 				}
 			}
 
-			// Ensure owner is in admins array
 			if (group.owner && (!group.admins || !group.admins.some((a) => a.toString() === group.owner.toString()))) {
 				if (!group.admins) {
 					group.admins = [];
@@ -202,26 +245,23 @@ async function seedDatabase() {
 			if (needsUpdate) {
 				await group.save();
 				updatedCount++;
-				console.log(`Updated group: ${group.name} (added owner and admins)`);
 			}
 		}
 
 		if (updatedCount > 0) {
-			console.log(`\nUpdated ${updatedCount} existing groups\n`);
+			console.log(`Updated ${updatedCount} existing groups\n`);
 		}
 
 		const createdGroups = [];
 
 		for (let i = 0; i < 5; i++) {
 			const template = groupTemplates[i];
-
-			// Check if group already exists
 			let group = await Group.findOne({ name: template.name });
 
 			const numMembers = getRandomInt(2, 4);
 			const memberUsers = getRandomItems(createdUsers, numMembers);
 			const memberIds = memberUsers.map((u) => u._id);
-			const ownerId = memberIds[0]; // First member becomes owner
+			const ownerId = memberIds[0];
 
 			const numInvited = getRandomInt(0, 2);
 			const invitedUsers = getRandomItems(
@@ -230,21 +270,20 @@ async function seedDatabase() {
 			);
 			const invitedIds = invitedUsers.map((u) => u._id);
 
-			if (group) {
-				// Update existing group - preserve existing data, only update what's needed
-				if (!group.desc) group.desc = template.desc;
-				if (!group.icon) group.icon = `https://picsum.photos/seed/group${i}/128/128`;
+			console.log(`\nProcessing group: ${template.name}`);
+			const groupIconUrl = `https://picsum.photos/seed/group${i}/128/128`;
+			const s3GroupIcon = await uploadImageToS3(groupIconUrl, "groups");
 
-				// Update members and invited members
+			if (group) {
+				if (!group.desc) group.desc = template.desc;
+				group.icon = s3GroupIcon;
 				group.members = memberIds;
 				group.invitedMembers = invitedIds;
 
-				// Set owner if not set, or update if needed
 				if (!group.owner) {
 					group.owner = ownerId;
 				}
 
-				// Ensure owner is in admins array
 				if (!group.admins || group.admins.length === 0) {
 					group.admins = [group.owner];
 				} else if (!group.admins.some((a) => a.toString() === group.owner.toString())) {
@@ -255,46 +294,54 @@ async function seedDatabase() {
 					group.inviteCode = crypto.randomBytes(4).toString("hex").toUpperCase();
 				}
 
-				// Preserve existing activities - only add new ones if group has no activities
 				if (!group.activities || group.activities.length === 0) {
 					group.activities = [];
 				}
 
-				console.log(`Updated: ${group.name} (preserved existing activities)`);
+				console.log(`✓ Updated: ${group.name}`);
 			} else {
-				// Create new group
 				group = new Group({
 					name: template.name,
 					desc: template.desc,
-					icon: `https://picsum.photos/seed/group${i}/128/128`,
+					icon: s3GroupIcon,
 					owner: ownerId,
 					members: memberIds,
-					admins: [ownerId], // Owner is admin
+					admins: [ownerId],
 					invitedMembers: invitedIds,
 					inviteCode: crypto.randomBytes(4).toString("hex").toUpperCase(),
 					activities: [],
 				});
 
-				console.log(`Created: ${group.name}`);
+				console.log(`✓ Created: ${group.name}`);
 			}
 
-			console.log(`Owner: ${memberUsers[0].username}`);
-			console.log(`Members: ${memberUsers.map((u) => u.username).join(", ")}`);
+			console.log(`  Owner: ${memberUsers[0].username}`);
+			console.log(`  Members: ${memberUsers.map((u) => u.username).join(", ")}`);
 			if (invitedUsers.length > 0) {
-				console.log(`Invited: ${invitedUsers.map((u) => u.username).join(", ")}`);
+				console.log(`  Invited: ${invitedUsers.map((u) => u.username).join(", ")}`);
 			}
-			console.log(`Invite Code: ${group.inviteCode}`);
+			console.log(`  Invite Code: ${group.inviteCode}`);
 
-			// Only add activities if group doesn't have any
 			if (!group.activities || group.activities.length === 0) {
+				console.log(`\n  Seeding activities...`);
 				const groupActivities = getRandomItems(activities, 10);
 
 				for (let j = 0; j < groupActivities.length; j++) {
 					const actTemplate = groupActivities[j];
 					const isDone = Math.random() > 0.6;
 
+					console.log(`    Activity ${j + 1}/${groupActivities.length}: ${actTemplate.name}`);
+					const numActivityImages = getRandomInt(1, 3);
+					const selectedImages = getRandomItems(activityImages, numActivityImages);
+					const activityImageUrls = [];
+					for (const imgUrl of selectedImages) {
+						const s3ImgUrl = await uploadImageToS3(imgUrl, "activities");
+						activityImageUrls.push(s3ImgUrl);
+					}
+
 					const activity = {
 						name: actTemplate.name,
+						images: activityImageUrls,
 						category: actTemplate.category,
 						tags: actTemplate.tags,
 						likes: getRandomItems(memberIds, getRandomInt(0, memberIds.length)),
@@ -309,10 +356,18 @@ async function seedDatabase() {
 					if (isDone && Math.random() > 0.5) {
 						const numMemories = getRandomInt(1, 3);
 						for (let k = 0; k < numMemories; k++) {
+							console.log(`      Memory ${k + 1} for ${actTemplate.name}`);
 							const numImages = getRandomInt(1, 4);
+							const selectedMemImages = getRandomItems(memoryImages, numImages);
+							const memImageUrls = [];
+							for (const memUrl of selectedMemImages) {
+								const s3MemUrl = await uploadImageToS3(memUrl, "memories");
+								memImageUrls.push(s3MemUrl);
+							}
+
 							activity.memories.push({
 								title: memoryTitles[getRandomInt(0, memoryTitles.length - 1)],
-								images: getRandomItems(memoryImages, numImages),
+								images: memImageUrls,
 								createdAt: new Date(Date.now() - getRandomInt(1, 30) * 24 * 60 * 60 * 1000),
 								updatedAt: new Date(Date.now() - getRandomInt(1, 30) * 24 * 60 * 60 * 1000),
 							});
@@ -321,28 +376,57 @@ async function seedDatabase() {
 
 					group.activities.push(activity);
 				}
+			} else {
+				console.log(`  Checking existing activities for missing images...`);
+				for (let j = 0; j < group.activities.length; j++) {
+					const activity = group.activities[j];
+					
+					if (!activity.images || activity.images.length === 0) {
+						console.log(`    Adding images to ${activity.name}`);
+						const numActImages = getRandomInt(1, 3);
+						const selectedImages = getRandomItems(activityImages, numActImages);
+						const activityImageUrls = [];
+						for (const imgUrl of selectedImages) {
+							const s3ImgUrl = await uploadImageToS3(imgUrl, "activities");
+							activityImageUrls.push(s3ImgUrl);
+						}
+						activity.images = activityImageUrls;
+					}
+
+					if (activity.done && activity.memories.length === 0 && Math.random() > 0.5) {
+						const numMemories = getRandomInt(1, 3);
+						for (let k = 0; k < numMemories; k++) {
+							console.log(`      Adding memory ${k + 1} to ${activity.name}`);
+							const numImages = getRandomInt(1, 4);
+							const selectedMemImages = getRandomItems(memoryImages, numImages);
+							const memImageUrls = [];
+							for (const memUrl of selectedMemImages) {
+								const s3MemUrl = await uploadImageToS3(memUrl, "memories");
+								memImageUrls.push(s3MemUrl);
+							}
+
+							activity.memories.push({
+								title: memoryTitles[getRandomInt(0, memoryTitles.length - 1)],
+								images: memImageUrls,
+								createdAt: new Date(Date.now() - getRandomInt(1, 30) * 24 * 60 * 60 * 1000),
+								updatedAt: new Date(Date.now() - getRandomInt(1, 30) * 24 * 60 * 60 * 1000),
+							});
+						}
+					}
+				}
 			}
 
 			await group.save();
 			createdGroups.push(group);
 
-			if (group.activities && group.activities.length > 0) {
-				console.log(`      ✓ ${group.activities.length} activities`);
-				const totalMemories = group.activities.reduce((sum, act) => sum + act.memories.length, 0);
-				if (totalMemories > 0) {
-					console.log(`      ✓ ${totalMemories} memories\n`);
-				} else {
-					console.log("");
-				}
-			} else {
-				console.log("");
-			}
+			const totalActivities = group.activities.length;
+			const totalMemories = group.activities.reduce((sum, act) => sum + act.memories.length, 0);
+			console.log(`  ✓ ${totalActivities} activities, ${totalMemories} memories`);
 		}
 
-		// Refresh groups list to include all groups (existing + newly created)
 		const allGroups = await Group.find({});
 
-		console.log("\nDatabase seeded successfully!\n");
+		console.log("\n=== SEEDING COMPLETE ===\n");
 		console.log("Users:");
 		for (const user of createdUsers) {
 			const memberOfGroups = allGroups.filter((g) => g.members.some((m) => m.toString() === user._id.toString()));
@@ -351,7 +435,7 @@ async function seedDatabase() {
 			);
 			const ownedGroups = allGroups.filter((g) => g.owner && g.owner.toString() === user._id.toString());
 			console.log(
-				`${user.username} - ${memberOfGroups.length} groups, ${invitedToGroups.length} invites, ${ownedGroups.length} owned`,
+				`  ${user.username} - ${memberOfGroups.length} groups, ${invitedToGroups.length} invites, ${ownedGroups.length} owned`,
 			);
 		}
 
@@ -365,7 +449,6 @@ async function seedDatabase() {
 		);
 		console.log(`Total memories: ${totalMemories}`);
 
-		// Show groups with owners
 		console.log("\nGroups with owners:");
 		for (const group of allGroups) {
 			const owner = createdUsers.find((u) => u._id.toString() === group.owner?.toString());
