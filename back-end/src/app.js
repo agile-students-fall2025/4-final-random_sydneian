@@ -929,6 +929,7 @@ app.post("/api/groups/:id/invite-code/generate", async (req, res) => {
 	}
 });
 
+// Function to join a group by invite code
 app.post("/api/groups/join-by-code", async (req, res) => {
 	try {
 		if (!req.body?.inviteCode) {
@@ -1180,7 +1181,7 @@ app.put("/api/groups/:groupId/memories/:memoryId", async (req, res) => {
 		if (req.body.title) {
 			foundMemory.title = req.body.title;
 		}
-
+		
 		// Update rating if provided
 		if (req.body.rating !== undefined) {
 			foundMemory.rating = req.body.rating;
@@ -1233,6 +1234,8 @@ app.use((req, res, next) => {
 	res.status(404).json({ error: "Path not found" });
 });
 */
+
+// Function to extract details from a link
 app.post("/api/extract-link-details", async (req, res) => {
 	const { link } = req.body;
 	if (!link) return res.status(400).json({ error: "Link is required" });
