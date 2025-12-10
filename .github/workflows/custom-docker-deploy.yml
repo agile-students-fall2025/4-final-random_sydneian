@@ -1,0 +1,91 @@
+name: Deploy to DigitalOcean Droplet
+
+on:
+  push:
+    branches:
+      - master
+      - feat/custom-docker-deployment
+      # Add other branches you want to auto-deploy below:
+      # - staging
+      # - production
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to Droplet
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DROPLET_HOST }}
+          username: ${{ secrets.DROPLET_USERNAME }}
+          key: ${{ secrets.DROPLET_SSH_KEY }}
+          port: ${{ secrets.DROPLET_PORT || 22 }}
+          script: |
+            echo "Starting deployment..."
+            
+            # Navigate to app directory
+            cd /opt/app/4-final-random_sydneian || { echo "❌ Directory not found"; exit 1; }
+            
+            # Get current branch
+            CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+            echo "Current branch: $CURRENT_BRANCH"
+            
+            # Stash any local changes
+            echo "Stashing local changes..."
+            git stash
+            
+            # Pull latest code from the pushed branch
+            echo "Pulling latest code from ${{ github.ref_name }}..."
+            git fetch origin
+            git checkout ${{ github.ref_name }}
+            git pull origin ${{ github.ref_name }}
+            
+            # Show what changed
+            echo "Latest commit:"
+            git log -1 --oneline
+            
+            # Stop containers
+            echo "Stopping containers..."
+            docker compose down
+            
+            # Clean up old images to save space
+            echo "Cleaning up old Docker images..."
+            docker image prune -f
+            
+            # Rebuild and start containers
+            echo "Building and starting containers..."
+            docker compose up -d --build
+            
+            # Wait for services to be healthy
+            echo "Waiting for services to start..."
+            sleep 10
+            
+            # Check container status
+            echo "Container status:"
+            docker compose ps
+            
+            # Check if services are running
+            if docker compose ps | grep -q "Up"; then
+              echo "Deployment successful!"
+            else
+              echo "Deployment failed - containers not running"
+              docker compose logs --tail=50
+              exit 1
+            fi
+            
+            # Show logs from last 20 lines
+            echo "Recent logs:"
+            docker compose logs --tail=20
+
+      - name: Notify deployment status
+        if: always()
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "✅ Deployment completed successfully"
+          else
+            echo "❌ Deployment failed"
+          fi
