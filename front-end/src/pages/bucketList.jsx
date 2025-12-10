@@ -60,11 +60,7 @@ export default function BucketList() {
 				}
 
 				const group = await response.json();
-				const mapped = (group.activities || []).map((a) => ({
-					...a,
-					imageUrl: Array.isArray(a.images) && a.images.length > 0 ? a.images[0] : "",
-				}));
-				setActivities(mapped);
+				setActivities(group.activities || []);
 			} catch (err) {
 				console.error("Failed to get activities. Error:", err.message);
 				setError("Couldn't get activities :(");
@@ -346,8 +342,8 @@ export default function BucketList() {
 							>
 								{/* Image container - expands when in view */}
 								<div className="card-image-container">
-									{activity.imageUrl ? (
-										<img src={activity.imageUrl} alt={activity.name} className="card-image" />
+									{Array.isArray(activity.images) && activity.images.length > 0 ? (
+										<img src={activity.images[0]} alt={activity.name} className="card-image" />
 									) : (
 										<div className="card-image-placeholder">
 											<MapPin size={24} />
@@ -378,16 +374,11 @@ export default function BucketList() {
 											if (!res.ok) return alert("Failed to like activity");
 
 											const updatedActivity = await res.json();
-											const mappedActivity = {
-												...updatedActivity,
-												imageUrl:
-													Array.isArray(updatedActivity.images) && updatedActivity.images.length > 0
-														? updatedActivity.images[0]
-														: "",
-											};
 
 											setActivities(
-												activities.map((activity) => (activity._id === mappedActivity._id ? mappedActivity : activity)),
+												activities.map((activity) =>
+													activity._id === updatedActivity._id ? updatedActivity : activity,
+												),
 											);
 
 											setIsXLoading(isXLoading.filter((x) => x !== `${activity._id}-like`));
