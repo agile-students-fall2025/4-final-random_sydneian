@@ -86,8 +86,6 @@ export default function MemoryBookPage() {
 			}
 
 			const createdMemory = await res.json();
-
-			// Normalize it the same way fetch API does
 			const normalized = normalizeMemory(createdMemory);
 
 			setMemories((prev) => [...prev, normalized]);
@@ -180,6 +178,21 @@ export default function MemoryBookPage() {
 		(memory.title || "").toLowerCase().includes(searchTerm.toLowerCase()),
 	);
 
+	const renderStars = (rating) => {
+		return (
+			<div className="star-rating-display">
+				{[1, 2, 3, 4, 5].map((star) => (
+					<Star
+						key={star}
+						size={16}
+						className={star <= rating ? "star-filled" : "star-empty"}
+						fill={star <= rating ? "currentColor" : "none"}
+					/>
+				))}
+			</div>
+		);
+	};
+
 	if (loading) return <div className="memory-empty">Loading...</div>;
 
 	return (
@@ -210,7 +223,10 @@ export default function MemoryBookPage() {
 						{filteredMemories.map((memory, index) => (
 							<div key={index} className="memory-card">
 								<div className="memory-card-header">
+									<div>
 									<h2 className="memory-title">{memory.title}</h2>
+									{memory.rating > 0 && renderStars(memory.rating)}
+									</div>
 									<p className="memory-date">Added on {memory.dateAdded}</p>
 								</div>
 
@@ -227,6 +243,13 @@ export default function MemoryBookPage() {
 										</div>
 									)}
 								</div>
+
+								{memory.comment && (
+									<div className="memory-comment">
+										<p className="comment-label">Comment:</p>
+										<p className="comment-text">{memory.comment}</p>
+									</div>
+								)}
 
 								<div className="memory-actions-icons">
 									<Pencil size={18} className="icon edit-icon" onClick={() => handleEditMemory(index)} />

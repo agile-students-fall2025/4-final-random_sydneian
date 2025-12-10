@@ -58,6 +58,87 @@
 	color: #000;
 }
 
+/* --- Star Rating Section --- */
+.rating-section {
+	margin-bottom: 24px;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.rating-label {
+	font-size: 14px;
+	font-weight: 600;
+	color: #333;
+}
+
+.star-rating {
+	display: flex;
+	gap: 8px;
+	justify-content: flex-start;
+}
+
+.star {
+	cursor: pointer;
+	transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.star:hover {
+	transform: scale(1.15);
+}
+
+.star-active {
+	color: #fbbf24;
+}
+
+.star-inactive {
+	color: #d1d5db;
+}
+
+/* --- Comment Section --- */
+.comment-section {
+	margin-bottom: 24px;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.comment-label {
+	font-size: 14px;
+	font-weight: 600;
+	color: #333;
+}
+
+.comment-textarea {
+	width: 100%;
+	padding: 12px;
+	border: 1px solid #ccc;
+	border-radius: 8px;
+	font-size: 14px;
+	font-family:
+		system-ui,
+		-apple-system,
+		sans-serif;
+	resize: vertical;
+	box-sizing: border-box;
+	transition: border-color 0.2s ease;
+}
+
+.comment-textarea:focus {
+	outline: none;
+	border-color: #000;
+}
+
+.comment-textarea::placeholder {
+	color: #999;
+}
+
+.char-count {
+	font-size: 12px;
+	color: #666;
+	text-align: right;
+}
+
 /* --- Error Text --- */
 .error-text {
 	color: #d32f2f;
@@ -80,7 +161,6 @@
 	transition: all 0.3s ease;
 }
 
-/* When photos exist, remove the big padding and dashed border so it looks like a clean grid */
 .add-photos-container.has-photos {
 	border: none;
 	padding: 0;
@@ -216,7 +296,7 @@
 }
 
 .btn-primary {
-	background-color: #1976d2; /* Default blue */
+	background-color: #1976d2;
 	color: white;
 }
 

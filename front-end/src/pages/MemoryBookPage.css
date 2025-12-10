@@ -126,12 +126,54 @@
 .memory-title {
 	font-size: 18px;
 	font-weight: 700;
+	margin-bottom: 4px;
 }
 
 .memory-date {
 	font-size: 14px;
 	color: #666;
 	font-weight: 500;
+}
+
+/* Star Rating Display */
+.star-rating-display {
+	display: flex;
+	gap: 2px;
+	margin-top: 4px;
+}
+
+.star-filled {
+	color: #fbbf24;
+}
+
+.star-empty {
+	color: #d1d5db;
+}
+
+/* Comment Section */
+.memory-comment {
+	margin-top: 12px;
+	padding: 12px;
+	background: rgba(249, 250, 251, 0.8);
+	border-radius: 8px;
+	border-left: 3px solid var(--color-primary);
+}
+
+.comment-label {
+	font-size: 12px;
+	font-weight: 600;
+	color: #666;
+	margin: 0 0 4px 0;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.comment-text {
+	font-size: 14px;
+	color: #333;
+	margin: 0;
+	line-height: 1.5;
+	word-wrap: break-word;
 }
 
 .more-photos-btn {
@@ -184,9 +226,9 @@
 	object-fit: cover;
 }
 
-/* Floating + button — inside iPhone layout */
+/* Floating + button */
 .add-memory-btn {
-	position: fixed; /* stays in place while scrolling */
+	position: fixed;
 	bottom: 100px;
 	right: 24px;
 	width: 60px;
@@ -199,7 +241,7 @@
 	font-weight: 600;
 	cursor: pointer;
 	box-shadow: 0 4px 20px rgba(74, 85, 104, 0.35);
-	z-index: 1000; /* So it stays above cards */
+	z-index: 1000;
 	transition:
 		transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
 		box-shadow 0.25s ease;
