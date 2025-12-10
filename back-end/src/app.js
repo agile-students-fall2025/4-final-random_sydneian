@@ -767,6 +767,35 @@ app.post("/api/groups/:groupId/activities", async (req, res) => {
 	}
 });
 
+// Delete an activity from a group
+app.delete("/api/groups/:groupId/activities/:activityId", async (req, res) => {
+	try {
+		const group = await Group.findById(req.params.groupId);
+		if (!group) {
+			return res.status(404).json({ error: "Group not found" });
+		}
+
+		const isMember = group.members.some((memberId) => memberId.toString() === req.user.id);
+		if (!isMember) {
+			return res.status(403).json({ error: "Only group members can delete activities" });
+		}
+
+		const activity = group.activities.id(req.params.activityId);
+		if (!activity) {
+			return res.status(404).json({ error: "Activity not found" });
+		}
+
+		// Remove the activity
+		activity.deleteOne();
+		await group.save();
+
+		res.sendStatus(204);
+	} catch (error) {
+		console.error("Delete activity error:", error);
+		res.status(500).json({ error: "Internal server error" });
+	}
+});
+
 // Update group details
 app.put("/api/groups/:id", async (req, res) => {
 	try {

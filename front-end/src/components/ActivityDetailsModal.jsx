@@ -1,11 +1,17 @@
-import { useState } from "react";
-import { Heart, LoaderCircle } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Heart, LoaderCircle, Trash2 } from "lucide-react";
 import EditableTextField from "./EditableTextField";
 import "./ActivityDetailsModal.css";
 import EditableTagsField from "./EditableTagsField";
 
-export default function ActivityDetailsModal({ groupId, activities, selectedActivity, onUpdate, ref }) {
+export default function ActivityDetailsModal({ groupId, activities, selectedActivity, onUpdate, onDelete, ref }) {
 	const [isLoading, setIsLoading] = useState([]);
+	const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
+
+	// Reset loading state when activity changes
+	useEffect(() => {
+		setIsLoading([]);
+	}, [selectedActivity._id]);
 
 	const userId = JSON.parse(atob(localStorage.getItem("JWT").split(".")[1])).id;
 	let categories = activities.map((activity) => activity.category);
@@ -15,16 +21,14 @@ export default function ActivityDetailsModal({ groupId, activities, selectedActi
 
 	return (
 		<dialog className="activity-details-popup" ref={ref} closedby="any">
-			{/* Name */}
 			<section>
-				{/* <h2 className="activity-name"></h2> */}
 				<h3>Name</h3>
 				<EditableTextField
 					value={selectedActivity.name}
 					placeholder="Activity name"
 					onEdit={async (newVal) => {
 						const res = await fetch(
-							`${import.meta.env.VITE_BACKEND_ORIGIN}/api/groups/${groupId}/activities/${selectedActivity._id}`,
+							`${backendURL}/api/groups/${groupId}/activities/${selectedActivity._id}`,
 							{
 								headers: {
 									Authorization: `Bearer ${localStorage.getItem("JWT")}`,
@@ -66,7 +70,7 @@ export default function ActivityDetailsModal({ groupId, activities, selectedActi
 					autosuggestList={categories}
 					onEdit={async (newVal) => {
 						const res = await fetch(
-							`${import.meta.env.VITE_BACKEND_ORIGIN}/api/groups/${groupId}/activities/${selectedActivity._id}`,
+							`${backendURL}/api/groups/${groupId}/activities/${selectedActivity._id}`,
 							{
 								headers: {
 									Authorization: `Bearer ${localStorage.getItem("JWT")}`,
@@ -130,7 +134,7 @@ export default function ActivityDetailsModal({ groupId, activities, selectedActi
 
 								// await new Promise((r) => setTimeout(r, 2000));
 								const res = await fetch(
-									`${import.meta.env.VITE_BACKEND_ORIGIN}/api/groups/${groupId}/activities/${selectedActivity._id}`,
+									`${backendURL}/api/groups/${groupId}/activities/${selectedActivity._id}`,
 									{
 										headers: {
 											Authorization: `Bearer ${localStorage.getItem("JWT")}`,
@@ -153,6 +157,51 @@ export default function ActivityDetailsModal({ groupId, activities, selectedActi
 						<p>Save it in your memory book!</p>
 					</div>
 				</label>
+			</section>
+
+			{/* Delete Activity */}
+			<section>
+				<button
+					className="delete-activity-btn"
+					onClick={async () => {
+						if (!window.confirm("Are you sure you want to delete this activity?")) return;
+
+						setIsLoading([...isLoading, "delete"]);
+
+						const res = await fetch(
+							`${backendURL}/api/groups/${groupId}/activities/${selectedActivity._id}`,
+							{
+								headers: {
+									Authorization: `Bearer ${localStorage.getItem("JWT")}`,
+								},
+								method: "DELETE",
+							},
+						);
+
+						if (!res.ok) {
+							alert("Failed to delete activity");
+							setIsLoading(isLoading.filter((x) => x !== "delete"));
+							return;
+						}
+
+						// Clear loading state
+						setIsLoading(isLoading.filter((x) => x !== "delete"));
+
+						// Close modal and notify parent
+						if (ref.current) ref.current.close();
+						if (onDelete) onDelete(selectedActivity._id);
+					}}
+					disabled={isLoading.includes("delete")}
+				>
+					{isLoading.includes("delete") ? (
+						<LoaderCircle className="spin-loader" size={20} />
+					) : (
+						<>
+							<Trash2 size={20} />
+							Delete Activity
+						</>
+					)}
+				</button>
 			</section>
 		</dialog>
 	);

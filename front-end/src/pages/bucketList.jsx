@@ -28,6 +28,10 @@ export default function BucketList() {
 	const currentExpandedCardRef = useRef(null);
 	const lastScrollTopRef = useRef(0);
 
+	const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION
+		? ""
+		: import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+
 	useEffect(() => {
 		const fetchActivities = async () => {
 			const JWT = localStorage.getItem("JWT");
@@ -359,20 +363,17 @@ export default function BucketList() {
 									<div
 										className={`likes-container ${activity.likes.some((user) => user._id === userId) ? "liked" : ""}`}
 										onClick={async (evt) => {
-											evt.stopPropagation();
+											evt.stopPropagation(); // prevent opening the activity details when liking
 											setIsXLoading([...isXLoading, `${activity._id}-like`]);
 
-											const res = await fetch(
-												`${import.meta.env.VITE_BACKEND_ORIGIN}/api/groups/${groupId}/activities/${activity._id}`,
-												{
-													headers: {
-														Authorization: `Bearer ${localStorage.getItem("JWT")}`,
-														"Content-Type": "application/json",
-													},
-													method: "PATCH",
-													body: JSON.stringify({ liked: !activity.likes.some((user) => user._id === userId) }),
+											const res = await fetch(`${backendURL}/api/groups/${groupId}/activities/${activity._id}`, {
+												headers: {
+													Authorization: `Bearer ${localStorage.getItem("JWT")}`,
+													"Content-Type": "application/json",
 												},
-											);
+												method: "PATCH",
+												body: JSON.stringify({ liked: !activity.likes.some((user) => user._id === userId) }),
+											});
 
 											if (!res.ok) return alert("Failed to like activity");
 
@@ -495,6 +496,9 @@ export default function BucketList() {
 						activities.map((activity) => (activity._id === updatedActivity._id ? updatedActivity : activity)),
 					);
 					setSelectedActivity(updatedActivity);
+				}}
+				onDelete={(deletedActivityId) => {
+					setActivities(activities.filter((activity) => activity._id !== deletedActivityId));
 				}}
 			/>
 		</div>

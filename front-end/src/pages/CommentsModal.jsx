@@ -8,7 +8,7 @@ export default function CommentsModal({ memory, groupId, onClose, onCommentAdded
 	const [loading, setLoading] = useState(false);
 	const [currentUserId, setCurrentUserId] = useState(null);
 	const commentInputRef = useRef(null);
-	const backendURL = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
+	const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
 
 	useEffect(() => {
 		// Get current user ID from JWT
