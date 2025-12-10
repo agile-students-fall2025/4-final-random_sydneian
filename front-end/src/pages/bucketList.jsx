@@ -57,7 +57,11 @@ export default function BucketList() {
 				}
 
 				const group = await response.json();
-				setActivities(group.activities || []);
+				const mapped = (group.activities || []).map((a) => ({
+					...a,
+					imageUrl: Array.isArray(a.images) && a.images.length > 0 ? a.images[0] : "",
+				}));
+				setActivities(mapped);
 			} catch (err) {
 				console.error("Failed to get activities. Error:", err.message);
 				setError("Couldn't get activities :(");
@@ -371,10 +375,17 @@ export default function BucketList() {
 											if (!res.ok) return alert("Failed to like activity");
 
 											const updatedActivity = await res.json();
+											const mappedActivity = {
+												...updatedActivity,
+												imageUrl:
+													Array.isArray(updatedActivity.images) && updatedActivity.images.length > 0
+														? updatedActivity.images[0]
+														: "",
+											};
 
 											setActivities(
 												activities.map((activity) =>
-													activity._id === updatedActivity._id ? updatedActivity : activity,
+													activity._id === mappedActivity._id ? mappedActivity : activity,
 												),
 											);
 
