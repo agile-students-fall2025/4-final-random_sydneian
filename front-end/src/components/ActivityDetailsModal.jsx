@@ -137,7 +137,7 @@ export default function ActivityDetailsModal({ groupId, activities, selectedActi
 											"Content-Type": "application/json",
 										},
 										method: "PATCH",
-										body: JSON.stringify({ tags: evt.target.checked }),
+										body: JSON.stringify({ done: evt.target.checked }),
 									},
 								);
 
