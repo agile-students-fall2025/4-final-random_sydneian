@@ -1,12 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import "./GalleryModal.css";
 
 export default function GalleryModal({ photos = [], startIndex = 0, onClose }) {
 	const [currentIndex, setCurrentIndex] = useState(startIndex);
 	const [animClass, setAnimClass] = useState("");
-
-	if (!photos || photos.length === 0) return null;
 
 	const slideTo = (direction) => {
 		// Step 1: add animation class
@@ -26,6 +24,8 @@ export default function GalleryModal({ photos = [], startIndex = 0, onClose }) {
 		}, 300); // match CSS animation duration
 	};
 
+	if (!photos || photos.length === 0) return null;
+
 	return (
 		<div className="gallery-modal-overlay" onClick={onClose}>
 			<button className="gallery-close-btn" onClick={onClose}>
@@ -44,6 +44,16 @@ export default function GalleryModal({ photos = [], startIndex = 0, onClose }) {
 
 			<div className="gallery-content" onClick={(e) => e.stopPropagation()}>
 				<img src={photos[currentIndex]} alt={`Gallery ${currentIndex}`} className={`gallery-main-image ${animClass}`} />
+				<img
+					src={
+						photos[
+							animClass === "slide-left"
+								? (currentIndex + 1) % photos.length
+								: (currentIndex - 1 + photos.length) % photos.length
+						]
+					}
+					className={`gallery-next-image ${animClass}`}
+				/>
 
 				<div className="gallery-counter">
 					{currentIndex + 1} / {photos.length}

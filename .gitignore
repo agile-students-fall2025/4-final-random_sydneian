@@ -95,10 +95,6 @@ build/
 .env.development.local
 .env.test.local
 .env.production.local
-.env
-
-.front-end/.env
-.back-end/.env
 
 # TypeScript v1 declaration files
 typings/
@@ -133,4 +129,3 @@ dist/
 ## Jekyll artifacts
 **/.jekyll-cache
 **/_site/
-
