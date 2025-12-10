@@ -54,6 +54,7 @@ export default function ActivityDetailsModal({ groupId, activities, selectedActi
 					width="300"
 					height="150"
 					src={selectedActivity.images?.at(0) ? selectedActivity.images[0] : "https://placehold.co/300x150"}
+					className="main-activity-image"
 				/>
 
 				{/* <GalleryModal photos={galleryPhotos} startIndex={galleryStartIndex} onClose={() => setOpenGallery(false)} /> */}
