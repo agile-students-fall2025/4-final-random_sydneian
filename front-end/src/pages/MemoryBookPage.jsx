@@ -150,6 +150,7 @@ export default function MemoryBookPage() {
 				body: JSON.stringify({
 					title: edited.title,
 					images: edited.images,
+					rating: edited.rating,
 				}),
 			});
 
