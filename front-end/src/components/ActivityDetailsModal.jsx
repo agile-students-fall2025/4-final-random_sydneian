@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
 import { Heart, LoaderCircle, Trash2 } from "lucide-react";
 import EditableTextField from "./EditableTextField";
-import "./ActivityDetailsModal.css";
 import EditableTagsField from "./EditableTagsField";
+import "./ActivityDetailsModal.css";
 
 export default function ActivityDetailsModal({ groupId, activities, selectedActivity, onUpdate, onDelete, ref }) {
 	const [isLoading, setIsLoading] = useState([]);
-	const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
+	const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION
+		? ""
+		: import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
 
 	// Reset loading state when activity changes
 	useEffect(() => {
@@ -27,17 +29,14 @@ export default function ActivityDetailsModal({ groupId, activities, selectedActi
 					value={selectedActivity.name}
 					placeholder="Activity name"
 					onEdit={async (newVal) => {
-						const res = await fetch(
-							`${backendURL}/api/groups/${groupId}/activities/${selectedActivity._id}`,
-							{
-								headers: {
-									Authorization: `Bearer ${localStorage.getItem("JWT")}`,
-									"Content-Type": "application/json",
-								},
-								method: "PATCH",
-								body: JSON.stringify({ name: newVal }),
+						const res = await fetch(`${backendURL}/api/groups/${groupId}/activities/${selectedActivity._id}`, {
+							headers: {
+								Authorization: `Bearer ${localStorage.getItem("JWT")}`,
+								"Content-Type": "application/json",
 							},
-						);
+							method: "PATCH",
+							body: JSON.stringify({ name: newVal }),
+						});
 
 						if (!res.ok) return alert("Failed to change name");
 						else onUpdate(await res.json());
@@ -55,6 +54,7 @@ export default function ActivityDetailsModal({ groupId, activities, selectedActi
 					width="300"
 					height="150"
 					src={selectedActivity.images?.at(0) ? selectedActivity.images[0] : "https://placehold.co/300x150"}
+					className="main-activity-image"
 				/>
 
 				{/* <GalleryModal photos={galleryPhotos} startIndex={galleryStartIndex} onClose={() => setOpenGallery(false)} /> */}
@@ -69,17 +69,14 @@ export default function ActivityDetailsModal({ groupId, activities, selectedActi
 					placeholder="Category"
 					autosuggestList={categories}
 					onEdit={async (newVal) => {
-						const res = await fetch(
-							`${backendURL}/api/groups/${groupId}/activities/${selectedActivity._id}`,
-							{
-								headers: {
-									Authorization: `Bearer ${localStorage.getItem("JWT")}`,
-									"Content-Type": "application/json",
-								},
-								method: "PATCH",
-								body: JSON.stringify({ category: newVal }),
+						const res = await fetch(`${backendURL}/api/groups/${groupId}/activities/${selectedActivity._id}`, {
+							headers: {
+								Authorization: `Bearer ${localStorage.getItem("JWT")}`,
+								"Content-Type": "application/json",
 							},
-						);
+							method: "PATCH",
+							body: JSON.stringify({ category: newVal }),
+						});
 
 						if (!res.ok) return alert("Failed to change category");
 						else onUpdate(await res.json());
@@ -133,17 +130,14 @@ export default function ActivityDetailsModal({ groupId, activities, selectedActi
 								setIsLoading([...isLoading, "done"]);
 
 								// await new Promise((r) => setTimeout(r, 2000));
-								const res = await fetch(
-									`${backendURL}/api/groups/${groupId}/activities/${selectedActivity._id}`,
-									{
-										headers: {
-											Authorization: `Bearer ${localStorage.getItem("JWT")}`,
-											"Content-Type": "application/json",
-										},
-										method: "PATCH",
-										body: JSON.stringify({ done: evt.target.checked }),
+								const res = await fetch(`${backendURL}/api/groups/${groupId}/activities/${selectedActivity._id}`, {
+									headers: {
+										Authorization: `Bearer ${localStorage.getItem("JWT")}`,
+										"Content-Type": "application/json",
 									},
-								);
+									method: "PATCH",
+									body: JSON.stringify({ done: evt.target.checked }),
+								});
 
 								if (!res.ok) return alert("Failed to mark activity as done");
 								else onUpdate(await res.json());
@@ -168,15 +162,12 @@ export default function ActivityDetailsModal({ groupId, activities, selectedActi
 
 						setIsLoading([...isLoading, "delete"]);
 
-						const res = await fetch(
-							`${backendURL}/api/groups/${groupId}/activities/${selectedActivity._id}`,
-							{
-								headers: {
-									Authorization: `Bearer ${localStorage.getItem("JWT")}`,
-								},
-								method: "DELETE",
+						const res = await fetch(`${backendURL}/api/groups/${groupId}/activities/${selectedActivity._id}`, {
+							headers: {
+								Authorization: `Bearer ${localStorage.getItem("JWT")}`,
 							},
-						);
+							method: "DELETE",
+						});
 
 						if (!res.ok) {
 							alert("Failed to delete activity");

@@ -49,6 +49,9 @@ export default function BucketList() {
 			}
 
 			try {
+				const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION
+					? ""
+					: import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
 				const response = await fetch(`${backendURL}/api/groups/${groupId}`, {
 					headers: { Authorization: `Bearer ${JWT}` },
 				});
@@ -359,10 +362,8 @@ export default function BucketList() {
 									<h3 className={"card-title" + (activeTab === "done" ? " completed" : "")}>{activity.name}</h3>
 									<div
 										className={`likes-container ${activity.likes.some((user) => user._id === userId) ? "liked" : ""}`}
-										onClick={async (e) => {
-											// prevent opening the activity details when liking
-											e.stopPropagation();
-
+										onClick={async (evt) => {
+											evt.stopPropagation(); // prevent opening the activity details when liking
 											setIsXLoading([...isXLoading, `${activity._id}-like`]);
 
 											const res = await fetch(`${backendURL}/api/groups/${groupId}/activities/${activity._id}`, {
