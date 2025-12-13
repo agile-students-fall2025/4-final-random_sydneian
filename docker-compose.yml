@@ -37,7 +37,7 @@ services:
       backend:
         condition: service_healthy
     ports:
-      - "80:80"
+      - "8080:80"  # Docker listens on host port 8080, Nginx on host will proxy to this
     restart: unless-stopped
     networks:
       - app_network
