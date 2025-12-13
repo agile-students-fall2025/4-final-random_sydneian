@@ -3,7 +3,6 @@
 	align-items: center;
 	justify-content: center;
 	height: 100vh;
-	background: white;
 }
 
 .verify-box {
@@ -12,6 +11,7 @@
 	border-radius: 0.5rem;
 	padding: 2rem;
 	width: 300px;
+	background: hsla(0, 0%, 100%, 0.5);
 }
 
 .verify-box h2 {
