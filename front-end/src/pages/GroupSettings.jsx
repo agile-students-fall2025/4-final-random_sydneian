@@ -43,11 +43,44 @@ export default function GroupSettings() {
 		}
 	};
 
-	const handleCopyInviteCode = () => {
-		if (group?.inviteCode) {
-			navigator.clipboard.writeText(group.inviteCode);
-			setCopied(true);
-			setTimeout(() => setCopied(false), 2000);
+	const handleCopyInviteCode = async () => {
+		if (!group?.inviteCode) return;
+
+		try {
+			// Try modern clipboard API first (requires HTTPS or localhost)
+			if (navigator.clipboard && navigator.clipboard.writeText) {
+				await navigator.clipboard.writeText(group.inviteCode);
+				setCopied(true);
+				setTimeout(() => setCopied(false), 2000);
+			} else {
+				// Fallback for non-secure contexts
+				const textArea = document.createElement("textarea");
+				textArea.value = group.inviteCode;
+				textArea.style.position = "fixed";
+				textArea.style.left = "-999999px";
+				textArea.style.top = "-999999px";
+				document.body.appendChild(textArea);
+				textArea.focus();
+				textArea.select();
+				
+				try {
+					const successful = document.execCommand("copy");
+					if (successful) {
+						setCopied(true);
+						setTimeout(() => setCopied(false), 2000);
+					} else {
+						alert("Failed to copy invite code. Please copy it manually.");
+					}
+				} catch (err) {
+					console.error("Fallback copy failed:", err);
+					alert("Failed to copy invite code. Please copy it manually.");
+				} finally {
+					document.body.removeChild(textArea);
+				}
+			}
+		} catch (err) {
+			console.error("Failed to copy invite code:", err);
+			alert("Failed to copy invite code. Please copy it manually.");
 		}
 	};
 
