@@ -34,19 +34,11 @@ function Register() {
 				throw new Error(data.error || "Failed to register (network error)");
 			}
 
-			// OTP disabled - login immediately with JWT
-			if (data.JWT) {
-				localStorage.setItem("JWT", data.JWT);
-				localStorage.setItem("emailVerified", "true");
-				navigate("/");
+			if (data.redirect) {
+				// Temporarily save username for verification step
+				sessionStorage.setItem("username", username);
+				navigate(data.redirect);
 			}
-
-			// Legacy OTP flow (commented out)
-			// if (data.redirect) {
-			// 	// Temporarily save username for verification step
-			// 	sessionStorage.setItem("username", username);
-			// 	navigate(data.redirect);
-			// }
 		} catch (err) {
 			setError(err.message);
 		}

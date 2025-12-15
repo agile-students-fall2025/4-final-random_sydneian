@@ -103,17 +103,16 @@ app.post(
 				return res.status(409).json({ error: "Email taken" });
 			}
 
-			// OTP disabled - skip email verification
-			// const otp = Math.floor(100000 + Math.random() * 900000).toString();
+			const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
 			// Create new user in MongoDB
 			const newUser = new User({
 				username: req.body.username,
 				password: bcrypt.hashSync(req.body.password),
 				email: req.body.email,
-				emailVerified: true, // Changed to true - skip email verification
-				// OTP: otp,
-				// OTPTimestamp: Date.now(),
+				emailVerified: false,
+				OTP: otp,
+				OTPTimestamp: Date.now(),
 				profilePicture: undefined,
 				preferences: {
 					notifications: {
@@ -127,17 +126,15 @@ app.post(
 			// Save user
 			await newUser.save();
 
-			// OTP disabled - skip email sending
-			// await sendEmail(
-			// 	newUser.email,
-			// 	"Your Rendezvous OTP",
-			// 	`Your verification code is: ${otp}\n\nThis code expires in 10 minutes.`,
-			// );
+			// Send OTP email
+			await sendEmail(
+				newUser.email,
+				"Your Rendezvous OTP",
+				`Your verification code is: ${otp}\n\nThis code expires in 10 minutes.`,
+			);
 
-			// Return JWT immediately instead of redirect to OTP page
-			res.status(201).json({
-				JWT: jwt.sign({ id: newUser._id.toString(), username: newUser.username }, process.env.JWT_SECRET, { expiresIn: "1d" }),
-			});
+			// If no errors, send successful response, which indicates client should move onto OTP
+			res.status(201).json({ redirect: "/verify-email" });
 		} catch (error) {
 			console.error("Register error:", error);
 			res.status(500).json({ error: "Internal server error" });
