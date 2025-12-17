@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ChevronLeft, ChevronDown } from "lucide-react";
+import { ChevronLeft, ChevronDown, Plus } from "lucide-react";
 import Button from "../components/Button";
 import "./addPlaceManually.css";
 import Header from "../components/Header";
@@ -226,7 +226,7 @@ export default function AddPlaceManually() {
 				<div className="form-section">
 					{photos.length === 0 ? (
 						<div className="add-photos-area" onClick={handleAddPhotoClick}>
-							<span className="add-photos-plus">+</span>
+							<Plus color="#999" />
 							<span className="add-photos-text">Add Photos</span>
 						</div>
 					) : (

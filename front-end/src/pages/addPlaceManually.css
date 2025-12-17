@@ -145,6 +145,10 @@
 }
 
 .add-photos-area {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 16px;
 	border: 2px dashed var(--color-primary);
 	border-radius: 8px;
 	padding: 48px 16px;
@@ -159,13 +163,6 @@
 .add-photos-area:hover {
 	border-color: var(--color-accent);
 	background-color: rgba(154, 210, 242, 0.05);
-}
-
-.add-photos-plus {
-	font-size: 48px;
-	color: #999;
-	display: inline-block;
-	margin-right: 8px;
 }
 
 .add-photos-text {
