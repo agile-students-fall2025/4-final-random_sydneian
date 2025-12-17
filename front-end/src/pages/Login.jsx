@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../components/Button";
-import logo from "../assets/logo.svg";
 import "./Login.css";
 
 function Login() {
@@ -14,7 +13,9 @@ function Login() {
 		e.preventDefault();
 
 		try {
-			const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
+			const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION
+				? ""
+				: import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
 			const response = await fetch(`${backendURL}/api/login`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
@@ -45,7 +46,7 @@ function Login() {
 	return (
 		<div className="login-container">
 			<div className="auth-header-row">
-				<img src={logo} alt="Rendezvous logo" className="auth-logo-large" />
+				<img src="logo.svg" alt="Rendezvous logo" className="auth-logo-large" />
 
 				<div className="auth-text-group">
 					<h1 className="auth-title">rendezvous</h1>

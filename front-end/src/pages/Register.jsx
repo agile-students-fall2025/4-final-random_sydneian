@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../components/Button";
-import logo from "../assets/logo.svg";
 import "./Register.css";
 
 function Register() {
@@ -20,7 +19,9 @@ function Register() {
 		}
 
 		try {
-			const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
+			const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION
+				? ""
+				: import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
 			const response = await fetch(`${backendURL}/api/register`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
@@ -47,7 +48,7 @@ function Register() {
 	return (
 		<div className="register-container">
 			<div className="auth-header-row">
-				<img src={logo} alt="Rendezvous logo" className="auth-logo-large" />
+				<img src="logo.svg" alt="Rendezvous logo" className="auth-logo-large" />
 
 				<div className="auth-text-group">
 					<h1 className="auth-title">rendezvous</h1>
