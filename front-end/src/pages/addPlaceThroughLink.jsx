@@ -9,15 +9,9 @@ export default function AddPlaceThroughLink() {
 	const [errorMessage, setErrorMessage] = useState("");
 	const navigate = useNavigate();
 	const { groupId } = useParams();
-	const [link, setLink] = useState("https://www.statueofliberty.org/visit/...");
+	const [link, setLink] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
-	const [previewData, setPreviewData] = useState({
-		name: "Moonlight Cafe",
-		location: "Brooklyn, NY",
-		highlights: ["Aesthetic Interior", "Famous for matcha", "Great brunch spot"],
-		photo: null,
-		tags: "#aesthetic, #matcha, #brunch",
-	});
+	const [previewData, setPreviewData] = useState({});
 
 	const handleImportDetails = async () => {
 		if (!link) {
@@ -29,7 +23,9 @@ export default function AddPlaceThroughLink() {
 		setIsLoading(true);
 		try {
 			const JWT = localStorage.getItem("JWT");
-			const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
+			const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION
+				? ""
+				: import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
 
 			const headers = { "Content-Type": "application/json" };
 			if (JWT) headers["Authorization"] = `Bearer ${JWT}`;
@@ -83,7 +79,9 @@ export default function AddPlaceThroughLink() {
 
 		(async () => {
 			try {
-				const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION ? "" : (import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000");
+				const backendURL = import.meta.env.VITE_DOCKER_PRODUCTION
+					? ""
+					: import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8000";
 				const response = await fetch(`${backendURL}/api/groups/${groupId}/activities`, {
 					method: "POST",
 					headers: {
@@ -135,7 +133,13 @@ export default function AddPlaceThroughLink() {
 			<div className="add-place-link-content">
 				<div className="section">
 					<h2 className="section-heading">Paste Article or Website Link.</h2>
-					<input type="text" value={link} onChange={(e) => setLink(e.target.value)} className="form-input" />
+					<input
+						type="text"
+						value={link}
+						placeholder="https://www.statueofliberty.org/visit/..."
+						onChange={(e) => setLink(e.target.value)}
+						className="form-input"
+					/>
 					<div className="import-button-container">
 						<Button
 							text={isLoading ? "Importing..." : "Import Details"}
@@ -146,55 +150,60 @@ export default function AddPlaceThroughLink() {
 					</div>
 				</div>
 
-				<div className="section">
-					<h2 className="section-heading">Preview.</h2>
-					{/* Dynamic Photo */}
-					<div
-						className="preview-box"
-						style={
-							previewData.photo
-								? {
-										backgroundImage: `url(${previewData.photo})`,
-										backgroundSize: "cover",
-										backgroundPosition: "center",
-									}
-								: {}
-						}
-					>
-						{!previewData.photo && <span className="preview-text">Photo</span>}
-					</div>
-				</div>
+				{Object.keys(previewData).length > 0 && (
+					<>
+						<div className="section">
+							<h2 className="section-heading">Preview</h2>
+							{/* Dynamic Photo */}
+							<div
+								className="preview-box"
+								style={
+									previewData.photo
+										? {
+												backgroundImage: `url(${previewData.photo})`,
+												backgroundSize: "cover",
+												backgroundPosition: "center",
+											}
+										: {}
+								}
+							>
+								{!previewData.photo && <span className="preview-text">Photo</span>}
+							</div>
+						</div>
 
-				<div className="section">
-					{/* Dynamic Name and Location */}
-					<h3 className="place-name">{previewData.name}</h3>
-					<p className="place-location">{previewData.location}</p>
-				</div>
+						<div className="section">
+							{/* Dynamic Name and Location */}
+							<h3 className="place-name">{previewData.name}</h3>
+							<p className="place-location">{previewData.location}</p>
+						</div>
 
-				<div className="section">
-					<h3 className="section-heading">Highlights</h3>
-					<ul className="highlights-list">
-						{/* Dynamic Highlights */}
-						{previewData.highlights.map((item, index) => (
-							<li key={index}>{item}</li>
-						))}
-					</ul>
-				</div>
+						<div className="section">
+							<h3 className="section-heading">Highlights</h3>
+							<ul className="highlights-list">
+								{/* Dynamic Highlights */}
+								{previewData.highlights?.map((item, index) => (
+									<li key={index}>{item}</li>
+								))}
+							</ul>
+						</div>
 
-				<div className="section">
-					<h3 className="section-heading">Add Tags (Optional).</h3>
-					{/* Dynamic Tags Input */}
-					<input
-						type="text"
-						value={previewData.tags}
-						onChange={(e) => setPreviewData({ ...previewData, tags: e.target.value })}
-						className="form-input"
-					/>
-				</div>
+						<div className="section">
+							<h3 className="section-heading">Add Tags (optional)</h3>
+							{/* Dynamic Tags Input */}
+							<input
+								type="text"
+								value={previewData.tags}
+								placeholder="Add tags..."
+								onChange={(e) => setPreviewData({ ...previewData, tags: e.target.value })}
+								className="form-input"
+							/>
+						</div>
 
-				<div className="submit-button-container">
-					<Button text="Add to Bucket List" buttonType="primary" onClick={handleAddToBucketList} />
-				</div>
+						<div className="submit-button-container">
+							<Button text="Add to Bucket List" buttonType="primary" onClick={handleAddToBucketList} />
+						</div>
+					</>
+				)}
 			</div>
 
 			{/* Error Modal */}
