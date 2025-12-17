@@ -14,7 +14,7 @@
         stroke="none"/>
   
   <!-- Smiley face circle (white background) -->
-  <circle cx="50" cy="37" r="18" fill="white"/>
+  <circle cx="50" cy="37" r="18" fill="hsla(0, 0%, 100%, 0.8)"/>
   
   <!-- Left eye -->
   <circle cx="44" cy="33" r="3" fill="url(#pinGradient)"/>
