@@ -40,6 +40,7 @@ const PlacesAutocomplete = ({ setLocation, setCoordinates }) => {
 				disabled={!ready}
 				className="form-input"
 				placeholder="Search places..."
+				type="search"
 			/>
 			{status === "OK" && (
 				<ul className="suggestions-list">

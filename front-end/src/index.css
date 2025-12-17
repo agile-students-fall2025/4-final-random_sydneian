@@ -4,8 +4,10 @@
 /* Global input styles */
 input[type="text"],
 input[type="email"],
+input[type="search"],
 input[type="password"],
-textarea {
+textarea,
+select {
 	border: 2px solid var(--color-primary);
 	transition:
 		border-color 0.2s ease,
@@ -14,8 +16,10 @@ textarea {
 
 input[type="text"]:focus,
 input[type="email"]:focus,
+input[type="search"]:focus,
 input[type="password"]:focus,
-textarea:focus {
+textarea:focus,
+select:focus {
 	outline: none;
 	border-color: var(--color-accent);
 	box-shadow: 0 0 0 3px rgba(154, 210, 242, 0.2);
