@@ -27,10 +27,10 @@
 		opacity 0.3s ease; */
 
 		&.slide-left {
-			animation: slide-out-to-left 1s forwards;
+			animation: slide-out-to-left 0.3s forwards;
 		}
 		&.slide-right {
-			animation: slide-out-to-right 1s forwards;
+			animation: slide-out-to-right 0.3s forwards;
 		}
 	}
 
@@ -41,10 +41,10 @@
 		object-fit: contain;
 
 		&.slide-left {
-			animation: slide-in-from-right 1s forwards;
+			animation: slide-in-from-right 0.3s forwards;
 		}
 		&.slide-right {
-			animation: slide-in-from-left 1s forwards;
+			animation: slide-in-from-left 0.3s forwards;
 		}
 	}
 
